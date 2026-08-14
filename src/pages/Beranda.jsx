@@ -16,7 +16,7 @@ import Image2 from "../assets/images/2.jpg";
 import Image3 from "../assets/images/3.jpg";
 
 // Import Logo
-import aksaraCakra from "../assets/logo/aksaraCakra.png";
+import aksaraCakra from "../assets/logo/AksaraCakra.png";
 import logoInternal from "../assets/logo/INTERNAL.png";
 import logoRelasi from "../assets/logo/RELASI.png";
 import logoKominfo from "../assets/logo/KOMINFO.png";
