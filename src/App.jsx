@@ -4,7 +4,7 @@ import Navbar from "./layout/Navbar";
 import Beranda from "./pages/Beranda";
 import Artikel from "./pages/Artikel";
 import BusinessCompany from "./pages/BusinessCompany";
-import DetailArtikel from "./pages/DetailArtikel"; // Sesuaikan lokasi foldernya
+import DetailArtikel from "./pages/makeconnection-artikel"; // Sesuaikan lokasi foldernya
 import StrukturOrganisasi from "./pages/StrukturOrganisasi";
 import Footer from "./layout/Footer";
 

@@ -32,13 +32,13 @@ export default function Artikel() {
   const articles = [
     {
       id: 2,
-      title: "Sed ut perspiciatis unde omnis iste natus error.",
+      title: 'Pererat Hubungan dan Berbagi Inovasi, HIMSIKA UNSIKA Gelar Studi Banding "Make Connection × Standing" Bersama HIMATIF UNPAD',
       excerpt:
-        "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.",
-      date: "08 Agustus 2026",
-      datetime: "2026-08-08",
+        "Dalam upaya memperluas cakrawala organisasi dan membangun jejaring akademis yang kuat, Himsika sukses menyelenggarakan studi banding kolaboratif bersama Himatif Unpad.",
+      date: "09 Mei 2026",
+      datetime: "2026-05-09",
       category: "Kegiatan",
-      image: Image2,
+      image: Image4,
     },
     {
       id: 3,
@@ -89,16 +89,7 @@ export default function Artikel() {
       category: "Prestasi",
       image: Image1,
     },
-    {
-      id: 8,
-      title: 'Pererat Hubungan dan Berbagi Inovasi, HIMSIKA UNSIKA Gelar Studi Banding "Make Connection × Standing" Bersama HIMATIF UNPAD',
-      excerpt:
-        "Dalam upaya memperluas cakrawala organisasi dan membangun jejaring akademis yang kuat, Himsika sukses menyelenggarakan studi banding kolaboratif bersama Himatif Unpad.",
-      date: "09 Mei 2026",
-      datetime: "2026-05-09",
-      category: "Kegiatan",
-      image: Image4,
-    },
+    
   ];
 
   // LANGKAH 2: Fungsi saat kategori diklik (Reset hitungan)
