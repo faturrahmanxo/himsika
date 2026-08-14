@@ -111,7 +111,7 @@ const Navbar = () => {
   return (
     <header className="fixed top-0 w-full z-50 font-primary flex flex-col">
       {/* Announcement Bar - Permanen, Tidak bisa di-close */}
-      {/* {announcementData.length > 0 && (
+      {announcementData.length > 0 && (
         <div className="bg-yellow-400 relative h-9 sm:h-10 flex items-center justify-center overflow-hidden z-50">
           <div
             className={`w-full max-w-7xl px-4 text-center text-xs sm:text-sm text-gray-900 font-semibold tracking-wide transition-all duration-300 ease-in-out ${
@@ -129,7 +129,7 @@ const Navbar = () => {
             </Link>
           </div>
         </div>
-      )} */}
+      )}
 
       {/* Main Navbar */}
       <nav

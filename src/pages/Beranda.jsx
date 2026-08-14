@@ -23,8 +23,14 @@ import logoKominfo from "../assets/logo/KOMINFO.png";
 import logoEdukasi from "../assets/logo/EDUKASI.png";
 
 // Import Logo Proker
-import Edufair from "../assets/logo/Edufair2026.png";
-import Isgath from "../assets/logo/Isgath2026.png";
+import Edufair from "../assets/logo/proker/Edufair2026.png";
+import Isgath from "../assets/logo/proker/Isgath2026.png";
+import Lkmmpd from "../assets/logo/proker/LKMM-PD.png";
+import StudyClub from "../assets/logo/proker/StudyClub.png";
+import ISCTnobg from "../assets/logo/proker/ISCT-nobg.png";
+import ISCTbg from "../assets/logo/proker/ISCT-bg.png";
+import Revoist from "../assets/logo/proker/Revoist.png";
+import Revoist2 from "../assets/logo/proker/Revoist2.png";
 
 // Komponen Counter
 const AnimatedCounter = ({ end, duration = 2000 }) => {
@@ -97,85 +103,70 @@ export default function Beranda() {
     },
   ];
 
-  const upcomingEvents = [
+  const allEvents = [
     {
       id: 1,
-      image: logoRelasi,
-      title: "LKMMPD 2026",
-      date: "-",
-      desc: "LKMM Pra-Dasar (Latihan Keterampilan Manajemen Mahasiswa Pra-Dasar)  adalah kegiatan pelatihan manajemen mahasiswa tingkat awal. Sebelum menuju ke tahap  kaderisasi selanjutnya yaitu LKMM Dasar para peserta kegiatan diharuskan mengikuti  kegiatan LKMM Pra-Dasar terlebih dahulu.",
-      link: "/event/LKMMPD",
-    },
-    {
-      id: 2,
       image: Isgath,
-      title: "ISGATH 2026",
-      date: "15 September 2026",
-      desc: "Information System Gathering atau IS Gath merupakan salah satu program kerja  yang diselenggarakan oleh Himsika. Program kerja ini ditujukan untuk mahasiswa baru  Sistem Informasi Unsika yang bertujuan untuk mempererat rasa kekeluargaan dan  kebersamaan sesama mahasiswa baru. ",
-      link: "/event/edu-fair",
-    },
-    {
-      id: 3,
-      image: logoRelasi,
-      title: "Study Club 2026",
-      date: "15 September 2026",
-      desc: "Study Club merupakan komunitas yang berfungsi sebagai wadah bagi Mahasiswa  Sistem Informasi untuk memperluas wawasan dan meningkatkan keterampilan di bidang  IT, contohnya seperti Web Programming, UI/UX Design, Data Analyst, dan sebagainya  yang sesuai dengan kebutuhan mahasiswa Sistem Informasi. ",
-      link: "/event/edu-fair",
-    },
-    {
-      id: 4,
-      image: logoRelasi,
-      title: "Revoist 6.0",
-      date: "15 September 2026",
-      desc: "Dies Natalis Himsika adalah kegiatan untuk merayakan hari jadi Himsika, dan  sebagai sarana untuk menguatkan solidaritas antara mahasiswa Sistem Informasi dalam  perubahan demi kemajuan serta sebagai inspirasi dalam mengembangkan segala potensi  berupa non akademik.",
-      link: "/event/revoist",
-    },
-  ];
-
-  const kegiatanLainnya = [
-    {
-      id: 1,
-      image: logoKominfo,
-      title: "Study Club",
-      desc: "Kelompok belajar Web, UI/UX, dan AI.",
+      title: "Isgath 2026",
+      desc: "Study Club merupakan komunitas yang berfungsi sebagai wadah bagi Mahasiswa  Sistem Informasi untuk memperluas wawasan dan meningkatkan keterampilan di bidang  IT, contohnya seperti Web Programming, UI/UX Design, Data Analyst, dan sebagainya  yang sesuai dengan kebutuhan mahasiswa Sistem Informasi.",
       link: "/kegiatan/study-club",
     },
     {
       id: 2,
-      image: Edufair,
-      title: "Edufair",
-      desc: "Membangun relasi dengan alumni.",
-      link: "/kegiatan/make-connection",
-    },
-    {
-      id: 3,
-      image: logoRelasi,
-      title: "LKMMPD",
+      image: Lkmmpd,
+      title: "LKMMPD 2026",
       desc: "LKMM Pra-Dasar (Latihan Keterampilan Manajemen Mahasiswa Pra-Dasar)  adalah kegiatan pelatihan manajemen mahasiswa tingkat awal. Sebelum menuju ke tahap  kaderisasi selanjutnya yaitu LKMM Dasar para peserta kegiatan diharuskan mengikuti  kegiatan LKMM Pra-Dasar terlebih dahulu.",
       link: "/kegiatan/lkmmpd",
     },
     {
+      id: 3,
+      image: StudyClub,
+      title: "Study Club",
+      desc: "Education Fair merupakan ajang multi event yang berisi kegiatan untuk menunjang  minat dan bakat mahasiswa terkhusus Mahasiswa Program Studi Sistem Informasi dan  masyarakat umum yang di dalamnya berisi event seperti seminar, workshop, pameran, dan  juga perlombaan yang semuanya berlandaskan keilmuan di dalam ruang lingkup yang  selaras dengan Program Studi Sistem Informasi. ",
+      link: "/kegiatan/make-connection",
+    },
+    {
       id: 4,
-      image: logoRelasi,
+      image: Revoist2,
       title: "Revoist",
-      desc: "Pengabdian masyarakat berbasis IT.",
+      desc: "Dies Natalis Himsika adalah kegiatan untuk merayakan hari jadi Himsika, dan  sebagai sarana untuk menguatkan solidaritas antara mahasiswa Sistem Informasi dalam  perubahan demi kemajuan serta sebagai inspirasi dalam mengembangkan segala potensi  berupa non akademik.",
       link: "/kegiatan/revoist",
     },
     {
       id: 5,
-      image: logoRelasi,
-      title: "Revoist",
-      desc: "Pengabdian masyarakat berbasis IT.",
+      image: Edufair,
+      title: "Edufair 2026",
+      desc: "Information System Company Tour merupakan program kerja Divisi Relasi  berupa kunjungan ke perusahaan-perusahaan yang bergerak di bidang sistem informasi. ",
       link: "/kegiatan/revoist",
     },
     {
       id: 6,
-      image: logoRelasi,
-      title: "Revoist",
-      desc: "Pengabdian masyarakat berbasis IT.",
+      image: ISCTnobg,
+      title: "ISCT 2026",
+      desc: "Information System Company Tour merupakan program kerja Divisi Relasi  berupa kunjungan ke perusahaan-perusahaan yang bergerak di bidang sistem informasi. ",
+      link: "/kegiatan/revoist",
+    },
+    {
+      id: 7,
+      image: ISCTnobg,
+      title: "ISCT 2026",
+      desc: "Information System Company Tour merupakan program kerja Divisi Relasi  berupa kunjungan ke perusahaan-perusahaan yang bergerak di bidang sistem informasi. ",
+      link: "/kegiatan/revoist",
+    },
+    {
+      id: 8,
+      image: ISCTnobg,
+      title: "ISCT 2026",
+      desc: "Information System Company Tour merupakan program kerja Divisi Relasi  berupa kunjungan ke perusahaan-perusahaan yang bergerak di bidang sistem informasi. ",
       link: "/kegiatan/revoist",
     },
   ];
+
+  // 2. Untuk Section 1 (Agenda Mendatang - Misal mau nampilin 4 atau semuanya)
+  const upcomingEvents = allEvents.slice(0, 4);
+
+  // 3. Untuk Section 2 (Kegiatan Lainnya - Misal cuma mau nampilin 4 item pertama aja)
+  const kegiatanLainnya = allEvents;
 
   const artikelBerita = [
     {
@@ -220,6 +211,11 @@ export default function Beranda() {
     { month: "Okt - Des", events: "Pemilu Raya, LPJ Kabinet, Malam Keakraban" },
   ];
 
+  // Tampilkan 6 item pertama sebagai default
+  const [showAll, setShowAll] = useState(false);
+  const displayedPrograms = showAll
+    ? kegiatanLainnya
+    : kegiatanLainnya.slice(0, 6);
   return (
     <div className="min-h-screen font-primary selection:bg-primary overflow-x-hidden">
       {/* =========================================
@@ -227,11 +223,6 @@ export default function Beranda() {
           ========================================= */}
       {/* overflow-hidden di tag section paling luar penting untuk menjaga kerapian slider */}
       <section className="relative w-full h-screen min-h-[600px] flex items-center overflow-hidden">
-        {/* PARALLAX WRAPPER: 
-            Kunci Solusi di sini:
-            - HP (<1024px): 'absolute z-0' -> Gambar nempel di background Hero, ikut kegulung ke atas (Mulus).
-            - Desktop (>=1024px): 'lg:fixed lg:-z-10' -> Gambar diam di belakang (Efek Parallax Bagus).
-        */}
         <div className="absolute lg:fixed top-0 left-0 w-full h-screen z-0 lg:-z-10 pointer-events-none">
           {/* Background Swiper */}
           <Swiper
@@ -833,7 +824,6 @@ export default function Beranda() {
               autoplay={{ delay: 4000, disableOnInteraction: true }}
               pagination={{ clickable: true, dynamicBullets: true }}
               breakpoints={{
-                // 1 card di HP, 2 card di tablet/desktop
                 1024: { slidesPerView: 2 },
               }}
               className="pb-16 pt-4 px-2"
@@ -844,7 +834,6 @@ export default function Beranda() {
                     to={event.link}
                     className="flex flex-col sm:flex-row items-center sm:items-start h-full bg-white/5 backdrop-blur-lg border border-white/10 rounded-[2rem] p-8 hover:bg-white/10 hover:shadow-[0_0_30px_rgba(255,195,0,0.15)] hover:border-accent/50 transition-all duration-300 group"
                   >
-                    {/* Mengganti Icon Teks menjadi Logo Image */}
                     <div className="w-20 h-20 shrink-0 bg-white/10 border border-white/20 rounded-2xl flex items-center justify-center p-3 mb-6 sm:mb-0 sm:mr-6 group-hover:scale-105 transition-transform shadow-inner overflow-hidden">
                       <img
                         src={event.image}
@@ -862,7 +851,7 @@ export default function Beranda() {
                       <h3 className="text-xl font-bold text-white mb-2 group-hover:text-accent transition-colors">
                         {event.title}
                       </h3>
-                      <p className="text-white/70 text-sm leading-relaxed">
+                      <p className="text-white/70 text-sm leading-relaxed  line-clamp-4">
                         {event.desc}
                       </p>
                     </div>
@@ -875,10 +864,10 @@ export default function Beranda() {
       </section>
 
       {/* =========================================
-          7. KEGIATAN LAINNYA (FULL GRID CENTER TITLE)
+          7. KEGIATAN LAINNYA 
           ========================================= */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-full mx-auto bg-primary relative overflow-hidden">
-        {/* Background Dekorasi Konsisten */}
+        {/* Background Dekorasi */}
         <div className="absolute inset-0 pointer-events-none z-0">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
           <div
@@ -911,8 +900,9 @@ export default function Beranda() {
           </div>
         </div>
 
+        {/* container */}
         <div className="max-w-[75rem] mx-auto relative z-10">
-          {/* Title - Center Aligned Menyesuaikan Section Lain */}
+          {/* Title */}
           <div className="mb-16 flex flex-col items-center text-center">
             <div className="flex items-center gap-4 mb-4">
               <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
@@ -944,9 +934,9 @@ export default function Beranda() {
             </p>
           </div>
 
-          {/* Grid Card Dinamis (3 Kolom di Desktop, otomatis bertambah ke bawah jika data banyak) */}
+          {/* konten */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {kegiatanLainnya.map((prog) => (
+            {displayedPrograms.map((prog) => (
               <Link
                 key={prog.id}
                 to={prog.link}
@@ -974,6 +964,35 @@ export default function Beranda() {
               </Link>
             ))}
           </div>
+
+          {/* Tombol Muat Lebih Banyak (Hanya muncul jika data lebih dari 6) */}
+          {kegiatanLainnya.length > 6 && (
+            <div className="mt-14 flex justify-center">
+              <button
+                onClick={() => setShowAll(!showAll)}
+                className="group inline-flex items-center justify-center gap-3 px-6 py-2.5 bg-primary hover:bg-accent/20 border border-accent/50 text-accent font-bold text-sm sm:text-base rounded-full transition-all duration-300 hover:scale-105  shadow-lg cursor-pointer"
+              >
+                {showAll ? "Tampilkan Lebih Sedikit" : "Muat Lebih Banyak"}
+                <div className="bg-accent/20 rounded-full w-6 h-6 flex items-center justify-center">
+                  <svg
+                    className={`w-4 h-4 transition-transform duration-300 ${
+                      showAll ? "rotate-180" : "group-hover:rotate-180"
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2.5"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </div>
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
@@ -1100,7 +1119,6 @@ export default function Beranda() {
             </div>
           </div>
 
-          {/* FIX: Tombol Lihat Semua Dipindah Ke Bawah Tengah */}
           <div className="mt-16 flex justify-center">
             <Link
               to="/artikel"
