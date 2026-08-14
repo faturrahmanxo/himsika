@@ -24,6 +24,7 @@ import logoEdukasi from "../assets/logo/EDUKASI.png";
 
 // Import Logo Proker
 import Edufair from "../assets/logo/Edufair2026.png";
+import Isgath from "../assets/logo/Isgath2026.png";
 
 // Komponen Counter
 const AnimatedCounter = ({ end, duration = 2000 }) => {
@@ -100,34 +101,34 @@ export default function Beranda() {
     {
       id: 1,
       image: logoRelasi,
-      title: "Information System Competition (ISCT)",
-      date: "24 Agustus 2026",
-      desc: "Kompetisi IT nasional meliputi Web Design, UI/UX, dan Data Analysis untuk seluruh mahasiswa.",
-      link: "/event/isct",
+      title: "LKMMPD 2026",
+      date: "-",
+      desc: "LKMM Pra-Dasar (Latihan Keterampilan Manajemen Mahasiswa Pra-Dasar)  adalah kegiatan pelatihan manajemen mahasiswa tingkat awal. Sebelum menuju ke tahap  kaderisasi selanjutnya yaitu LKMM Dasar para peserta kegiatan diharuskan mengikuti  kegiatan LKMM Pra-Dasar terlebih dahulu.",
+      link: "/event/LKMMPD",
     },
     {
       id: 2,
-      image: logoRelasi,
-      title: "Education Fair & Bootcamp",
+      image: Isgath,
+      title: "ISGATH 2026",
       date: "15 September 2026",
-      desc: "Pameran karir, teknologi, dan pelatihan intensif bagi mahasiswa Sistem Informasi.",
+      desc: "Information System Gathering atau IS Gath merupakan salah satu program kerja  yang diselenggarakan oleh Himsika. Program kerja ini ditujukan untuk mahasiswa baru  Sistem Informasi Unsika yang bertujuan untuk mempererat rasa kekeluargaan dan  kebersamaan sesama mahasiswa baru. ",
       link: "/event/edu-fair",
     },
     {
       id: 3,
       image: logoRelasi,
-      title: "Education Fair & Bootcamp",
+      title: "Study Club 2026",
       date: "15 September 2026",
-      desc: "Pameran karir, teknologi, dan pelatihan intensif bagi mahasiswa Sistem Informasi.",
+      desc: "Study Club merupakan komunitas yang berfungsi sebagai wadah bagi Mahasiswa  Sistem Informasi untuk memperluas wawasan dan meningkatkan keterampilan di bidang  IT, contohnya seperti Web Programming, UI/UX Design, Data Analyst, dan sebagainya  yang sesuai dengan kebutuhan mahasiswa Sistem Informasi. ",
       link: "/event/edu-fair",
     },
     {
       id: 4,
       image: logoRelasi,
-      title: "Education Fair & Bootcamp",
+      title: "Revoist 6.0",
       date: "15 September 2026",
-      desc: "Pameran karir, teknologi, dan pelatihan intensif bagi mahasiswa Sistem Informasi.",
-      link: "/event/edu-fair",
+      desc: "Dies Natalis Himsika adalah kegiatan untuk merayakan hari jadi Himsika, dan  sebagai sarana untuk menguatkan solidaritas antara mahasiswa Sistem Informasi dalam  perubahan demi kemajuan serta sebagai inspirasi dalam mengembangkan segala potensi  berupa non akademik.",
+      link: "/event/revoist",
     },
   ];
 
@@ -150,7 +151,7 @@ export default function Beranda() {
       id: 3,
       image: logoRelasi,
       title: "LKMMPD",
-      desc: "Pelatihan Keterampilan Manajemen.",
+      desc: "LKMM Pra-Dasar (Latihan Keterampilan Manajemen Mahasiswa Pra-Dasar)  adalah kegiatan pelatihan manajemen mahasiswa tingkat awal. Sebelum menuju ke tahap  kaderisasi selanjutnya yaitu LKMM Dasar para peserta kegiatan diharuskan mengikuti  kegiatan LKMM Pra-Dasar terlebih dahulu.",
       link: "/kegiatan/lkmmpd",
     },
     {
@@ -222,12 +223,16 @@ export default function Beranda() {
   return (
     <div className="min-h-screen font-primary selection:bg-primary overflow-x-hidden">
       {/* =========================================
-          1. HERO SECTION (PARALLAX EFFECT)
+          1. HERO SECTION (RESPONSIVE PARALLAX)
           ========================================= */}
-      {/* Hapus overflow-hidden agar efek fixed parallax berjalan lancar */}
-      <section className="relative w-full h-screen min-h-[600px] flex items-center">
-        {/* PARALLAX WRAPPER: Dibuat 'fixed' agar tertinggal di belakang saat discroll */}
-        <div className="fixed top-0 left-0 w-full h-screen z-0 pointer-events-none">
+      {/* overflow-hidden di tag section paling luar penting untuk menjaga kerapian slider */}
+      <section className="relative w-full h-screen min-h-[600px] flex items-center overflow-hidden">
+        {/* PARALLAX WRAPPER: 
+            Kunci Solusi di sini:
+            - HP (<1024px): 'absolute z-0' -> Gambar nempel di background Hero, ikut kegulung ke atas (Mulus).
+            - Desktop (>=1024px): 'lg:fixed lg:-z-10' -> Gambar diam di belakang (Efek Parallax Bagus).
+        */}
+        <div className="absolute lg:fixed top-0 left-0 w-full h-screen z-0 lg:-z-10 pointer-events-none">
           {/* Background Swiper */}
           <Swiper
             modules={[Autoplay, EffectFade]}
@@ -242,7 +247,8 @@ export default function Beranda() {
                 <img
                   src={slide.image}
                   alt={slide.alt}
-                  className="w-full h-full object-cover transform scale-105 animate-[kenburns_20s_ease-in-out_infinite_alternate]"
+                  // animate-kenburns opsional, kalau HP terasa berat, hapus class animasinya
+                  className="w-full h-full object-cover transform scale-105 sm:animate-[kenburns_20s_ease-in-out_infinite_alternate]"
                 />
               </SwiperSlide>
             ))}
@@ -252,7 +258,7 @@ export default function Beranda() {
           <div className="absolute inset-0 bg-gradient-to-r from-primary/50 via-[#022038]/80 to-primary/40 z-10"></div>
         </div>
 
-        {/* Konten Utama (Teks & Tombol) - Punya z-10 agar berada di atas parallax */}
+        {/* Konten Utama (Teks & Tombol) - z-10 agar berada di atas background parallax */}
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-start text-left pt-16 pb-24">
           <div className="absolute inset-0 pointer-events-none z-0">
             {/* Ornamen 1 (Kanan Atas) */}
@@ -332,7 +338,7 @@ export default function Beranda() {
               </svg>
             </div>
 
-            {/* Ornamen 2 (Kiri/Tengah) */}
+            {/* Ornamen 2 */}
             <div className="hidden sm:block absolute bottom-14 right-80">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -410,8 +416,8 @@ export default function Beranda() {
             </div>
           </div>
 
-          <div className="mb-6 sm:mb-8 relative z-10">
-            <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/5 border border-white/20 backdrop-blur-md shadow-[0_0_20px_rgba(255,195,0,0.15)]">
+          <div className="mb-6 relative z-10">
+            <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-primary/50 border border-white/20 backdrop-blur-md shadow-[0_0_20px_rgba(255,195,0,0.15)]">
               {/* Dot Pulse Indicator */}
               <div className="relative flex items-center justify-center">
                 <span className="w-2.5 h-2.5 rounded-full bg-accent animate-ping absolute"></span>
@@ -442,7 +448,7 @@ export default function Beranda() {
           <div className="mt-10 sm:mt-12 flex flex-wrap gap-6 relative z-10">
             <Link
               to="/struktur-organisasi"
-              className="group inline-flex items-center justify-center gap-3 px-8 py-3.5 bg-accent text-slate-900 font-bold text-sm sm:text-base rounded-full transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(255,195,0,0.5)] shadow-xl"
+              className="group inline-flex items-center justify-center gap-3 px-8 py-3.5 bg-accent text-muted font-bold text-sm sm:text-base rounded-full transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(255,195,0,0.5)] shadow-xl"
             >
               Kenalan Yuk
               <svg
@@ -462,7 +468,7 @@ export default function Beranda() {
 
             <Link
               to="/sejarah-himsika"
-              className="group inline-flex items-center justify-center gap-3 px-8 py-3.5 bg-white/10 hover:bg-white/20 backdrop-blur-md shadow-lg border border-white/20 text-white font-bold text-sm sm:text-base rounded-full transition-all duration-300 hover:-translate-y-1"
+              className="group inline-flex items-center justify-center px-8 py-3.5 bg-primary/50 hover:bg-info/60 backdrop-blur-md border border-info text-foreground font-bold text-sm sm:text-base rounded-full transition-all duration-300"
             >
               Learn More
             </Link>
@@ -473,7 +479,7 @@ export default function Beranda() {
       {/* =========================================
           3. KABINET & STRUKTUR 
           ========================================= */}
-      {/* Tambahkan relative z-20 agar saat discroll naik, dia menutupi fixed parallax dari hero section */}
+
       <section className="relative z-20 bg-linear-to-br from-[#043761] via-primary to-[#043761]">
         <div className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
           <div className="relative">
@@ -557,8 +563,10 @@ export default function Beranda() {
                 </svg>
               </h2>
               <p className="text-base sm:text-lg max-w-2xl leading-relaxed text-foreground/90 drop-shadow-md">
-                Saksikan jejak langkah, pencapaian, dan gambaran utuh keluarga
-                besar Himpunan Mahasiswa Sistem Informasi.
+                Himpunan Mahasiswa Informatika adalah sebuah Organisasi
+                Kemahasiswaan khusus Jurusan Teknik Informatika yang bergerak
+                dalam bidang Akademik maupun Non-Akademik di Universitas
+                Sriwijaya.
               </p>
             </div>
 

@@ -6,7 +6,7 @@ const Footer = () => {
   const currentYear = new Date().getFullYear(); // Akan otomatis mengambil tahun 2026
 
   return (
-    <footer className="bg-primary font-primary text-primary-foreground pt-16 pb-8 border-t-[6px] border-accent">
+    <footer className="bg-primary z-20 font-primary text-primary-foreground pt-16 pb-8 border-t-[6px] border-accent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Section: Konten Footer */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
