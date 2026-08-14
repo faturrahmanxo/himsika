@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@theme {
+  /* fonts */
+  --font-primary: "Plus Jakarta Sans", sans-serif;
+
+  /* Background */
+  --color-background: #000000;
+  --color-foreground: #ffffff;
+
+  /* Layer Background */
+  --color-dark: #0a1128;
+  --color-gradient: linear-gradient(
+    135deg,
+    #0a1128 0%,
+    #001f54 50%,
+    #034078 100%
+  );
+
+  /* text */
+  --color-text: #b3d2f5;
+
+  /* Surface */
+  --color-card: #073969;
+  --color-surface: #001f54;
+
+  /* Primary */
+  --color-primary: #034078;
+  --color-primary-hover: #045091;
+  --color-primary-foreground: #ffffff;
+
+  /* Accent */
+  --color-accent: #ffc300;
+  --color-accent-hover: #e8b100;
+  --color-accent-foreground: #000000;
+
+  /* Secondary */
+  --color-secondary: #001f54;
+  --color-secondary-foreground: #ffffff;
+
+  /* Muted */
+  --color-muted: #1a1a1a;
+  --color-muted-foreground: #b5b5b5;
+
+  /* Border */
+  --color-border: #163b70;
+
+  /* Hightlight */
+  --color-highlight: #ffc300;
+
+  /* Status */
+  --color-success: #22c55e;
+  --color-warning: #ffc300;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
+
+  /* Radius */
+  --radius: 1rem;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* cursor: none; */
+}
+
+.custom-shape-divider-bottom-1786246288 {
+  position: absolute;
+  z-index: 10;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  transform: rotate(180deg);
+}
+
+.custom-shape-divider-bottom-1786246288 svg {
+  position: relative;
+  display: block;
+  width: calc(160% + 1.3px);
+  height: 125px;
+}
+
+.custom-shape-divider-bottom-1786246288 .shape-fill {
+  fill: #034078;
+}
