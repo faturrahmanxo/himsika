@@ -222,18 +222,20 @@ export default function Beranda() {
   return (
     <div className="min-h-screen font-primary selection:bg-primary overflow-x-hidden">
       {/* =========================================
-          1. HERO SECTION (LEFT-ALIGNED, DARK NAVY OVERLAY)
+          1. HERO SECTION (PARALLAX EFFECT)
           ========================================= */}
-      <section className="relative w-full h-screen min-h-[600px] flex items-center overflow-hidden">
-        {/* Background Swiper */}
-        <div className="absolute inset-0 z-0">
+      {/* Hapus overflow-hidden agar efek fixed parallax berjalan lancar */}
+      <section className="relative w-full h-screen min-h-[600px] flex items-center">
+        {/* PARALLAX WRAPPER: Dibuat 'fixed' agar tertinggal di belakang saat discroll */}
+        <div className="fixed top-0 left-0 w-full h-screen z-0 pointer-events-none">
+          {/* Background Swiper */}
           <Swiper
             modules={[Autoplay, EffectFade]}
             effect={"fade"}
             autoplay={{ delay: 6000, disableOnInteraction: false }}
             loop={true}
             allowTouchMove={false}
-            className="h-full w-full"
+            className="h-full w-full absolute inset-0 z-0"
           >
             {heroSlides.map((slide) => (
               <SwiperSlide key={slide.id}>
@@ -245,11 +247,13 @@ export default function Beranda() {
               </SwiperSlide>
             ))}
           </Swiper>
+
+          {/* Overlay Gradient (dipindah ke dalam parallax wrapper agar ikut diam) */}
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/50 via-[#022038]/80 to-primary/40 z-10"></div>
         </div>
 
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/50 via-[#022038]/80 to-primary/40 z-10"></div>
-
-        <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-start text-left pt-16">
+        {/* Konten Utama (Teks & Tombol) - Punya z-10 agar berada di atas parallax */}
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-start text-left pt-16 pb-24">
           <div className="absolute inset-0 pointer-events-none z-0">
             {/* Ornamen 1 (Kanan Atas) */}
             <div className="hidden sm:block absolute top-12 right-16">
@@ -329,8 +333,7 @@ export default function Beranda() {
             </div>
 
             {/* Ornamen 2 (Kiri/Tengah) */}
-
-            <div className="hidden sm:block absolute  bottom-14 right-80">
+            <div className="hidden sm:block absolute bottom-14 right-80">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -339,9 +342,9 @@ export default function Beranda() {
                 height="50"
                 className="coolshapes wheel-4 animate-[spin_15s_linear_infinite]"
               >
-                <g clipPath="url(#cs_clip_1_wheel-4)">
+                <g clipPath="url(#cs_clip_1_wheel-4_2)">
                   <mask
-                    id="cs_mask_1_wheel-4"
+                    id="cs_mask_1_wheel-4_2"
                     style={{ maskType: "alpha" }}
                     width="200"
                     height="200"
@@ -356,14 +359,14 @@ export default function Beranda() {
                       clipRule="evenodd"
                     ></path>
                   </mask>
-                  <g mask="url(#cs_mask_1_wheel-4)">
+                  <g mask="url(#cs_mask_1_wheel-4_2)">
                     <path fill="#fff" d="M200 0H0v200h200V0z"></path>
                     <path
                       fill="#FFC300"
                       fillOpacity="0.5"
                       d="M200 0H0v200h200V0z"
                     ></path>
-                    <g filter="url(#filter0_f_748_wheel-4)">
+                    <g filter="url(#filter0_f_748_wheel-4_2)">
                       <path
                         fill="#FFC300"
                         d="M125.125 32.625H14.375v133.25h110.75V32.625z"
@@ -377,7 +380,7 @@ export default function Beranda() {
                 </g>
                 <defs>
                   <filter
-                    id="filter0_f_748_wheel-4"
+                    id="filter0_f_748_wheel-4_2"
                     width="293.375"
                     height="272.625"
                     x="-48.125"
@@ -395,11 +398,11 @@ export default function Beranda() {
                       result="shape"
                     ></feBlend>
                     <feGaussianBlur
-                      result="effect1_foregroundBlur_748_wheel-4"
+                      result="effect1_foregroundBlur_748_wheel-4_2"
                       stdDeviation="31.25"
                     ></feGaussianBlur>
                   </filter>
-                  <clipPath id="cs_clip_1_wheel-4">
+                  <clipPath id="cs_clip_1_wheel-4_2">
                     <path fill="#fff" d="M0 0H200V200H0z"></path>
                   </clipPath>
                 </defs>
@@ -407,13 +410,17 @@ export default function Beranda() {
             </div>
           </div>
 
-          {/* akhir svg */}
-
-          <div className="flex items-center space-x-4 mb-6 sm:mb-8 opacity-90 relative z-10">
-            <span className="w-8 sm:w-12 h-[2px] bg-accent"></span>
-            <span className="text-[10px] sm:text-xs font-bold tracking-[0.2em] text-accent uppercase">
-              Welcome To
-            </span>
+          <div className="mb-6 sm:mb-8 relative z-10">
+            <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/5 border border-white/20 backdrop-blur-md shadow-[0_0_20px_rgba(255,195,0,0.15)]">
+              {/* Dot Pulse Indicator */}
+              <div className="relative flex items-center justify-center">
+                <span className="w-2.5 h-2.5 rounded-full bg-accent animate-ping absolute"></span>
+                <span className="w-2 h-2 rounded-full bg-accent relative"></span>
+              </div>
+              <span className="text-[10px] sm:text-xs font-extrabold tracking-[0.25em] text-accent uppercase">
+                Welcome To
+              </span>
+            </div>
           </div>
 
           <div className="flex flex-col items-start relative z-10">
@@ -421,11 +428,11 @@ export default function Beranda() {
               Himpunan Mahasiswa
             </h1>
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-accent leading-tight pb-2">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-accent leading-tight pb-2 drop-shadow-lg">
               Sistem Informasi
             </h1>
 
-            <p className="mt-4 sm:mt-6 text-base sm:text-lg text-white font-medium tracking-wide max-w-xl leading-relaxed">
+            <p className="mt-4 sm:mt-6 text-base sm:text-lg text-white/90 font-medium tracking-wide max-w-xl leading-relaxed drop-shadow-md">
               Kembangkan potensi, ciptakan prestasi. Wadah sinergi dan inovasi
               untuk menciptakan karya nyata yang berdampak pada teknologi.
             </p>
@@ -435,7 +442,7 @@ export default function Beranda() {
           <div className="mt-10 sm:mt-12 flex flex-wrap gap-6 relative z-10">
             <Link
               to="/struktur-organisasi"
-              className="group inline-flex items-center justify-center gap-3 px-6 py-3 bg-accent text-muted font-bold text-sm sm:text-base rounded-full transition-all duration-300 hover:scale-105 hover:shadow-accent/20 shadow-xl"
+              className="group inline-flex items-center justify-center gap-3 px-8 py-3.5 bg-accent text-slate-900 font-bold text-sm sm:text-base rounded-full transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(255,195,0,0.5)] shadow-xl"
             >
               Kenalan Yuk
               <svg
@@ -453,10 +460,9 @@ export default function Beranda() {
               </svg>
             </Link>
 
-            {/* button kedua */}
             <Link
               to="/sejarah-himsika"
-              className="group inline-flex items-center justify-center gap-3 px-6 py-3 bg-primary hover:bg-surface hover:shadow-lg border border-white/20 text-white font-medium text-sm sm:text-base rounded-full transition-all duration-300"
+              className="group inline-flex items-center justify-center gap-3 px-8 py-3.5 bg-white/10 hover:bg-white/20 backdrop-blur-md shadow-lg border border-white/20 text-white font-bold text-sm sm:text-base rounded-full transition-all duration-300 hover:-translate-y-1"
             >
               Learn More
             </Link>
@@ -467,32 +473,9 @@ export default function Beranda() {
       {/* =========================================
           3. KABINET & STRUKTUR 
           ========================================= */}
-      <section className="bg-linear-to-br bg-[#043761] via-primary to-[#043761] ">
+      {/* Tambahkan relative z-20 agar saat discroll naik, dia menutupi fixed parallax dari hero section */}
+      <section className="relative z-20 bg-linear-to-br from-[#043761] via-primary to-[#043761]">
         <div className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <div className="custom-shape-divider-bottom-1786246288 z-10">
-            <svg
-              data-name="Layer 1"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 1200 120"
-              preserveAspectRatio="none"
-            >
-              <path
-                d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z"
-                opacity=".25"
-                className="shape-fill"
-              ></path>
-              <path
-                d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z"
-                opacity=".5"
-                className="shape-fill"
-              ></path>
-              <path
-                d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z"
-                className="shape-fill"
-              ></path>
-            </svg>
-          </div>
-
           <div className="relative">
             {/* Bg Dekorasi*/}
             <div className="absolute inset-0 pointer-events-none z-0">
@@ -559,7 +542,6 @@ export default function Beranda() {
                 <span className="text-accent drop-shadow-[0_0_20px_rgba(255,195,0,0.4)]">
                   HIMSIKA
                 </span>
-                {/* Bintang Sparkle */}
                 <svg
                   className="absolute -top-6 -right-8 w-6 h-6 text-accent/60 hidden sm:block animate-[spin_10s_linear_infinite]"
                   fill="none"
@@ -585,11 +567,9 @@ export default function Beranda() {
               {divisiData.map((divisi) => (
                 <div key={divisi.id} className="h-full">
                   <div className="group relative h-full bg-card shadow-lg rounded-3xl border border-accent/20 hover:border-accent hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 overflow-hidden flex flex-col">
-                    {/* Aksen Garis Atas */}
                     <div className="absolute top-0 left-0 right-0 h-1.5 bg-accent opacity-70 group-hover:opacity-100 transition-opacity" />
 
                     <div className="p-6 sm:p-8 flex flex-col flex-grow">
-                      {/* Box Icon */}
                       <div className="w-14 h-14 bg-foreground/10 rounded-2xl flex items-center justify-center shadow-inner shrink-0 mb-6 group-hover:scale-110 transition-all duration-300">
                         <img
                           src={divisi.image}
@@ -605,7 +585,6 @@ export default function Beranda() {
                         {divisi.desc}
                       </p>
 
-                      {/* Bagian Departemen (Otomatis ke bawah) */}
                       <div className="mt-auto pt-5 border-t border-accent/10">
                         <span className="text-accent text-[10px] sm:text-xs font-bold uppercase tracking-[0.15em]">
                           {divisi.dept}
@@ -617,9 +596,8 @@ export default function Beranda() {
               ))}
             </div>
 
-            {/* Statistik / Pengurus (Diperbaiki memusat) */}
+            {/* Statistik / Pengurus */}
             <div className="bg-accent backdrop-blur-sm mx-auto max-w-5xl rounded-3xl p-8 sm:p-10 border border-card/20 mt-16 shadow-xl relative overflow-hidden z-10">
-              {/* Efek Glow Tipis */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-card blur-[20px] opacity-50"></div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 divide-x-0 md:divide-x divide-card/20">
@@ -654,7 +632,7 @@ export default function Beranda() {
       <section className="relative overflow-hidden py-24 bg-[#043761]">
         {/* Background Dekorasi Konsisten */}
         <div className="absolute inset-0 pointer-events-none z-0">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-size[3rem_3rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
           <div className="absolute w-[20rem] h-80 rounded-full blur-[100px] bg-accent/20 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
 
           {/* Ornamen Floating */}
@@ -696,7 +674,8 @@ export default function Beranda() {
           </div>
         </div>
 
-        <div className="px-4 sm:px-6 lg:px-8 max-w-340 mx-auto relative z-10">
+        {/* FIX: Mengganti max-w-340 menjadi max-w-7xl agar responsif */}
+        <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative z-10">
           {/* Title */}
           <div className="mb-16 flex flex-col items-center text-center">
             <div className="flex items-center gap-4 mb-4">
@@ -732,12 +711,13 @@ export default function Beranda() {
             </p>
           </div>
 
-          <div className="relative w-full max-w-5xl mx-auto aspect-video bg-white/5 rounded-[2.5rem] overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.3)] border border-white/10 group cursor-pointer backdrop-blur-sm p-2 sm:p-4">
+          {/* Video Container */}
+          <div className="relative w-full max-w-5xl mx-auto aspect-video bg-white/5 rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.3)] border border-white/10 group cursor-pointer backdrop-blur-sm p-1.5 sm:p-4">
             <a
               href="https://youtu.be/Y7U_J358rDA?si=XggiJgyLPMte8zzx"
               target="_blank"
               rel="noopener noreferrer"
-              className="relative block w-full h-full rounded-4xl overflow-hidden z-20"
+              className="relative block w-full h-full rounded-[1rem] sm:rounded-[2rem] overflow-hidden z-20"
             >
               <img
                 src={Image3}
@@ -746,12 +726,16 @@ export default function Beranda() {
               />
               <div className="absolute inset-0 bg-[#043761]/40 group-hover:bg-[#043761]/20 transition-all duration-300"></div>
 
+              {/* FIX: Tombol Play yang Responsif */}
               <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
                 <div className="relative flex items-center justify-center">
-                  <div className="absolute w-28 h-28 bg-accent/40 rounded-full animate-ping"></div>
-                  <div className="relative w-24 h-24 bg-accent/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(255,195,0,0.4)] group-hover:scale-110 group-hover:bg-accent transition-all duration-300">
+                  {/* Lingkaran Ping Dinamis */}
+                  <div className="absolute w-16 h-16 sm:w-20 sm:h-20 md:w-28 md:h-28 bg-accent/40 rounded-full animate-ping"></div>
+
+                  {/* Lingkaran Solid Dinamis */}
+                  <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-24 md:h-24 bg-accent/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(255,195,0,0.4)] group-hover:scale-110 group-hover:bg-accent transition-all duration-300">
                     <svg
-                      className="w-10 h-10 text-slate-900 translate-x-[2px]"
+                      className="w-5 h-5 sm:w-7 sm:h-7 md:w-10 md:h-10 text-slate-900 translate-x-[2px]"
                       fill="currentColor"
                       viewBox="0 0 24 24"
                     >
@@ -759,7 +743,9 @@ export default function Beranda() {
                     </svg>
                   </div>
                 </div>
-                <span className="mt-6 text-white font-bold tracking-widest uppercase text-sm drop-shadow-md">
+
+                {/* Teks Dinamis */}
+                <span className="mt-3 sm:mt-4 md:mt-6 text-white font-bold tracking-widest uppercase text-[10px] sm:text-xs md:text-sm drop-shadow-md">
                   Putar Video
                 </span>
               </div>
