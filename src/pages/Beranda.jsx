@@ -136,8 +136,8 @@ export default function Beranda() {
       id: 5,
       image: Edufair,
       title: "Edufair 2026",
-      desc: "Information System Company Tour merupakan program kerja Divisi Relasi  berupa kunjungan ke perusahaan-perusahaan yang bergerak di bidang sistem informasi. ",
-      link: "/kegiatan/revoist",
+      desc: "Education Fair merupakan ajang multi event yang berisi kegiatan seminar, workshop, pameran inovasi, dan Silogy National Competition 2026. ",
+      link: "/kegiatan/Edufair-2026",
     },
     {
       id: 6,
