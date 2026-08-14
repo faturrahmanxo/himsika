@@ -222,12 +222,11 @@ export default function Beranda() {
   return (
     <div className="min-h-screen font-primary selection:bg-primary overflow-x-hidden">
       {/* =========================================
-          1. HERO SECTION (PARALLAX EFFECT)
+          1. HERO SECTION (PARALLAX EFFECT FIX)
           ========================================= */}
-      {/* Hapus overflow-hidden agar efek fixed parallax berjalan lancar */}
       <section className="relative w-full h-screen min-h-[600px] flex items-center">
-        {/* PARALLAX WRAPPER: Dibuat 'fixed' agar tertinggal di belakang saat discroll */}
-        <div className="fixed top-0 left-0 w-full h-screen z-0 pointer-events-none">
+        {/* FIX: Ubah z-0 menjadi -z-10 agar posisinya di paling belakang */}
+        <div className="fixed top-0 left-0 w-full h-screen -z-10 pointer-events-none">
           {/* Background Swiper */}
           <Swiper
             modules={[Autoplay, EffectFade]}
@@ -248,11 +247,10 @@ export default function Beranda() {
             ))}
           </Swiper>
 
-          {/* Overlay Gradient (dipindah ke dalam parallax wrapper agar ikut diam) */}
           <div className="absolute inset-0 bg-gradient-to-r from-primary/50 via-[#022038]/80 to-primary/40 z-10"></div>
         </div>
 
-        {/* Konten Utama (Teks & Tombol) - Punya z-10 agar berada di atas parallax */}
+        {/* Konten Utama */}
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-start text-left pt-16 pb-24">
           <div className="absolute inset-0 pointer-events-none z-0">
             {/* Ornamen 1 (Kanan Atas) */}
@@ -332,7 +330,7 @@ export default function Beranda() {
               </svg>
             </div>
 
-            {/* Ornamen 2 (Kiri/Tengah) */}
+            {/* Ornamen 2 */}
             <div className="hidden sm:block absolute bottom-14 right-80">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
