@@ -1,17 +1,17 @@
-import  { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 // Import gambar mockup
 import Image1 from "../assets/images/1.jpg";
 import Image2 from "../assets/images/2.jpg";
 import Image3 from "../assets/images/3.jpg";
+
 // Import gambar kegiatan Make Connection
-import Image4 from "../assets/images/mc-fgd.jpeg";
+import Image4 from "../assets/images/artikel&berita/mc-fgd.jpeg";
 
 export default function Artikel() {
   const [activeCategory, setActiveCategory] = useState("Semua");
 
-  // LAKAH 1: Siapkan State untuk membatasi jumlah item yang tampil
   const [visibleCount, setVisibleCount] = useState(3);
 
   const categories = ["Semua", "Berita", "Kegiatan", "Opini", "Prestasi"];
@@ -90,6 +90,17 @@ export default function Artikel() {
       image: Image1,
     },
     
+    {
+      id: 8,
+      title:
+        'Pererat Hubungan dan Berbagi Inovasi, HIMSIKA UNSIKA Gelar Studi Banding "Make Connection × Standing" Bersama HIMATIF UNPAD',
+      excerpt:
+        "Dalam upaya memperluas cakrawala organisasi dan membangun jejaring akademis yang kuat, Himsika sukses menyelenggarakan studi banding kolaboratif bersama Himatif Unpad.",
+      date: "09 Mei 2026",
+      datetime: "2026-05-09",
+      category: "Kegiatan",
+      image: Image4,
+    },
   ];
 
   // LANGKAH 2: Fungsi saat kategori diklik (Reset hitungan)

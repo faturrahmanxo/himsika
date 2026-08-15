@@ -149,15 +149,15 @@ export default function Beranda() {
     {
       id: 7,
       image: ISCTnobg,
-      title: "ISCT 2026",
-      desc: "Information System Company Tour merupakan program kerja Divisi Relasi  berupa kunjungan ke perusahaan-perusahaan yang bergerak di bidang sistem informasi. ",
+      title: "Make Connection",
+      desc: "Make Connection merupakan program kerja Divisi Relasi, kegiatan ini berupa studi banding ke Himpunan Mahasiswa Komputer di luar Unsika. Dengan diadakannya  Make Connection ini Pengurus Himsika akan mendapatkan input yang baru dan menjalin hubungan dengan Himpunan Mahasiswa Komputer yang dituju. ",
       link: "/kegiatan/revoist",
     },
     {
       id: 8,
       image: ISCTnobg,
-      title: "ISCT 2026",
-      desc: "Information System Company Tour merupakan program kerja Divisi Relasi  berupa kunjungan ke perusahaan-perusahaan yang bergerak di bidang sistem informasi. ",
+      title: "AAS",
+      desc: "Academic Achievement Support merupakan sistem akademik yang mewadahi  seluruh kebutuhan Mahasiswa Sistem Informasi dalam rangka meningkatkan  pemahaman terhadap akademiknya melalui pengadaan komunitas interaktif, forum  diskusi, dukungan belajar, penyaluran lomba, dan pengarsipan materi.",
       link: "/kegiatan/revoist",
     },
   ];

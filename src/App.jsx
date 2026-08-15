@@ -5,7 +5,7 @@ import Beranda from "./pages/Beranda";
 import Edufair2026 from "./pages/event/Edufair2026.jsx"; 
 import Artikel from "./pages/Artikel";
 import BusinessCompany from "./pages/BusinessCompany";
-import DetailArtikel from "./pages/makeconnection-artikel"; // Sesuaikan lokasi foldernya
+import DetailArtikel from "./pages/artikel/makeconnection-artikel"; 
 import StrukturOrganisasi from "./pages/StrukturOrganisasi";
 import Footer from "./layout/Footer";
 

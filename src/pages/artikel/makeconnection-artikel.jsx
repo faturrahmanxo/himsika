@@ -1,10 +1,10 @@
 
 import { useParams, Link } from "react-router-dom";
 
-// IMPORT GAMBAR YANG BARU KAMU UPLOAD
-import ImageUtama from "../assets/images/mc-fgd.jpeg";
-import ImageFGD from "../assets/images/diskusi-fgd.jpeg";
-import ImageFotbar from "../assets/images/fotbar-unpad.jpeg";
+// Image
+import ImageUtama from "../../assets/images/artikel&berita/mc-fgd.jpeg";
+import ImageFGD from "../../assets/images/diskusi-fgd.jpeg";
+import ImageFotbar from "../../assets/images/fotbar-unpad.jpeg";
 
 export default function DetailArtikel() {
   const { id } = useParams();
