@@ -85,61 +85,110 @@ export default function BusinessCompany() {
     const message = encodeURIComponent(
       `Halo, saya tertarik untuk memesan/menggunakan layanan: ${productName}. Bisa minta informasi lebih lanjut?`,
     );
-    window.open(`https://wa.me/6281234567890?text=${message}`, "_blank");
+    window.open(`https://wa.me/6285210817712?text=${message}`, "_blank");
   };
 
   return (
-    <main className="min-h-screen bg-linear-to-b from-[#043761] via-primary to-[#043761] font-primary pt-24 pb-20 selection:bg-accent selection:text-slate-900 relative overflow-hidden">
-      {/* Background Dekorasi Tech/Glassmorphism */}
-      <div className="absolute inset-0 pointer-events-none z-0">
+    <main className="min-h-screen bg-linear-to-b from-[#043761] via-primary to-[#043761] font-primary pt-42 pb-20 selection:bg-accent selection:text-slate-900 relative overflow-hidden">
+      {/* =========================================
+          BACKGROUND DEKORASI (MEMPHIS & TECH STYLE)
+          ========================================= */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        {/* Grid Pattern Bawaan */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+
+        {/* Glow Effects */}
         <div className="absolute w-[30rem] h-[30rem] rounded-full blur-[120px] bg-accent/20 top-0 right-0 -translate-y-1/2 animate-pulse"></div>
         <div
           className="absolute w-[25rem] h-[25rem] rounded-full blur-[120px] bg-info/20 bottom-0 left-0 -translate-x-1/2 translate-y-1/3 animate-pulse"
           style={{ animationDuration: "7s" }}
         ></div>
 
-        {/* Ornamen Floating */}
-        <div
-          className="absolute top-1/4 left-10 sm:left-24 animate-bounce text-accent/30"
-          style={{ animationDuration: "5s" }}
-        >
-          <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
-            <rect
-              x="3"
-              y="3"
-              width="18"
-              height="18"
-              rx="4"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeDasharray="4 4"
-            ></rect>
+        {/* 1. Sparkle 4-Point (Kiri Atas) - Berputar Santai */}
+        <div className="absolute top-24 left-10 sm:left-20 animate-[spin_8s_linear_infinite] text-accent/50 drop-shadow-[0_0_10px_rgba(255,195,0,0.5)]">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C12 6.62742 6.62742 12 0 12C6.62742 12 12 17.3726 12 24C12 17.3726 17.3726 12 24 12C17.3726 12 12 6.62742 12 0Z" />
           </svg>
         </div>
+
+        {/* 2. Zig-Zag Squiggle (Kanan Atas) - Melayang Bounce */}
         <div
-          className="absolute bottom-1/4 right-10 sm:right-20 animate-pulse text-info/30"
+          className="absolute top-1/4 right-8 sm:right-24 animate-bounce text-info/40"
+          style={{ animationDuration: "6s" }}
+        >
+          <svg
+            width="50"
+            height="50"
+            viewBox="0 0 44 22"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M2 11l7-9 11 18 13-16 9 11" />
+          </svg>
+        </div>
+
+        {/* 3. Donut Ring (Kiri Tengah) - Berdenyut & Melayang */}
+        <div
+          className="absolute top-1/2 left-8 sm:left-16 animate-pulse text-white/20"
           style={{ animationDuration: "4s" }}
         >
-          <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-            <circle
-              cx="12"
-              cy="12"
-              r="3"
-              stroke="currentColor"
-              strokeWidth="2"
-            ></circle>
+          <svg
+            width="45"
+            height="45"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="5"
+          >
+            <circle cx="12" cy="12" r="8" />
+          </svg>
+        </div>
+
+        {/* 4. Cross / Plus Sign (Kanan Bawah) - Berputar Kebalik */}
+        <div className="absolute bottom-1/4 right-12 sm:right-28 animate-[spin_12s_linear_infinite_reverse] text-accent/40">
+          <svg
+            width="35"
+            height="35"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          >
+            <path d="M12 2v20M2 12h20" />
+          </svg>
+        </div>
+
+        {/* 5. Dotted Circle (Tengah Bawah) - Rotasi Santai */}
+        <div className="absolute bottom-20 left-1/4 animate-[spin_15s_linear_infinite] text-info/30">
+          <svg width="50" height="50" fill="none" viewBox="0 0 24 24">
             <circle
               cx="12"
               cy="12"
               r="10"
               stroke="currentColor"
-              strokeWidth="1.5"
-              strokeDasharray="4 4"
-            ></circle>
+              strokeWidth="2"
+              strokeDasharray="4 6"
+              strokeLinecap="round"
+            />
+            <circle cx="12" cy="12" r="3" fill="currentColor" />
+          </svg>
+        </div>
+
+        {/* 6. Segitiga Melengkung (Kanan Tengah) - Melayang Bounce */}
+        <div
+          className="absolute top-2/3 right-4 sm:right-12 animate-bounce text-white/10"
+          style={{ animationDuration: "5s", animationDelay: "1s" }}
+        >
+          <svg width="45" height="45" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10.27 3.32a2 2 0 0 1 3.46 0l7.24 12.52a2 2 0 0 1-1.73 3H4.76a2 2 0 0 1-1.73-3l7.24-12.52z" />
           </svg>
         </div>
       </div>
+      {/* ========================================= */}
 
       {/* 1. HERO SECTION (SWIPE BANNER) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 pt-4 relative z-10">
@@ -208,7 +257,7 @@ export default function BusinessCompany() {
           <div className="flex p-1.5 bg-white/5 border border-white/10 rounded-full shadow-lg backdrop-blur-md">
             <button
               onClick={() => setActiveCategory("merchandise")}
-              className={`px-6 sm:px-10 py-3 rounded-full text-sm sm:text-base font-bold transition-all duration-300 ${
+              className={`px-6 sm:px-10 py-3 rounded-full text-sm sm:text-base font-bold transition-all duration-300 cursor-pointer ${
                 activeCategory === "merchandise"
                   ? "bg-accent text-slate-900 shadow-[0_0_15px_rgba(255,195,0,0.4)]"
                   : "bg-transparent text-white/70 hover:text-accent hover:bg-white/10"
@@ -218,7 +267,7 @@ export default function BusinessCompany() {
             </button>
             <button
               onClick={() => setActiveCategory("jasa")}
-              className={`px-6 sm:px-10 py-3 rounded-full text-sm sm:text-base font-bold transition-all duration-300 ${
+              className={`px-6 sm:px-10 py-3 rounded-full text-sm sm:text-base font-bold transition-all duration-300 cursor-pointer ${
                 activeCategory === "jasa"
                   ? "bg-accent text-slate-900 shadow-[0_0_15px_rgba(255,195,0,0.4)]"
                   : "bg-transparent text-white/70 hover:text-accent hover:bg-white/10"
@@ -229,9 +278,7 @@ export default function BusinessCompany() {
           </div>
         </div>
 
-        {/* ========================================= */}
         {/* TAMPILAN MERCHANDISE */}
-        {/* ========================================= */}
         {activeCategory === "merchandise" && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
             {merchandiseData.map((item) => (
@@ -269,7 +316,7 @@ export default function BusinessCompany() {
                     </span>
                     <button
                       onClick={() => handleOrder(item.name)}
-                      className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center group-hover:bg-accent group-hover:text-slate-900 group-hover:border-accent group-hover:shadow-[0_0_15px_rgba(255,195,0,0.5)] transition-all duration-300"
+                      className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center group-hover:bg-accent group-hover:text-slate-900 group-hover:border-accent group-hover:shadow-[0_0_15px_rgba(255,195,0,0.5)] transition-all duration-300 cursor-pointer"
                       aria-label={`Pesan ${item.name}`}
                     >
                       <svg
@@ -287,9 +334,7 @@ export default function BusinessCompany() {
           </div>
         )}
 
-        {/* ========================================= */}
         {/* TAMPILAN JASA */}
-        {/* ========================================= */}
         {activeCategory === "jasa" && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
             {jasaData.map((item) => (
@@ -324,7 +369,7 @@ export default function BusinessCompany() {
                   {/* Tombol Order Jasa (Lebar penuh tanpa harga) */}
                   <button
                     onClick={() => handleOrder(item.name)}
-                    className="w-full py-3.5 rounded-xl bg-white/5 border border-white/10 text-white font-bold flex items-center justify-center gap-2 group-hover:bg-accent group-hover:text-slate-900 group-hover:border-accent group-hover:shadow-[0_0_15px_rgba(255,195,0,0.5)] transition-all duration-300 backdrop-blur-sm"
+                    className="w-full py-3.5 rounded-xl bg-white/5 border border-white/10 text-white font-bold flex items-center justify-center gap-2 group-hover:bg-accent group-hover:text-slate-900 group-hover:border-accent group-hover:shadow-[0_0_15px_rgba(255,195,0,0.5)] transition-all duration-300 backdrop-blur-sm cursor-pointer"
                   >
                     <svg
                       className="w-5 h-5"
@@ -342,7 +387,7 @@ export default function BusinessCompany() {
         )}
       </section>
 
-      {/* Tambahan Animasi Fade-in di CSS (Opsional) */}
+      {/* Tambahan Animasi Fade-in di CSS */}
       <style>{`
         .animate-fade-in {
           animation: fadeIn 0.4s ease-in-out;

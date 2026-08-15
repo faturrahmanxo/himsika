@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import logoHimsika from "../assets/logo/logo-himsika.png";
+import logoHimsika from "../assets/logo/HIMSIKA.png";
 
 // Data Announcement diubah menjadi Array agar bisa menampung banyak event
 export const announcementData = [
@@ -41,7 +41,7 @@ export const navMenu = [
   { id: 3, label: "Artikel & Berita", to: "/artikel", children: [] },
   {
     id: 4,
-    label: "Event",
+    label: "Events",
     to: null,
     children: [
       { label: "Education Fair", to: "/education-fair" },

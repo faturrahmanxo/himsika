@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import logoHimsika from "../assets/logo/logo-himsika.png";
+import logoHimsika from "../assets/logo/HIMSIKA.png";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear(); // Akan otomatis mengambil tahun 2026
@@ -14,9 +14,9 @@ const Footer = () => {
           <div className="lg:col-span-2">
             <Link
               to="/"
-              className="flex items-center gap-3 mb-6 group inline-flex"
+              className="flex items-center gap-3 mb-4 group inline-flex"
             >
-              <div className="w-12 h-12 bg-white rounded-full p-1 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+              <div className="w-16 h-16 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
                 <img
                   src={logoHimsika}
                   alt="Logo HIMSIKA"
@@ -24,25 +24,25 @@ const Footer = () => {
                 />
               </div>
               <div>
-                <h2 className="text-2xl font-extrabold tracking-tight text-white group-hover:text-accent transition-colors">
+                <h2 className="text-2xl font-extrabold tracking-tight text-accent group-hover:text-accent transition-colors">
                   HIMSIKA
                 </h2>
-                <p className="text-[10px] sm:text-xs font-bold text-accent tracking-widest uppercase">
-                  Sistem Informasi UNSIKA
+                <p className="text-[10px] sm:text-xs font-bold text-white tracking-widest uppercase">
+                  Kembangkan Potensi Ciptakan Prestasi
                 </p>
               </div>
             </Link>
 
             <p className="text-primary-foreground/70 leading-relaxed max-w-md mb-8 text-sm sm:text-base">
-              Wadah eksplorasi, inovasi, dan pengembangan karakter untuk
-              membentuk talenta digital masa depan yang kompeten dan
-              kolaboratif.
+              Kembangkan potensi, ciptakan prestasi. Wadah sinergi dan inovasi
+              untuk menciptakan karya nyata yang berdampak pada teknologi.
             </p>
 
             {/* Social Media Icons */}
             <div className="flex space-x-4">
               <a
-                href="#"
+                href="https://www.instagram.com/himsika/"
+                target="_blank"
                 className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center text-primary-foreground/80 hover:bg-accent hover:border-accent hover:text-accent-foreground hover:-translate-y-1 transition-all duration-300"
               >
                 <span className="sr-only">Instagram</span>
@@ -59,7 +59,8 @@ const Footer = () => {
                 </svg>
               </a>
               <a
-                href="#"
+                href="https://www.linkedin.com/in/himpunan-mahasiswa-sistem-informasi-himsika-108636243/"
+                target="_blank"
                 className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center text-primary-foreground/80 hover:bg-accent hover:border-accent hover:text-accent-foreground hover:-translate-y-1 transition-all duration-300"
               >
                 <span className="sr-only">LinkedIn</span>
@@ -76,7 +77,8 @@ const Footer = () => {
                 </svg>
               </a>
               <a
-                href="#"
+                href="https://youtube.com/@himpunanmahasiswasisteminf8699?si=lZ6B6DmKq5gw9Q5c"
+                target="_blank"
                 className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center text-primary-foreground/80 hover:bg-accent hover:border-accent hover:text-accent-foreground hover:-translate-y-1 transition-all duration-300"
               >
                 <span className="sr-only">YouTube</span>
@@ -131,7 +133,7 @@ const Footer = () => {
                   <span className="mr-2 text-accent opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all">
                     ›
                   </span>{" "}
-                  Program & Event
+                  Artikel & Berita
                 </Link>
               </li>
               <li>
@@ -142,7 +144,7 @@ const Footer = () => {
                   <span className="mr-2 text-accent opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all">
                     ›
                   </span>{" "}
-                  Artikel & Berita
+                  Events
                 </Link>
               </li>
               <li>
@@ -186,11 +188,7 @@ const Footer = () => {
                   />
                 </svg>
                 <span className="text-primary-foreground/70 text-sm leading-relaxed">
-                  Gedung Fakultas Ilmu Komputer,
-                  <br />
-                  Universitas Singaperbangsa Karawang,
-                  <br />
-                  Jl. HS.Ronggo Waluyo, Karawang
+                  Jl. HS.Ronggo Waluyo, Puseurjaya, Telukjambe Timur, Karawang
                 </span>
               </li>
               <li className="flex items-center">
@@ -211,7 +209,7 @@ const Footer = () => {
                   href="mailto:himsika@unsika.ac.id"
                   className="text-primary-foreground/70 text-sm hover:text-accent transition-colors"
                 >
-                  himsika@unsika.ac.id
+                  himsika@cs.unsika.ac.id
                 </a>
               </li>
               <li className="flex items-center">

@@ -1,38 +1,85 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+
+// framer motion
+import { motion } from "motion/react";
+
+// lucide React
+import { ArrowRight } from "lucide-react";
+
+const container = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.2,
+    },
+  },
+};
+
+const item = {
+  hidden: {
+    opacity: 0,
+    y: 20,
+  },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+    },
+  },
+};
+
+const fadeUpContainer = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+    },
+  },
+};
+
+const fadeUpItem = {
+  hidden: { opacity: 0, y: 30 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: "easeOut",
+    },
+  },
+};
+
 // Import Swiper
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, EffectFade, Navigation } from "swiper/modules";
-
-// Import Swiper styles
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import "swiper/css/effect-fade";
 
-// Import Gambar
-import Image1 from "../assets/images/1.jpg";
-import Image2 from "../assets/images/2.jpg";
-import Image3 from "../assets/images/3.jpg";
+// Import Gambar Hero Section
+import Image1 from "../assets/images/1.webp";
+import Image2 from "../assets/images/2.webp";
+import Image3 from "../assets/images/3.webp";
 
-// Import Logo
+// Import Logo Aksara Cakra
+import logoHimsika from "../assets/logo/HIMSIKA.png";
 import aksaraCakra from "../assets/logo/AksaraCakra.png";
 import logoInternal from "../assets/logo/INTERNAL.png";
 import logoRelasi from "../assets/logo/RELASI.png";
 import logoKominfo from "../assets/logo/KOMINFO.png";
 import logoEdukasi from "../assets/logo/EDUKASI.png";
 
-// Import Logo Proker
-import Edufair from "../assets/logo/proker/Edufair2026.png";
-import Isgath from "../assets/logo/proker/Isgath2026.png";
-import Lkmmpd from "../assets/logo/proker/LKMM-PD.png";
-import StudyClub from "../assets/logo/proker/StudyClub.png";
-import ISCTnobg from "../assets/logo/proker/ISCT-nobg.png";
-import ISCTbg from "../assets/logo/proker/ISCT-bg.png";
-import Revoist from "../assets/logo/proker/Revoist.png";
-import Revoist2 from "../assets/logo/proker/Revoist2.png";
+// Import Data
+import artikelData from "../data/artikel";
+import allEvents from "../data/allEvents";
+import divisi from "../data/divisi";
+import kalenderTahunan from "../data/kalenderTahunan";
 
-// Komponen Counter
+// Komponen Counter Statistik
 const AnimatedCounter = ({ end, duration = 2000 }) => {
   const [count, setCount] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
@@ -66,100 +113,15 @@ const AnimatedCounter = ({ end, duration = 2000 }) => {
 };
 
 export default function Beranda() {
+  // Ambil 3 artikel terbaru
+  const artikelBerita = artikelData.slice(0, 3);
+  const featuredBerita = artikelBerita[0];
+  const listBerita = artikelBerita.slice(1);
+
   const heroSlides = [
     { id: 1, image: Image1, alt: "Kegiatan HIMSIKA 1" },
     { id: 2, image: Image2, alt: "Kegiatan HIMSIKA 2" },
     { id: 3, image: Image3, alt: "Kegiatan HIMSIKA 3" },
-  ];
-
-  const divisiData = [
-    {
-      id: 1,
-      image: logoInternal,
-      name: "Divisi Internal",
-      desc: "Pengembangan Sumber Daya Manusia, berfokus pada kaderisasi dan peningkatan kapasitas.",
-      dept: "Dept. PSDM & Kaderisasi",
-    },
-    {
-      id: 2,
-      image: logoRelasi,
-      name: "Divisi Relasi",
-      desc: "Mengelola media sosial, branding, publikasi, dan komunikasi eksternal himpunan.",
-      dept: "Dept. Humas & Mitbis",
-    },
-    {
-      id: 3,
-      image: logoKominfo,
-      name: "Divisi Kominfo",
-      desc: "Riset dan Teknologi, mewadahi minat bakat bidang keilmuan IT dan pengembangan sistem.",
-      dept: "Dept. Media & Desain",
-    },
-    {
-      id: 4,
-      image: logoEdukasi,
-      name: "Divisi Edukasi",
-      desc: "Kewirausahaan, menumbuhkan jiwa bisnis dan menunjang kemandirian finansial organisasi.",
-      dept: "Dept. Akademik & Keahlian",
-    },
-  ];
-
-  const allEvents = [
-    {
-      id: 1,
-      image: Isgath,
-      title: "Isgath 2026",
-      desc: "Study Club merupakan komunitas yang berfungsi sebagai wadah bagi Mahasiswa  Sistem Informasi untuk memperluas wawasan dan meningkatkan keterampilan di bidang  IT, contohnya seperti Web Programming, UI/UX Design, Data Analyst, dan sebagainya  yang sesuai dengan kebutuhan mahasiswa Sistem Informasi.",
-      link: "/kegiatan/study-club",
-    },
-    {
-      id: 2,
-      image: Lkmmpd,
-      title: "LKMMPD 2026",
-      desc: "LKMM Pra-Dasar (Latihan Keterampilan Manajemen Mahasiswa Pra-Dasar)  adalah kegiatan pelatihan manajemen mahasiswa tingkat awal. Sebelum menuju ke tahap  kaderisasi selanjutnya yaitu LKMM Dasar para peserta kegiatan diharuskan mengikuti  kegiatan LKMM Pra-Dasar terlebih dahulu.",
-      link: "/kegiatan/lkmmpd",
-    },
-    {
-      id: 3,
-      image: StudyClub,
-      title: "Study Club",
-      desc: "Education Fair merupakan ajang multi event yang berisi kegiatan untuk menunjang  minat dan bakat mahasiswa terkhusus Mahasiswa Program Studi Sistem Informasi dan  masyarakat umum yang di dalamnya berisi event seperti seminar, workshop, pameran, dan  juga perlombaan yang semuanya berlandaskan keilmuan di dalam ruang lingkup yang  selaras dengan Program Studi Sistem Informasi. ",
-      link: "/kegiatan/make-connection",
-    },
-    {
-      id: 4,
-      image: Revoist2,
-      title: "Revoist",
-      desc: "Dies Natalis Himsika adalah kegiatan untuk merayakan hari jadi Himsika, dan  sebagai sarana untuk menguatkan solidaritas antara mahasiswa Sistem Informasi dalam  perubahan demi kemajuan serta sebagai inspirasi dalam mengembangkan segala potensi  berupa non akademik.",
-      link: "/kegiatan/revoist",
-    },
-    {
-      id: 5,
-      image: Edufair,
-      title: "Edufair 2026",
-      desc: "Education Fair merupakan ajang multi event yang berisi kegiatan seminar, workshop, pameran inovasi, dan Silogy National Competition 2026. ",
-      link: "/kegiatan/Edufair-2026",
-    },
-    {
-      id: 6,
-      image: ISCTnobg,
-      title: "ISCT 2026",
-      desc: "Information System Company Tour merupakan program kerja Divisi Relasi  berupa kunjungan ke perusahaan-perusahaan yang bergerak di bidang sistem informasi. ",
-      link: "/kegiatan/revoist",
-    },
-    {
-      id: 7,
-      image: ISCTnobg,
-      title: "Make Connection",
-      desc: "Make Connection merupakan program kerja Divisi Relasi, kegiatan ini berupa studi banding ke Himpunan Mahasiswa Komputer di luar Unsika. Dengan diadakannya  Make Connection ini Pengurus Himsika akan mendapatkan input yang baru dan menjalin hubungan dengan Himpunan Mahasiswa Komputer yang dituju. ",
-      link: "/kegiatan/revoist",
-    },
-    {
-      id: 8,
-      image: ISCTnobg,
-      title: "AAS",
-      desc: "Academic Achievement Support merupakan sistem akademik yang mewadahi  seluruh kebutuhan Mahasiswa Sistem Informasi dalam rangka meningkatkan  pemahaman terhadap akademiknya melalui pengadaan komunitas interaktif, forum  diskusi, dukungan belajar, penyaluran lomba, dan pengarsipan materi.",
-      link: "/kegiatan/revoist",
-    },
   ];
 
   // 2. Untuk Section 1 (Agenda Mendatang - Misal mau nampilin 4 atau semuanya)
@@ -168,48 +130,7 @@ export default function Beranda() {
   // 3. Untuk Section 2 (Kegiatan Lainnya - Misal cuma mau nampilin 4 item pertama aja)
   const kegiatanLainnya = allEvents;
 
-  const artikelBerita = [
-    {
-      id: 1,
-      title:
-        "Suksesnya Acara Pelatihan Web Dasar 2026, Ciptakan Developer Muda Berbakat",
-      excerpt:
-        "Pelatihan web dasar yang diadakan HIMSIKA tahun ini berhasil menarik lebih dari 100 peserta dari berbagai fakultas...",
-      category: "Kegiatan",
-      date: "10 Agustus 2026",
-      image: Image2,
-    },
-    {
-      id: 2,
-      title: "HIMSIKA Raih Juara 1 Lomba UI/UX Nasional",
-      category: "Prestasi",
-      date: "05 Agustus 2026",
-      image: Image1,
-    },
-    {
-      id: 3,
-      title: "Kunjungan Industri ke Perusahaan Teknologi Terkemuka Jakarta",
-      category: "Berita",
-      date: "28 Juli 2026",
-      image: Image3,
-    },
-  ];
-
-  const kalenderTahunan = [
-    {
-      month: "Jan - Mar",
-      events: "LKMMPD, Raker Himpunan, Upgrading Pengurus",
-    },
-    {
-      month: "Apr - Jun",
-      events: "Study Club Batch 1, Make Connection, Bukber",
-    },
-    {
-      month: "Jul - Sep",
-      events: "ISCT 2026, Education Fair, Study Club Batch 2",
-    },
-    { month: "Okt - Des", events: "Pemilu Raya, LPJ Kabinet, Malam Keakraban" },
-  ];
+  
 
   // Tampilkan 6 item pertama sebagai default
   const [showAll, setShowAll] = useState(false);
@@ -218,13 +139,10 @@ export default function Beranda() {
     : kegiatanLainnya.slice(0, 6);
   return (
     <div className="min-h-screen font-primary selection:bg-primary overflow-x-hidden">
-      {/* =========================================
-          1. HERO SECTION (RESPONSIVE PARALLAX)
-          ========================================= */}
+      {/* 1. HERO SECTION (RESPONSIVE PARALLAX) */}
       {/* overflow-hidden di tag section paling luar penting untuk menjaga kerapian slider */}
       <section className="relative w-full h-screen min-h-[600px] flex items-center overflow-hidden">
         <div className="absolute lg:fixed top-0 left-0 w-full h-screen z-0 lg:-z-10 pointer-events-none">
-          {/* Background Swiper */}
           <Swiper
             modules={[Autoplay, EffectFade]}
             effect={"fade"}
@@ -407,70 +325,92 @@ export default function Beranda() {
             </div>
           </div>
 
-          <div className="mb-6 relative z-10">
-            <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-primary/50 border border-white/20 backdrop-blur-md shadow-[0_0_20px_rgba(255,195,0,0.15)]">
-              {/* Dot Pulse Indicator */}
-              <div className="relative flex items-center justify-center">
-                <span className="w-2.5 h-2.5 rounded-full bg-accent animate-ping absolute"></span>
-                <span className="w-2 h-2 rounded-full bg-accent relative"></span>
+          <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="w-full"
+          >
+            {/* 1. Bagian Badge (Muncul pertama) */}
+            <motion.div variants={item} className="mb-6 relative z-10">
+              <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-primary/50 border border-white/20 backdrop-blur-md shadow-[0_0_20px_rgba(255,195,0,0.15)]">
+                {/* Dot Pulse Indicator */}
+                <div className="relative flex items-center justify-center">
+                  <span className="w-2.5 h-2.5 rounded-full bg-accent animate-ping absolute"></span>
+                  <span className="w-2 h-2 rounded-full bg-accent relative"></span>
+                </div>
+                <span className="text-[10px] sm:text-xs font-bold tracking-[0.25em] text-accent uppercase">
+                  Welcome To HIMSIKA
+                </span>
               </div>
-              <span className="text-[10px] sm:text-xs font-extrabold tracking-[0.25em] text-accent uppercase">
-                Welcome To
-              </span>
-            </div>
-          </div>
+            </motion.div>
 
-          <div className="flex flex-col items-start relative z-10">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-tight">
-              Himpunan Mahasiswa
-            </h1>
-
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-accent leading-tight pb-2 drop-shadow-lg">
-              Sistem Informasi
-            </h1>
-
-            <p className="mt-4 sm:mt-6 text-base sm:text-lg text-white/90 font-medium tracking-wide max-w-xl leading-relaxed drop-shadow-md">
-              Kembangkan potensi, ciptakan prestasi. Wadah sinergi dan inovasi
-              untuk menciptakan karya nyata yang berdampak pada teknologi.
-            </p>
-          </div>
-
-          {/* Minimalist CTA Button */}
-          <div className="mt-10 sm:mt-12 flex flex-wrap gap-6 relative z-10">
-            <Link
-              to="/struktur-organisasi"
-              className="group inline-flex items-center justify-center gap-3 px-8 py-3.5 bg-accent text-muted font-bold text-sm sm:text-base rounded-full transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(255,195,0,0.5)] shadow-xl"
-            >
-              Kenalan Yuk
-              <svg
-                className="w-4 h-4 group-hover:translate-x-1 transition-transform shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <div className="flex flex-col items-start relative z-10">
+              {/* 2. Heading Baris 1 (Muncul kedua) */}
+              <motion.h1
+                variants={item}
+                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-tight"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2.5"
-                  d="M14 5l7 7m0 0l-7 7m7-7H3"
-                ></path>
-              </svg>
-            </Link>
+                Himpunan Mahasiswa
+              </motion.h1>
 
-            <Link
-              to="/sejarah-himsika"
-              className="group inline-flex items-center justify-center px-8 py-3.5 bg-primary/50 hover:bg-info/60 backdrop-blur-md border border-info text-foreground font-bold text-sm sm:text-base rounded-full transition-all duration-300"
+              {/* 3. Heading Baris 2 (Muncul ketiga) */}
+              <motion.h1
+                variants={item}
+                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-accent leading-tight pb-2 drop-shadow-lg"
+              >
+                Sistem Informasi
+              </motion.h1>
+
+              {/* 4. Deskripsi (Muncul keempat) */}
+              <motion.p
+                variants={item}
+                className="mt-4 sm:mt-6 text-base sm:text-lg text-white/90 font-medium tracking-wide max-w-xl leading-relaxed drop-shadow-md"
+              >
+                Kembangkan potensi, ciptakan prestasi. Wadah sinergi dan inovasi
+                untuk menciptakan karya nyata yang berdampak pada teknologi.
+              </motion.p>
+            </div>
+
+            {/* 5. CTA Buttons (Muncul terakhir) */}
+            <motion.div
+              variants={item}
+              className="mt-10 sm:mt-12 flex flex-wrap gap-6 relative z-10"
             >
-              Learn More
-            </Link>
-          </div>
+              <Link
+                to="/struktur-organisasi"
+                className="group inline-flex items-center justify-center gap-3 px-8 py-3.5 bg-accent text-primary font-bold text-sm sm:text-base rounded-full transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(255,195,0,0.5)] shadow-xl"
+              >
+                Kenalan Yuk
+                <svg
+                  className="w-4 h-4 group-hover:translate-x-1 transition-transform shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2.5"
+                    d="M14 5l7 7m0 0l-7 7m7-7H3"
+                  ></path>
+                </svg>
+              </Link>
+
+              <Link
+                to="/sejarah-himsika"
+                className="group inline-flex items-center justify-center px-8 py-3.5 bg-primary/20 hover:bg-primary/90 backdrop-blur-md border border-info text-text font-bold text-sm sm:text-base rounded-full transition-all duration-300"
+              >
+                Learn More
+              </Link>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
       {/* =========================================
-          3. KABINET & STRUKTUR 
+          2. KABINET & STRUKTUR 
           ========================================= */}
-
       <section className="relative z-20 bg-linear-to-br from-[#043761] via-primary to-[#043761]">
         <div className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
           <div className="relative">
@@ -524,17 +464,29 @@ export default function Beranda() {
             </div>
             {/* end dekorasi */}
 
-            {/* Title */}
-            <div className="mb-16 flex flex-col items-center text-center relative z-10">
-              <div className="flex items-center gap-4 mb-4">
+            {/* Title (GRUP ANIMASI 1) */}
+            <motion.div
+              variants={fadeUpContainer}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-50px" }}
+              className="mb-16 flex flex-col items-center text-center relative z-10"
+            >
+              <motion.div
+                variants={fadeUpItem}
+                className="flex items-center gap-4 mb-4"
+              >
                 <span className="w-8 sm:w-12 h-0.5 bg-accent rounded-full"></span>
                 <span className="text-accent font-bold text-sm uppercase tracking-widest">
                   About Us
                 </span>
                 <span className="w-8 sm:w-12 h-0.5 bg-accent rounded-full"></span>
-              </div>
+              </motion.div>
 
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6 relative">
+              <motion.h2
+                variants={fadeUpItem}
+                className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6 relative"
+              >
                 Tentang{" "}
                 <span className="text-accent drop-shadow-[0_0_20px_rgba(255,195,0,0.4)]">
                   HIMSIKA
@@ -552,19 +504,32 @@ export default function Beranda() {
                     d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
                   />
                 </svg>
-              </h2>
-              <p className="text-base sm:text-lg max-w-2xl leading-relaxed text-foreground/90 drop-shadow-md">
+              </motion.h2>
+              <motion.p
+                variants={fadeUpItem}
+                className="text-base sm:text-lg max-w-2xl leading-relaxed text-foreground/90 drop-shadow-md"
+              >
                 Himpunan Mahasiswa Informatika adalah sebuah Organisasi
                 Kemahasiswaan khusus Jurusan Teknik Informatika yang bergerak
                 dalam bidang Akademik maupun Non-Akademik di Universitas
                 Sriwijaya.
-              </p>
-            </div>
+              </motion.p>
+            </motion.div>
 
-            {/* Konten Grid Card */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
-              {divisiData.map((divisi) => (
-                <div key={divisi.id} className="h-full">
+            {/* Konten Grid Card (GRUP ANIMASI 2) */}
+            <motion.div
+              variants={fadeUpContainer}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-50px" }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10"
+            >
+              {divisi.map((divisi) => (
+                <motion.div
+                  variants={fadeUpItem}
+                  key={divisi.id}
+                  className="h-full"
+                >
                   <div className="group relative h-full bg-card shadow-lg rounded-3xl border border-accent/20 hover:border-accent hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 overflow-hidden flex flex-col">
                     <div className="absolute top-0 left-0 right-0 h-1.5 bg-accent opacity-70 group-hover:opacity-100 transition-opacity" />
 
@@ -591,12 +556,18 @@ export default function Beranda() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
 
-            {/* Statistik / Pengurus */}
-            <div className="bg-accent backdrop-blur-sm mx-auto max-w-5xl rounded-3xl p-8 sm:p-10 border border-card/20 mt-16 shadow-xl relative overflow-hidden z-10">
+            {/* Statistik / Pengurus (GRUP ANIMASI 3) */}
+            <motion.div
+              variants={fadeUpContainer}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-50px" }}
+              className="bg-accent backdrop-blur-sm mx-auto max-w-5xl rounded-3xl p-8 sm:p-10 border border-card/20 mt-16 shadow-xl relative overflow-hidden z-10"
+            >
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-card blur-[20px] opacity-50"></div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 divide-x-0 md:divide-x divide-card/20">
@@ -606,7 +577,8 @@ export default function Beranda() {
                   { num: 8, suffix: "", label: "Departemen" },
                   { num: 14, suffix: "", label: "Program Kerja" },
                 ].map((stat, i) => (
-                  <div
+                  <motion.div
+                    variants={fadeUpItem}
                     key={i}
                     className="text-center group flex flex-col items-center justify-center"
                   >
@@ -617,17 +589,15 @@ export default function Beranda() {
                     <p className="text-[10px] sm:text-xs font-bold text-muted/60 uppercase tracking-[0.15em]">
                       {stat.label}
                     </p>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* =========================================
-          4. VIDEO COMPANY PROFILE
-          ========================================= */}
+      {/* 3. VIDEO COMPANY PROFILE */}
       <section className="relative overflow-hidden py-24 bg-[#043761]">
         {/* Background Dekorasi Konsisten */}
         <div className="absolute inset-0 pointer-events-none z-0">
@@ -673,89 +643,108 @@ export default function Beranda() {
           </div>
         </div>
 
-        {/* FIX: Mengganti max-w-340 menjadi max-w-7xl agar responsif */}
+        {/* ====== Content ===== */}
         <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative z-10">
-          {/* Title */}
-          <div className="mb-16 flex flex-col items-center text-center">
-            <div className="flex items-center gap-4 mb-4">
-              <span className="w-8 sm:w-12 h-0.5 bg-accent rounded-full"></span>
-              <span className="text-accent font-bold text-sm uppercase tracking-widest">
-                Our Profile
-              </span>
-              <span className="w-8 sm:w-12 h-0.5 bg-accent rounded-full"></span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6 relative">
-              Company{" "}
-              <span className="text-accent drop-shadow-[0_0_15px_rgba(255,195,0,0.3)]">
-                HIMSIKA
-              </span>
-              {/* Bintang Sparkle */}
-              <svg
-                className="absolute -top-6 -right-8 w-6 h-6 text-accent/60 hidden sm:block animate-[spin_10s_linear_infinite]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+          <motion.div
+            variants={fadeUpContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-50px" }}
+          >
+            {/* Title (GRUP ANIMASI) */}
+            <div className="mb-16 flex flex-col items-center text-center">
+              <motion.div
+                variants={fadeUpItem}
+                className="flex items-center gap-4 mb-4"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="1.5"
-                  d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                />
-              </svg>
-            </h2>
-            <p className="text-base sm:text-lg max-w-2xl leading-relaxed text-white/80">
-              Saksikan jejak langkah, pencapaian, dan gambaran utuh keluarga
-              besar Himpunan Mahasiswa Sistem Informasi.
-            </p>
-          </div>
-
-          {/* Video Container */}
-          <div className="relative w-full max-w-5xl mx-auto aspect-video bg-white/5 rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.3)] border border-white/10 group cursor-pointer backdrop-blur-sm p-1.5 sm:p-4">
-            <a
-              href="https://youtu.be/Y7U_J358rDA?si=XggiJgyLPMte8zzx"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="relative block w-full h-full rounded-[1rem] sm:rounded-[2rem] overflow-hidden z-20"
-            >
-              <img
-                src={Image3}
-                alt="Thumbnail CP"
-                className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700 ease-in-out"
-              />
-              <div className="absolute inset-0 bg-[#043761]/40 group-hover:bg-[#043761]/20 transition-all duration-300"></div>
-
-              {/* FIX: Tombol Play yang Responsif */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-                <div className="relative flex items-center justify-center">
-                  {/* Lingkaran Ping Dinamis */}
-                  <div className="absolute w-16 h-16 sm:w-20 sm:h-20 md:w-28 md:h-28 bg-accent/40 rounded-full animate-ping"></div>
-
-                  {/* Lingkaran Solid Dinamis */}
-                  <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-24 md:h-24 bg-accent/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(255,195,0,0.4)] group-hover:scale-110 group-hover:bg-accent transition-all duration-300">
-                    <svg
-                      className="w-5 h-5 sm:w-7 sm:h-7 md:w-10 md:h-10 text-slate-900 translate-x-[2px]"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </div>
-                </div>
-
-                {/* Teks Dinamis */}
-                <span className="mt-3 sm:mt-4 md:mt-6 text-white font-bold tracking-widest uppercase text-[10px] sm:text-xs md:text-sm drop-shadow-md">
-                  Putar Video
+                <span className="w-8 sm:w-12 h-0.5 bg-accent rounded-full"></span>
+                <span className="text-accent font-bold text-sm uppercase tracking-widest">
+                  Our Profile
                 </span>
-              </div>
-            </a>
-          </div>
+                <span className="w-8 sm:w-12 h-0.5 bg-accent rounded-full"></span>
+              </motion.div>
+
+              <motion.h2
+                variants={fadeUpItem}
+                className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6 relative"
+              >
+                Company{" "}
+                <span className="text-accent drop-shadow-[0_0_15px_rgba(255,195,0,0.3)]">
+                  HIMSIKA
+                </span>
+                {/* Bintang Sparkle */}
+                <svg
+                  className="absolute -top-6 -right-8 w-6 h-6 text-accent/60 hidden sm:block animate-[spin_10s_linear_infinite]"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+                  />
+                </svg>
+              </motion.h2>
+
+              <motion.p
+                variants={fadeUpItem}
+                className="text-base sm:text-lg max-w-2xl leading-relaxed text-white/80"
+              >
+                Saksikan jejak langkah, pencapaian, dan gambaran utuh keluarga
+                besar Himpunan Mahasiswa Sistem Informasi.
+              </motion.p>
+            </div>
+
+            {/* Video Container (ANIMASI TERAKHIR) */}
+            <motion.div
+              variants={fadeUpItem}
+              className="relative w-full max-w-5xl mx-auto aspect-video bg-white/5 rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.3)] border border-white/10 group cursor-pointer backdrop-blur-sm p-1.5 sm:p-4"
+            >
+              <a
+                href="https://youtu.be/Y7U_J358rDA?si=XggiJgyLPMte8zzx"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="relative block w-full h-full rounded-[1rem] sm:rounded-[2rem] overflow-hidden z-20"
+              >
+                <img
+                  src={Image3}
+                  alt="Thumbnail CP"
+                  className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700 ease-in-out"
+                />
+                <div className="absolute inset-0 bg-[#043761]/40 group-hover:bg-[#043761]/20 transition-all duration-300"></div>
+
+                {/* FIX: Tombol Play yang Responsif */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+                  <div className="relative flex items-center justify-center">
+                    {/* Lingkaran Ping Dinamis */}
+                    <div className="absolute w-16 h-16 sm:w-20 sm:h-20 md:w-28 md:h-28 bg-accent/40 rounded-full animate-ping"></div>
+
+                    {/* Lingkaran Solid Dinamis */}
+                    <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-24 md:h-24 bg-accent/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(255,195,0,0.4)] group-hover:scale-110 group-hover:bg-accent transition-all duration-300">
+                      <svg
+                        className="w-5 h-5 sm:w-7 sm:h-7 md:w-10 md:h-10 text-slate-900 translate-x-[2px]"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Teks Dinamis */}
+                  <span className="mt-3 sm:mt-4 md:mt-6 text-white font-bold tracking-widest uppercase text-[10px] sm:text-xs md:text-sm drop-shadow-md">
+                    Putar Video
+                  </span>
+                </div>
+              </a>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
-      {/* =========================================
-          6. UPCOMING EVENTS (GLASSMORPHISM SWIPER)
-          ========================================= */}
+      {/* 4. UPCOMING EVENTS (GLASSMORPHISM SWIPER) */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-full mx-auto bg-linear-to-b from-[#043761] to-primary relative overflow-hidden">
         {/* Background Dekorasi Konsisten */}
         <div className="absolute inset-0 pointer-events-none z-0">
@@ -783,19 +772,30 @@ export default function Beranda() {
           </div>
         </div>
 
-        <div className="max-w-6xl mx-auto relative z-10">
+        <motion.div
+          variants={fadeUpContainer}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-50px" }}
+          className="max-w-6xl mx-auto relative z-10"
+        >
           {/* Title */}
           <div className="mb-16 flex flex-col items-center text-center">
-            <div className="flex items-center gap-4 mb-4">
+            <motion.div
+              variants={fadeUpItem}
+              className="flex items-center gap-4 mb-4"
+            >
               <span className="w-8 sm:w-12 h-0.5 bg-accent rounded-full"></span>
               <span className="text-accent font-bold text-sm uppercase tracking-widest">
                 What's Next
               </span>
               <span className="w-8 sm:w-12 h-0.5 bg-accent rounded-full"></span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6 relative">
+            </motion.div>
+            <motion.h2
+              variants={fadeUpItem}
+              className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6 relative"
+            >
               Agenda <span className="text-accent">Mendatang</span>
-              {/* Bintang Sparkle */}
               <svg
                 className="absolute -top-6 -right-10 w-6 h-6 text-accent/60 hidden sm:block animate-[spin_10s_linear_infinite]"
                 fill="none"
@@ -809,14 +809,17 @@ export default function Beranda() {
                   d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
                 />
               </svg>
-            </h2>
-            <p className="text-base sm:text-lg max-w-2xl leading-relaxed text-white/80">
+            </motion.h2>
+            <motion.p
+              variants={fadeUpItem}
+              className="text-base sm:text-lg max-w-2xl leading-relaxed text-white/80"
+            >
               Persiapkan dirimu untuk agenda besar HIMSIKA.
-            </p>
+            </motion.p>
           </div>
 
           {/* Swiper Container */}
-          <div className="relative">
+          <motion.div variants={fadeUpItem} className="relative">
             <Swiper
               modules={[Autoplay, Pagination]}
               spaceBetween={24}
@@ -841,7 +844,6 @@ export default function Beranda() {
                         className="w-full h-full object-contain"
                       />
                     </div>
-
                     <div className="text-center sm:text-left w-full flex flex-col justify-center">
                       <div className="mb-3">
                         <span className="inline-block px-4 py-1.5 bg-accent/20 border border-accent/30 text-accent text-[10px] font-bold rounded-full uppercase tracking-widest backdrop-blur-sm">
@@ -859,8 +861,8 @@ export default function Beranda() {
                 </SwiperSlide>
               ))}
             </Swiper>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* =========================================
@@ -901,19 +903,30 @@ export default function Beranda() {
         </div>
 
         {/* container */}
-        <div className="max-w-[75rem] mx-auto relative z-10">
+        <motion.div
+          variants={fadeUpContainer}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-50px" }}
+          className="max-w-[75rem] mx-auto relative z-10"
+        >
           {/* Title */}
           <div className="mb-16 flex flex-col items-center text-center">
-            <div className="flex items-center gap-4 mb-4">
+            <motion.div
+              variants={fadeUpItem}
+              className="flex items-center gap-4 mb-4"
+            >
               <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
               <span className="text-accent font-bold text-sm uppercase tracking-widest">
                 Explore
               </span>
               <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6 relative">
+            </motion.div>
+            <motion.h2
+              variants={fadeUpItem}
+              className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6 relative"
+            >
               Program <span className="text-accent">Lainnya</span>
-              {/* Bintang Sparkle */}
               <svg
                 className="absolute -top-6 -right-10 w-6 h-6 text-accent/60 hidden sm:block animate-[spin_10s_linear_infinite]"
                 fill="none"
@@ -927,47 +940,53 @@ export default function Beranda() {
                   d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
                 />
               </svg>
-            </h2>
-            <p className="text-base sm:text-lg max-w-2xl leading-relaxed text-white/80">
+            </motion.h2>
+            <motion.p
+              variants={fadeUpItem}
+              className="text-base sm:text-lg max-w-2xl leading-relaxed text-white/80"
+            >
               Beragam inisiatif dan kegiatan seru untuk mengembangkan potensi
               mahasiswa secara maksimal.
-            </p>
+            </motion.p>
           </div>
 
-          {/* konten */}
+          {/* Content */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayedPrograms.map((prog) => (
-              <Link
+              <motion.div
+                variants={fadeUpItem}
                 key={prog.id}
-                to={prog.link}
-                className="block h-full bg-white/5 backdrop-blur-md border border-white/10 rounded-[2rem] p-8 hover:bg-white/10 hover:shadow-[0_0_30px_rgba(255,195,0,0.15)] hover:border-accent/50 transition-all duration-300 group relative overflow-hidden"
+                className="h-full"
               >
-                {/* Aksen Garis Atas saat di-hover */}
-                <div className="absolute top-0 left-0 right-0 h-1 bg-accent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                {/* Logo Image */}
-                <div className="w-16 h-16 shrink-0 bg-white/10 border border-white/20 rounded-2xl flex items-center justify-center p-3 mb-6 group-hover:scale-105 transition-transform shadow-inner overflow-hidden">
-                  <img
-                    src={prog.image}
-                    alt={prog.title}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-
-                <h3 className="text-xl font-bold text-white mb-3 group-hover:text-accent transition-colors">
-                  {prog.title}
-                </h3>
-
-                <p className="text-white/70 text-sm leading-relaxed line-clamp-3">
-                  {prog.desc}
-                </p>
-              </Link>
+                <Link
+                  to={prog.link}
+                  className="block h-full bg-white/5 backdrop-blur-md border border-white/10 rounded-[2rem] p-8 hover:bg-white/10 hover:shadow-[0_0_30px_rgba(255,195,0,0.15)] hover:border-accent/50 transition-all duration-300 group relative overflow-hidden"
+                >
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-accent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="w-16 h-16 shrink-0 bg-white/10 border border-white/20 rounded-2xl flex items-center justify-center p-3 mb-6 group-hover:scale-105 transition-transform shadow-inner overflow-hidden">
+                    <img
+                      src={prog.image}
+                      alt={prog.title}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-3 group-hover:text-accent transition-colors">
+                    {prog.title}
+                  </h3>
+                  <p className="text-white/70 text-sm leading-relaxed line-clamp-3">
+                    {prog.desc}
+                  </p>
+                </Link>
+              </motion.div>
             ))}
           </div>
 
-          {/* Tombol Muat Lebih Banyak (Hanya muncul jika data lebih dari 6) */}
+          {/* Tombol Muat Lebih Banyak */}
           {kegiatanLainnya.length > 6 && (
-            <div className="mt-14 flex justify-center">
+            <motion.div
+              variants={fadeUpItem}
+              className="mt-14 flex justify-center"
+            >
               <button
                 onClick={() => setShowAll(!showAll)}
                 className="group inline-flex items-center justify-center gap-3 px-6 py-2.5 bg-primary hover:bg-accent/20 border border-accent/50 text-accent font-bold text-sm sm:text-base rounded-full transition-all duration-300 hover:scale-105  shadow-lg cursor-pointer"
@@ -975,9 +994,7 @@ export default function Beranda() {
                 {showAll ? "Tampilkan Lebih Sedikit" : "Muat Lebih Banyak"}
                 <div className="bg-accent/20 rounded-full w-6 h-6 flex items-center justify-center">
                   <svg
-                    className={`w-4 h-4 transition-transform duration-300 ${
-                      showAll ? "rotate-180" : "group-hover:rotate-180"
-                    }`}
+                    className={`w-4 h-4 transition-transform duration-300 ${showAll ? "rotate-180" : "group-hover:rotate-180"}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -991,53 +1008,71 @@ export default function Beranda() {
                   </svg>
                 </div>
               </button>
-            </div>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
       </section>
 
-      {/* =========================================
-          8. ARTIKEL & BERITA (DARK MAGAZINE - CENTER TITLE FIX)
-          ========================================= */}
+      {/* 8. ARTIKEL & BERITA (DARK MAGAZINE) */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 bg-linear-to-b from-primary to-[#043761] border-y border-white/5 relative overflow-hidden">
-        {/* Background Dekorasi Konsisten */}
+        {/* Background Dekorasi */}
         <div className="absolute inset-0 pointer-events-none z-0">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
           <div
-            className="absolute w-[25rem] h-[25rem] rounded-full blur-[100px] bg-accent/10 top-0 right-0 animate-pulse"
-            style={{ animationDuration: "7s" }}
+            className="absolute w-[35rem] h-[35rem] rounded-full blur-[140px] bg-info/15 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse"
+            style={{ animationDelay: "1s" }}
           ></div>
 
           {/* Ornamen Floating */}
           <div
-            className="absolute top-32 left-8 sm:left-16 animate-bounce text-info/30"
-            style={{ animationDuration: "5s" }}
+            className="absolute top-10 left-10 sm:left-20 animate-pulse text-accent/40"
+            style={{ animationDuration: "3s" }}
           >
             <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-              <path
+              <circle
+                cx="12"
+                cy="12"
+                r="3"
                 stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
                 strokeWidth="2"
-                d="M12 4v16m8-8H4"
-              ></path>
+              ></circle>
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeDasharray="4 4"
+              ></circle>
             </svg>
           </div>
         </div>
 
-        <div className="max-w-[75rem] mx-auto relative z-10">
+        {/* Content */}
+        <motion.div
+          variants={fadeUpContainer}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-50px" }}
+          className="max-w-300 mx-auto relative z-10"
+        >
           {/* Title */}
           <div className="mb-16 flex flex-col items-center text-center">
-            <div className="flex items-center gap-4 mb-4">
-              <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
+            <motion.div
+              variants={fadeUpItem}
+              className="flex items-center gap-4 mb-4"
+            >
+              <span className="w-8 sm:w-12 h-0.5 bg-accent rounded-full"></span>
               <span className="text-accent font-bold text-sm uppercase tracking-widest">
-                Update
+                update
               </span>
-              <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6 relative">
+              <span className="w-8 sm:w-12 h-0.5 bg-accent rounded-full"></span>
+            </motion.div>
+            <motion.h2
+              variants={fadeUpItem}
+              className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6 relative"
+            >
               Kabar <span className="text-accent">HIMSIKA</span>
-              {/* Bintang Sparkle */}
               <svg
                 className="absolute -top-6 -right-10 w-6 h-6 text-accent/60 hidden sm:block animate-[spin_10s_linear_infinite]"
                 fill="none"
@@ -1051,96 +1086,95 @@ export default function Beranda() {
                   d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
                 />
               </svg>
-            </h2>
-            <p className="text-base sm:text-lg max-w-2xl leading-relaxed text-white/70">
-              Berita, opini, dan informasi terbaru.
-            </p>
+            </motion.h2>
+            <motion.p
+              variants={fadeUpItem}
+              className="text-base sm:text-lg max-w-2xl leading-relaxed text-white/80"
+            >
+              Beragam inisiatif dan kegiatan seru untuk mengembangkan potensi
+              mahasiswa secara maksimal.
+            </motion.p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-            {/* Featured Article */}
-            <Link
-              to="#"
-              className="lg:col-span-7 group flex flex-col bg-white/5 p-4 rounded-[2.5rem] border border-white/10 hover:border-accent/30 transition-all backdrop-blur-sm"
-            >
-              <div className="aspect-[16/10] w-full rounded-[2rem] overflow-hidden relative mb-6 shadow-xl">
-                <img
-                  src={artikelBerita[0].image}
-                  alt="Berita"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#043761]/80 to-transparent opacity-60"></div>
-                <div className="absolute top-4 left-4 bg-accent/90 backdrop-blur-sm px-4 py-1.5 rounded-full text-slate-900 text-[10px] font-bold uppercase tracking-widest shadow-sm">
-                  {artikelBerita[0].category}
-                </div>
-              </div>
-              <div className="px-2 pb-2">
-                <span className="text-accent text-xs font-bold mb-3 block">
-                  {artikelBerita[0].date}
-                </span>
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight mb-3 group-hover:text-accent transition-colors">
-                  {artikelBerita[0].title}
-                </h3>
-                <p className="text-white/70 leading-relaxed line-clamp-2">
-                  {artikelBerita[0].excerpt}
-                </p>
-              </div>
-            </Link>
-
-            {/* List Articles */}
-            <div className="lg:col-span-5 flex flex-col gap-6 sm:gap-8">
-              {artikelBerita.slice(1).map((berita) => (
+            {/* Featured Article Utama */}
+            {featuredBerita && (
+              <motion.div variants={fadeUpItem} className="lg:col-span-7">
                 <Link
-                  key={berita.id}
-                  to="#"
-                  className="group flex gap-6 items-center bg-white/5 p-3 rounded-[2rem] border border-white/10 hover:border-accent/30 hover:bg-white/10 transition-all backdrop-blur-sm"
+                  to={`/artikel/${featuredBerita.id}`}
+                  className="group flex flex-col bg-white/5 p-4 rounded-[2.5rem] border border-white/10 hover:border-accent/30 transition-all h-full"
                 >
-                  <div className="w-28 sm:w-36 aspect-square shrink-0 rounded-[1.5rem] overflow-hidden relative shadow-lg">
+                  <div className="aspect-[16/10] w-full rounded-[2rem] overflow-hidden relative mb-6">
                     <img
-                      src={berita.image}
-                      alt={berita.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      src={featuredBerita.image}
+                      alt={featuredBerita.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-primary/20 group-hover:bg-transparent transition-colors"></div>
+                    <div className="absolute top-4 left-4 bg-accent/90 text-slate-900 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                      {featuredBerita.category}
+                    </div>
                   </div>
-                  <div className="flex flex-col pr-4">
-                    <span className="text-accent text-[10px] font-bold uppercase tracking-widest mb-2">
-                      {berita.category}
+                  <div className="px-2 pb-2">
+                    <span className="text-accent text-xs font-bold mb-3 block">
+                      {featuredBerita.date}
                     </span>
-                    <h3 className="text-lg font-bold text-white leading-snug group-hover:text-accent transition-colors mb-2 line-clamp-2">
-                      {berita.title}
+                    <h3 className="text-2xl font-extrabold text-white leading-tight line-clamp-3 mb-3 group-hover:text-accent transition-colors">
+                      {featuredBerita.title}
                     </h3>
-                    <span className="text-white/50 text-xs font-medium">
-                      {berita.date}
-                    </span>
+                    <p className="text-white/70 line-clamp-2">
+                      {featuredBerita.excerpt}
+                    </p>
                   </div>
                 </Link>
+              </motion.div>
+            )}
+
+            {/* List Artikel Samping */}
+            <div className="lg:col-span-5 flex flex-col gap-6 sm:gap-8">
+              {listBerita.map((berita) => (
+                <motion.div variants={fadeUpItem} key={berita.id}>
+                  <Link
+                    to={`/artikel/${berita.id}`}
+                    className="group flex gap-6 items-center bg-white/5 p-3 rounded-[2rem] border border-white/10 hover:border-accent/30 transition-all h-full"
+                  >
+                    <div className="w-28 sm:w-36 aspect-square shrink-0 rounded-[1.5rem] overflow-hidden relative">
+                      <img
+                        src={berita.image}
+                        alt={berita.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                    </div>
+                    <div className="flex flex-col pr-4">
+                      <span className="text-accent text-[10px] font-bold uppercase tracking-widest mb-2">
+                        {berita.category}
+                      </span>
+                      <h3 className="text-lg font-bold text-white leading-snug group-hover:text-accent transition-colors mb-2 line-clamp-2">
+                        {berita.title}
+                      </h3>
+                      <span className="text-white/50 text-xs font-medium">
+                        {berita.date}
+                      </span>
+                    </div>
+                  </Link>
+                </motion.div>
               ))}
             </div>
           </div>
 
-          <div className="mt-16 flex justify-center">
+          {/* Tombol Lihat Semua */}
+          <motion.div
+            variants={fadeUpItem}
+            className="mt-16 flex justify-center"
+          >
             <Link
               to="/artikel"
-              className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-white/5 border border-white/20 text-white font-bold text-sm uppercase tracking-widest hover:bg-accent hover:border-accent hover:text-slate-900 hover:shadow-[0_0_20px_rgba(255,195,0,0.4)] transition-all duration-300 backdrop-blur-sm"
+              className="group inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-white/5 border border-white/20 text-white font-bold text-sm sm:text-[12px] uppercase tracking-widest hover:bg-accent hover:text-slate-900 transition-all"
             >
               Lihat Semua Kabar
-              <svg
-                className="w-4 h-4 ml-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M17 8l4 4m0 0l-4 4m4-4H3"
-                ></path>
-              </svg>
+              <ArrowRight className="w-4 h-4 group-hover:-rotate-45 transition-all duration-300" />
             </Link>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* =========================================
@@ -1180,11 +1214,19 @@ export default function Beranda() {
           </div>
         </div>
 
-        <div className="max-w-3xl mx-auto relative z-10">
+        <motion.div
+          variants={fadeUpContainer}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-50px" }}
+          className="max-w-3xl mx-auto relative z-10"
+        >
           <div className="text-center mb-16 relative">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4 inline-block relative">
+            <motion.h2
+              variants={fadeUpItem}
+              className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4 inline-block relative"
+            >
               Timeline <span className="text-accent">Akademik</span>
-              {/* Bintang Sparkle */}
               <svg
                 className="absolute -top-6 -right-10 w-6 h-6 text-accent/60 hidden sm:block animate-[spin_10s_linear_infinite]"
                 fill="none"
@@ -1198,22 +1240,25 @@ export default function Beranda() {
                   d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
                 />
               </svg>
-            </h2>
-            <p className="text-white/80">
-              Gambaran kegiatan besar organisasi selama satu periode.
-            </p>
+            </motion.h2>
+            <motion.p variants={fadeUpItem} className="text-white/80">
+              Lorem ipsum dolor sit amet consectetur adipisicing.
+            </motion.p>
           </div>
 
           <div className="relative border-l-2 border-white/10 ml-4 sm:ml-0">
             {kalenderTahunan.map((item, index) => (
-              <div key={index} className="mb-12 ml-8 sm:ml-12 relative group">
+              <motion.div
+                variants={fadeUpItem}
+                key={index}
+                className="mb-12 ml-8 sm:ml-12 relative group"
+              >
                 {/* Dot Timeline Glowing */}
                 <span className="absolute -left-[39px] sm:-left-[55px] top-1.5 w-4 h-4 bg-[#043761] border-2 border-accent rounded-full group-hover:bg-accent group-hover:shadow-[0_0_15px_rgba(255,195,0,0.6)] group-hover:scale-125 transition-all duration-300"></span>
 
                 <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 group-hover:border-accent/50 group-hover:bg-white/10 transition-all duration-300 shadow-lg relative overflow-hidden">
                   {/* Efek kilap kiri */}
                   <div className="absolute top-0 left-0 w-1 h-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-
                   <span className="text-accent font-bold text-xs uppercase tracking-[0.15em] block mb-2">
                     {item.month}
                   </span>
@@ -1221,10 +1266,10 @@ export default function Beranda() {
                     {item.events}
                   </h3>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </section>
     </div>
   );
