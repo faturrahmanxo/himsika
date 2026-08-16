@@ -44,7 +44,7 @@ const allEvents = [
     id: 5,
     image: Edufair,
     title: "Edufair 2026",
-    desc: "Education Fair merupakan ajang multi event yang berisi kegiatan seminar, workshop, pameran inovasi, dan Silogy National Competition 2026. ",
+    desc: "Education Fair merupakan ajang multi event yang berisi kegiatan seminar, workshop, pameran inovasi, dan Silogy National Competition 2026.",
     link: "/education-fair",
   },
   {

@@ -1,5 +1,5 @@
-import React from "react";
-import { motion } from "motion/react";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { Link } from "react-router-dom";
 import {
   Gamepad2,
@@ -13,13 +13,14 @@ import {
   CheckCircle2,
   Clock,
   Image as ImageIcon,
+  Rocket,
+  X,
+  Briefcase, // Jangan lupa X diimport untuk tombol close modal
 } from "lucide-react";
 
 // --- SILAKAN IMPORT GAMBAR ASLI KAMU DI SINI ---
-import Dilan from "../../assets/images/pengurus/Dilan.webp";
-// import FotoKegiatan1 from "../assets/images/isct/1.jpg";
-// import FotoKegiatan2 from "../assets/images/isct/2.jpg";
-// import FotoKegiatan3 from "../assets/images/isct/3.jpg";
+import Dilan from "../../assets/images/pengurus/divisiRelasi/Dilan.webp";
+import FotoKegiatan1 from "../../assets/images/events/galeri1.webp";
 
 // Data Timeline ISCT
 const timelineData = [
@@ -75,22 +76,68 @@ const achievementsData = [
 ];
 
 export default function ISCTPage() {
+  // State untuk menyimpan gambar yang diklik (Lightbox)
+  const [selectedImage, setSelectedImage] = useState(null);
+
   return (
     <div className="min-h-screen bg-linear-to-b from-[#043761] via-primary to-[#043761] font-primary pt-32 pb-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden selection:bg-accent selection:text-slate-900">
-      {/* Background Dekorasi Konsisten */}
-      <div className="absolute inset-0 pointer-events-none z-0">
+      {/* ================= BACKGROUND DEKORASI ================= */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
         <div className="absolute w-[40rem] h-[40rem] rounded-full blur-[150px] bg-accent/15 top-0 left-0 -translate-x-1/4 -translate-y-1/4 animate-pulse"></div>
         <div
           className="absolute w-[30rem] h-[30rem] rounded-full blur-[120px] bg-red-500/10 bottom-0 right-0 translate-x-1/3 translate-y-1/3 animate-pulse"
           style={{ animationDuration: "7s" }}
         ></div>
+
+        {/* Ornamen SVG Tambahan */}
+        <div className="absolute top-24 left-10 sm:left-20 animate-[spin_8s_linear_infinite] text-accent/30">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C12 6.62742 6.62742 12 0 12C6.62742 12 12 17.3726 12 24C12 17.3726 17.3726 12 24 12C17.3726 12 12 6.62742 12 0Z" />
+          </svg>
+        </div>
+        <div
+          className="absolute top-1/3 right-10 sm:right-24 animate-bounce text-white/10"
+          style={{ animationDuration: "5s" }}
+        >
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+          >
+            <circle cx="12" cy="12" r="8" />
+          </svg>
+        </div>
+        <div
+          className="absolute bottom-1/4 left-10 sm:left-24 animate-pulse text-red-400/20"
+          style={{ animationDuration: "4s" }}
+        >
+          <svg
+            width="35"
+            height="35"
+            viewBox="0 0 44 22"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M2 11l7-9 11 18 13-16 9 11" />
+          </svg>
+        </div>
+        <div className="absolute bottom-20 right-20 animate-[spin_12s_linear_infinite_reverse] text-accent/30">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2v20M2 12h20" />
+          </svg>
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto space-y-24 relative z-10">
         {/* ================= HERO & ABOUT SECTION ================= */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Kiri: Deskripsi & Tombol Daftar */}
           <div className="lg:col-span-8 space-y-8 text-center lg:text-left">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
@@ -98,8 +145,8 @@ export default function ISCTPage() {
               transition={{ duration: 0.5 }}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 border border-white/20 text-accent text-xs font-bold uppercase tracking-widest backdrop-blur-sm shadow-[0_0_15px_rgba(255,195,0,0.15)]"
             >
-              <Gamepad2 className="w-4 h-4 text-accent" />
-              E-Sports & Tournament
+              <Briefcase className="w-4 h-4 text-accent" />
+              Company Visit & Education
             </motion.div>
 
             <motion.h1
@@ -133,7 +180,7 @@ export default function ISCTPage() {
               className="flex flex-wrap items-center justify-center lg:justify-start gap-4"
             >
               <Link
-                to="/daftar-isct" // Ganti dengan link pendaftaran aslimu
+                to="/daftar-isct"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-slate-900 font-bold rounded-full hover:scale-105 hover:shadow-[0_0_30px_rgba(255,195,0,0.4)] transition-all duration-300"
               >
                 Daftar Sekarang
@@ -148,7 +195,6 @@ export default function ISCTPage() {
             </motion.div>
           </div>
 
-          {/* Kanan: Profil Ketua Pelaksana */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -184,7 +230,7 @@ export default function ISCTPage() {
           </motion.div>
         </section>
 
-        {/* ================= GALERI KEGIATAN ================= */}
+        {/* ================= GALERI KEGIATAN (MARQUEE STYLE) ================= */}
         <section className="space-y-12">
           <div className="text-center space-y-4">
             <div className="flex items-center justify-center gap-4 mb-2">
@@ -198,46 +244,126 @@ export default function ISCTPage() {
               <ImageIcon className="w-8 h-8 text-accent" />
               Keseruan ISCT
             </h2>
+            <p className="text-white/50 text-xs sm:text-sm font-bold tracking-[0.2em] uppercase mt-4">
+              Hover untuk berhenti · Klik untuk perbesar
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Foto 1 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="aspect-video rounded-3xl overflow-hidden bg-white/5 border border-white/10 hover:border-accent/50 group relative"
-            >
-              <div className="absolute inset-0 flex items-center justify-center text-white/30">
-                Foto Kegiatan 1
+          {/* Marquee Wrapper - Masking Kiri & Kanan agar Memudar */}
+          <div className="marquee-wrapper relative flex flex-col gap-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]">
+            {/* --- BARIS 1 (Scroll ke Kiri) --- */}
+            <div className="flex w-fit">
+              <div className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee">
+                {[1, 2, 3, 4, 5].map((item, idx) => (
+                  <div
+                    key={`row1-a-${idx}`}
+                    onClick={() => setSelectedImage(FotoKegiatan1)}
+                    className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
+                  >
+                    <img
+                      src={FotoKegiatan1}
+                      alt={`Galeri Kegiatan ${item}`}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                        Perbesar Foto
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
-              {/* <img src={FotoKegiatan1} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" /> */}
-            </motion.div>
-            {/* Foto 2 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, delay: 0.1 }}
-              className="aspect-video rounded-3xl overflow-hidden bg-white/5 border border-white/10 hover:border-accent/50 group relative"
-            >
-              <div className="absolute inset-0 flex items-center justify-center text-white/30">
-                Foto Kegiatan 2
+              <div
+                className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee"
+                aria-hidden="true"
+              >
+                {[1, 2, 3, 4, 5].map((item, idx) => (
+                  <div
+                    key={`row1-b-${idx}`}
+                    onClick={() => setSelectedImage(FotoKegiatan1)}
+                    className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
+                  >
+                    <img
+                      src={FotoKegiatan1}
+                      alt={`Galeri Kegiatan ${item}`}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                        Perbesar Foto
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
-              {/* <img src={FotoKegiatan2} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" /> */}
-            </motion.div>
-            {/* Foto 3 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, delay: 0.2 }}
-              className="aspect-video rounded-3xl overflow-hidden bg-white/5 border border-white/10 hover:border-accent/50 group relative md:col-span-2 lg:col-span-1"
-            >
-              <div className="absolute inset-0 flex items-center justify-center text-white/30">
-                Foto Kegiatan 3
+            </div>
+
+            {/* --- BARIS 2 (Scroll ke Kanan / Reverse) --- */}
+            <div className="flex w-fit">
+              <div className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee-reverse">
+                {[1, 2, 3, 4, 5].map((item, idx) => (
+                  <div
+                    key={`row2-a-${idx}`}
+                    onClick={() => setSelectedImage(FotoKegiatan1)}
+                    className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
+                  >
+                    <img
+                      src={FotoKegiatan1}
+                      alt={`Galeri Kegiatan ${item}`}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                        Perbesar Foto
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
-              {/* <img src={FotoKegiatan3} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" /> */}
-            </motion.div>
+              <div
+                className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee-reverse"
+                aria-hidden="true"
+              >
+                {[1, 2, 3, 4, 5].map((item, idx) => (
+                  <div
+                    key={`row2-b-${idx}`}
+                    onClick={() => setSelectedImage(FotoKegiatan1)}
+                    className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
+                  >
+                    <img
+                      src={FotoKegiatan1}
+                      alt={`Galeri Kegiatan ${item}`}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                        Perbesar Foto
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
+
+          {/* Keyframes Animasi Khusus Marquee & Hover Pause */}
+          <style>{`
+            @keyframes marquee {
+              0% { transform: translateX(0); }
+              100% { transform: translateX(-100%); }
+            }
+            .animate-marquee {
+              animation: marquee 35s linear infinite;
+            }
+            .animate-marquee-reverse {
+              animation: marquee 40s linear infinite reverse;
+            }
+            
+            /* Fitur berhenti saat kursor diarahkan ke area galeri */
+            .marquee-wrapper:hover .marquee-content {
+              animation-play-state: paused;
+            }
+          `}</style>
         </section>
 
         {/* ================= TIMELINE SECTION ================= */}
@@ -359,6 +485,42 @@ export default function ISCTPage() {
           </div>
         </section>
       </div>
+
+      {/* ================= MODAL LIGHTBOX ================= */}
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedImage(null)} // Tutup jika area luar diklik
+            className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-8"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()} // Supaya tidak tertutup jika gambarnya diklik
+              className="relative max-w-5xl w-full flex flex-col items-center justify-center"
+            >
+              {/* Tombol Tutup (X) */}
+              <button
+                onClick={() => setSelectedImage(null)}
+                className="absolute -top-12 right-0 md:-right-12 z-10 w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-accent hover:text-slate-900 transition-all cursor-pointer"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              {/* Gambar Full Size */}
+              <img
+                src={selectedImage}
+                alt="Full Size Gallery"
+                className="w-full h-auto max-h-[85vh] object-contain rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10"
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
