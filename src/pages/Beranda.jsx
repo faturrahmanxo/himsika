@@ -65,31 +65,21 @@ import Image1 from "../assets/images/1.webp";
 import Image2 from "../assets/images/2.webp";
 import Image3 from "../assets/images/3.webp";
 
-// Import Logo Aksara Cakra
-import logoHimsika from "../assets/logo/HIMSIKA.png";
-import aksaraCakra from "../assets/logo/AksaraCakra.png";
-import logoInternal from "../assets/logo/INTERNAL.png";
-import logoRelasi from "../assets/logo/RELASI.png";
-import logoKominfo from "../assets/logo/KOMINFO.png";
-import logoEdukasi from "../assets/logo/EDUKASI.png";
-
 // Import Data
 import artikelData from "../data/artikel";
 import allEvents from "../data/allEvents";
 import divisi from "../data/divisi";
 import kalenderTahunan from "../data/kalenderTahunan";
 
-// Komponen Counter Statistik
+// Komponen Counter Statistik (Fix: Mengikuti aturan "Hanya saat scroll ke bawah")
 const AnimatedCounter = ({ end, duration = 2000 }) => {
   const [count, setCount] = useState(0);
-  const [hasAnimated, setHasAnimated] = useState(false);
   const nodeRef = useRef(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !hasAnimated) {
-          setHasAnimated(true);
+        if (entries[0].isIntersecting) {
           let startTime = null;
           const step = (timestamp) => {
             if (!startTime) startTime = timestamp;
@@ -101,19 +91,21 @@ const AnimatedCounter = ({ end, duration = 2000 }) => {
             }
           };
           window.requestAnimationFrame(step);
+        } else {
+          setCount(0);
         }
       },
-      { threshold: 0.1 },
+      // Menggunakan trik rootMargin agar tidak reset saat scroll ke atas
+      { threshold: 0, rootMargin: "10000px 0px -50px 0px" },
     );
     if (nodeRef.current) observer.observe(nodeRef.current);
     return () => observer.disconnect();
-  }, [end, duration, hasAnimated]);
+  }, [end, duration]);
 
   return <span ref={nodeRef}>{count}</span>;
 };
 
 export default function Beranda() {
-  // Ambil 3 artikel terbaru
   const artikelBerita = artikelData.slice(0, 3);
   const featuredBerita = artikelBerita[0];
   const listBerita = artikelBerita.slice(1);
@@ -124,24 +116,21 @@ export default function Beranda() {
     { id: 3, image: Image3, alt: "Kegiatan HIMSIKA 3" },
   ];
 
-  // 2. Untuk Section 1 (Agenda Mendatang - Misal mau nampilin 4 atau semuanya)
   const upcomingEvents = allEvents.slice(0, 4);
-
-  // 3. Untuk Section 2 (Kegiatan Lainnya - Misal cuma mau nampilin 4 item pertama aja)
   const kegiatanLainnya = allEvents;
 
-  
-
-  // Tampilkan 6 item pertama sebagai default
   const [showAll, setShowAll] = useState(false);
   const displayedPrograms = showAll
     ? kegiatanLainnya
     : kegiatanLainnya.slice(0, 6);
+
+  // TRIK UTAMA: Top margin diubah jadi 10000px agar tidak beranimasi saat scroll ke atas
+  const scrollSettings = { once: false, margin: "10000px 0px -50px 0px" };
+
   return (
     <div className="min-h-screen font-primary selection:bg-primary overflow-x-hidden">
-      {/* 1. HERO SECTION (RESPONSIVE PARALLAX) */}
-      {/* overflow-hidden di tag section paling luar penting untuk menjaga kerapian slider */}
-      <section className="relative w-full h-screen min-h-[600px] flex items-center overflow-hidden">
+      {/* 1. HERO SECTION */}
+      <section className="relative w-full min-h-[100dvh] flex items-center overflow-hidden py-24 sm:py-0">
         <div className="absolute lg:fixed top-0 left-0 w-full h-screen z-0 lg:-z-10 pointer-events-none">
           <Swiper
             modules={[Autoplay, EffectFade]}
@@ -156,21 +145,16 @@ export default function Beranda() {
                 <img
                   src={slide.image}
                   alt={slide.alt}
-                  // animate-kenburns opsional, kalau HP terasa berat, hapus class animasinya
                   className="w-full h-full object-cover transform scale-105 sm:animate-[kenburns_20s_ease-in-out_infinite_alternate]"
                 />
               </SwiperSlide>
             ))}
           </Swiper>
-
-          {/* Overlay Gradient (dipindah ke dalam parallax wrapper agar ikut diam) */}
           <div className="absolute inset-0 bg-gradient-to-r from-primary/50 via-[#022038]/80 to-primary/40 z-10"></div>
         </div>
 
-        {/* Konten Utama (Teks & Tombol) - z-10 agar berada di atas background parallax */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-start text-left pt-16 pb-24">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-start text-left mt-10 sm:mt-22 pb-8">
           <div className="absolute inset-0 pointer-events-none z-0">
-            {/* Ornamen 1 (Kanan Atas) */}
             <div className="hidden sm:block absolute top-12 right-16">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -247,8 +231,7 @@ export default function Beranda() {
               </svg>
             </div>
 
-            {/* Ornamen 2 */}
-            <div className="hidden sm:block absolute bottom-14 right-80">
+            <div className="hidden md:block absolute bottom-14 right-[15%] lg:right-[25%] opacity-70">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -328,13 +311,12 @@ export default function Beranda() {
           <motion.div
             variants={container}
             initial="hidden"
-            animate="show"
+            whileInView="show"
+            viewport={scrollSettings}
             className="w-full"
           >
-            {/* 1. Bagian Badge (Muncul pertama) */}
             <motion.div variants={item} className="mb-6 relative z-10">
               <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-primary/50 border border-white/20 backdrop-blur-md shadow-[0_0_20px_rgba(255,195,0,0.15)]">
-                {/* Dot Pulse Indicator */}
                 <div className="relative flex items-center justify-center">
                   <span className="w-2.5 h-2.5 rounded-full bg-accent animate-ping absolute"></span>
                   <span className="w-2 h-2 rounded-full bg-accent relative"></span>
@@ -346,23 +328,18 @@ export default function Beranda() {
             </motion.div>
 
             <div className="flex flex-col items-start relative z-10">
-              {/* 2. Heading Baris 1 (Muncul kedua) */}
               <motion.h1
                 variants={item}
                 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-tight"
               >
                 Himpunan Mahasiswa
               </motion.h1>
-
-              {/* 3. Heading Baris 2 (Muncul ketiga) */}
               <motion.h1
                 variants={item}
                 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-accent leading-tight pb-2 drop-shadow-lg"
               >
                 Sistem Informasi
               </motion.h1>
-
-              {/* 4. Deskripsi (Muncul keempat) */}
               <motion.p
                 variants={item}
                 className="mt-4 sm:mt-6 text-base sm:text-lg text-white/90 font-medium tracking-wide max-w-xl leading-relaxed drop-shadow-md"
@@ -372,7 +349,6 @@ export default function Beranda() {
               </motion.p>
             </div>
 
-            {/* 5. CTA Buttons (Muncul terakhir) */}
             <motion.div
               variants={item}
               className="mt-10 sm:mt-12 flex flex-wrap gap-6 relative z-10"
@@ -396,7 +372,6 @@ export default function Beranda() {
                   ></path>
                 </svg>
               </Link>
-
               <Link
                 to="/sejarah-himsika"
                 className="group inline-flex items-center justify-center px-8 py-3.5 bg-primary/20 hover:bg-primary/90 backdrop-blur-md border border-info text-text font-bold text-sm sm:text-base rounded-full transition-all duration-300"
@@ -408,13 +383,10 @@ export default function Beranda() {
         </div>
       </section>
 
-      {/* =========================================
-          2. KABINET & STRUKTUR 
-          ========================================= */}
+      {/* 2. KABINET & STRUKTUR */}
       <section className="relative z-20 bg-linear-to-br from-[#043761] via-primary to-[#043761]">
         <div className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
           <div className="relative">
-            {/* Bg Dekorasi*/}
             <div className="absolute inset-0 pointer-events-none z-0">
               <div
                 className="absolute w-[30rem] h-[30rem] rounded-full blur-[120px] bg-accent/20 -top-20 -left-20 animate-pulse"
@@ -425,51 +397,13 @@ export default function Beranda() {
                 style={{ animationDuration: "8s", animationDelay: "2s" }}
               />
               <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
-              <div
-                className="absolute top-10 left-4 sm:left-24 animate-bounce text-accent/40"
-                style={{ animationDuration: "4s" }}
-              >
-                <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2.5"
-                    d="M12 4v16m8-8H4"
-                  ></path>
-                </svg>
-              </div>
-              <div
-                className="absolute top-48 right-4 sm:right-24 animate-pulse text-info/40"
-                style={{ animationDuration: "3s" }}
-              >
-                <svg width="32" height="32" fill="none" viewBox="0 0 24 24">
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="3"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  ></circle>
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeDasharray="4 4"
-                  ></circle>
-                </svg>
-              </div>
             </div>
-            {/* end dekorasi */}
 
-            {/* Title (GRUP ANIMASI 1) */}
             <motion.div
               variants={fadeUpContainer}
               initial="hidden"
               whileInView="show"
-              viewport={{ once: true, margin: "-50px" }}
+              viewport={scrollSettings}
               className="mb-16 flex flex-col items-center text-center relative z-10"
             >
               <motion.div
@@ -482,7 +416,6 @@ export default function Beranda() {
                 </span>
                 <span className="w-8 sm:w-12 h-0.5 bg-accent rounded-full"></span>
               </motion.div>
-
               <motion.h2
                 variants={fadeUpItem}
                 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6 relative"
@@ -491,19 +424,6 @@ export default function Beranda() {
                 <span className="text-accent drop-shadow-[0_0_20px_rgba(255,195,0,0.4)]">
                   HIMSIKA
                 </span>
-                <svg
-                  className="absolute -top-6 -right-8 w-6 h-6 text-accent/60 hidden sm:block animate-[spin_10s_linear_infinite]"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="1.5"
-                    d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                  />
-                </svg>
               </motion.h2>
               <motion.p
                 variants={fadeUpItem}
@@ -516,12 +436,11 @@ export default function Beranda() {
               </motion.p>
             </motion.div>
 
-            {/* Konten Grid Card (GRUP ANIMASI 2) */}
             <motion.div
               variants={fadeUpContainer}
               initial="hidden"
               whileInView="show"
-              viewport={{ once: true, margin: "-50px" }}
+              viewport={scrollSettings}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10"
             >
               {divisi.map((divisi) => (
@@ -532,7 +451,6 @@ export default function Beranda() {
                 >
                   <div className="group relative h-full bg-card shadow-lg rounded-3xl border border-accent/20 hover:border-accent hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 overflow-hidden flex flex-col">
                     <div className="absolute top-0 left-0 right-0 h-1.5 bg-accent opacity-70 group-hover:opacity-100 transition-opacity" />
-
                     <div className="p-6 sm:p-8 flex flex-col flex-grow">
                       <div className="w-14 h-14 bg-foreground/10 rounded-2xl flex items-center justify-center shadow-inner shrink-0 mb-6 group-hover:scale-110 transition-all duration-300">
                         <img
@@ -541,14 +459,12 @@ export default function Beranda() {
                           className="w-8 h-8 object-contain drop-shadow-sm"
                         />
                       </div>
-
                       <h3 className="text-xl font-bold text-text mb-3">
                         {divisi.name}
                       </h3>
                       <p className="text-sm line-clamp-3 mb-8 text-text/80 leading-relaxed">
                         {divisi.desc}
                       </p>
-
                       <div className="mt-auto pt-5 border-t border-accent/10">
                         <span className="text-accent text-[10px] sm:text-xs font-bold uppercase tracking-[0.15em]">
                           {divisi.dept}
@@ -560,16 +476,14 @@ export default function Beranda() {
               ))}
             </motion.div>
 
-            {/* Statistik / Pengurus (GRUP ANIMASI 3) */}
             <motion.div
               variants={fadeUpContainer}
               initial="hidden"
               whileInView="show"
-              viewport={{ once: true, margin: "-50px" }}
+              viewport={scrollSettings}
               className="bg-accent backdrop-blur-sm mx-auto max-w-5xl rounded-3xl p-8 sm:p-10 border border-card/20 mt-16 shadow-xl relative overflow-hidden z-10"
             >
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-card blur-[20px] opacity-50"></div>
-
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 divide-x-0 md:divide-x divide-card/20">
                 {[
                   { num: 38, suffix: "", label: "Pengurus Aktif" },
@@ -599,59 +513,18 @@ export default function Beranda() {
 
       {/* 3. VIDEO COMPANY PROFILE */}
       <section className="relative overflow-hidden py-24 bg-[#043761]">
-        {/* Background Dekorasi Konsisten */}
         <div className="absolute inset-0 pointer-events-none z-0">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
           <div className="absolute w-[20rem] h-80 rounded-full blur-[100px] bg-accent/20 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
-
-          {/* Ornamen Floating */}
-          <div
-            className="absolute top-20 left-10 sm:left-32 animate-bounce text-accent/40"
-            style={{ animationDuration: "5s" }}
-          >
-            <svg width="32" height="32" fill="none" viewBox="0 0 24 24">
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M12 4v16m8-8H4"
-              ></path>
-            </svg>
-          </div>
-          <div
-            className="absolute bottom-20 right-10 sm:right-32 animate-pulse text-info/40"
-            style={{ animationDuration: "4s" }}
-          >
-            <svg width="40" height="40" fill="none" viewBox="0 0 24 24">
-              <circle
-                cx="12"
-                cy="12"
-                r="4"
-                stroke="currentColor"
-                strokeWidth="2"
-              ></circle>
-              <circle
-                cx="12"
-                cy="12"
-                r="12"
-                stroke="currentColor"
-                strokeWidth="1"
-                strokeDasharray="4 4"
-              ></circle>
-            </svg>
-          </div>
         </div>
 
-        {/* ====== Content ===== */}
         <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative z-10">
           <motion.div
             variants={fadeUpContainer}
             initial="hidden"
             whileInView="show"
-            viewport={{ once: true, margin: "-50px" }}
+            viewport={scrollSettings}
           >
-            {/* Title (GRUP ANIMASI) */}
             <div className="mb-16 flex flex-col items-center text-center">
               <motion.div
                 variants={fadeUpItem}
@@ -663,7 +536,6 @@ export default function Beranda() {
                 </span>
                 <span className="w-8 sm:w-12 h-0.5 bg-accent rounded-full"></span>
               </motion.div>
-
               <motion.h2
                 variants={fadeUpItem}
                 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6 relative"
@@ -672,22 +544,7 @@ export default function Beranda() {
                 <span className="text-accent drop-shadow-[0_0_15px_rgba(255,195,0,0.3)]">
                   HIMSIKA
                 </span>
-                {/* Bintang Sparkle */}
-                <svg
-                  className="absolute -top-6 -right-8 w-6 h-6 text-accent/60 hidden sm:block animate-[spin_10s_linear_infinite]"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="1.5"
-                    d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                  />
-                </svg>
               </motion.h2>
-
               <motion.p
                 variants={fadeUpItem}
                 className="text-base sm:text-lg max-w-2xl leading-relaxed text-white/80"
@@ -697,7 +554,6 @@ export default function Beranda() {
               </motion.p>
             </div>
 
-            {/* Video Container (ANIMASI TERAKHIR) */}
             <motion.div
               variants={fadeUpItem}
               className="relative w-full max-w-5xl mx-auto aspect-video bg-white/5 rounded-[1.5rem] sm:rounded-[2.5rem] overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.3)] border border-white/10 group cursor-pointer backdrop-blur-sm p-1.5 sm:p-4"
@@ -714,14 +570,9 @@ export default function Beranda() {
                   className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700 ease-in-out"
                 />
                 <div className="absolute inset-0 bg-[#043761]/40 group-hover:bg-[#043761]/20 transition-all duration-300"></div>
-
-                {/* FIX: Tombol Play yang Responsif */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
                   <div className="relative flex items-center justify-center">
-                    {/* Lingkaran Ping Dinamis */}
                     <div className="absolute w-16 h-16 sm:w-20 sm:h-20 md:w-28 md:h-28 bg-accent/40 rounded-full animate-ping"></div>
-
-                    {/* Lingkaran Solid Dinamis */}
                     <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-24 md:h-24 bg-accent/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(255,195,0,0.4)] group-hover:scale-110 group-hover:bg-accent transition-all duration-300">
                       <svg
                         className="w-5 h-5 sm:w-7 sm:h-7 md:w-10 md:h-10 text-slate-900 translate-x-[2px]"
@@ -732,8 +583,6 @@ export default function Beranda() {
                       </svg>
                     </div>
                   </div>
-
-                  {/* Teks Dinamis */}
                   <span className="mt-3 sm:mt-4 md:mt-6 text-white font-bold tracking-widest uppercase text-[10px] sm:text-xs md:text-sm drop-shadow-md">
                     Putar Video
                   </span>
@@ -744,42 +593,21 @@ export default function Beranda() {
         </div>
       </section>
 
-      {/* 4. UPCOMING EVENTS (GLASSMORPHISM SWIPER) */}
+      {/* 4. UPCOMING EVENTS */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-full mx-auto bg-linear-to-b from-[#043761] to-primary relative overflow-hidden">
-        {/* Background Dekorasi Konsisten */}
         <div className="absolute inset-0 pointer-events-none z-0">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
           <div className="absolute w-100 h-100 rounded-full blur-[120px] bg-accent/20 top-20 -left-30 animate-pulse"></div>
           <div className="absolute w-100 h-100 rounded-full blur-[120px] bg-accent/20 bottom-20 -right-30 animate-pulse"></div>
-
-          {/* Ornamen Floating */}
-          <div
-            className="absolute top-1/2 right-10 sm:right-24 animate-bounce text-accent/30"
-            style={{ animationDuration: "6s" }}
-          >
-            <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
-              <rect
-                x="3"
-                y="3"
-                width="18"
-                height="18"
-                rx="4"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeDasharray="4 4"
-              ></rect>
-            </svg>
-          </div>
         </div>
 
         <motion.div
           variants={fadeUpContainer}
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true, margin: "-50px" }}
-          className="max-w-6xl mx-auto relative z-10"
+          viewport={scrollSettings}
+          className="max-w-7xl mx-auto relative z-10"
         >
-          {/* Title */}
           <div className="mb-16 flex flex-col items-center text-center">
             <motion.div
               variants={fadeUpItem}
@@ -796,19 +624,6 @@ export default function Beranda() {
               className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6 relative"
             >
               Agenda <span className="text-accent">Mendatang</span>
-              <svg
-                className="absolute -top-6 -right-10 w-6 h-6 text-accent/60 hidden sm:block animate-[spin_10s_linear_infinite]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="1.5"
-                  d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                />
-              </svg>
             </motion.h2>
             <motion.p
               variants={fadeUpItem}
@@ -818,7 +633,6 @@ export default function Beranda() {
             </motion.p>
           </div>
 
-          {/* Swiper Container */}
           <motion.div variants={fadeUpItem} className="relative">
             <Swiper
               modules={[Autoplay, Pagination]}
@@ -826,9 +640,7 @@ export default function Beranda() {
               slidesPerView={1}
               autoplay={{ delay: 4000, disableOnInteraction: true }}
               pagination={{ clickable: true, dynamicBullets: true }}
-              breakpoints={{
-                1024: { slidesPerView: 2 },
-              }}
+              breakpoints={{ 1024: { slidesPerView: 2 } }}
               className="pb-16 pt-4 px-2"
             >
               {upcomingEvents.map((event) => (
@@ -853,7 +665,7 @@ export default function Beranda() {
                       <h3 className="text-xl font-bold text-white mb-2 group-hover:text-accent transition-colors">
                         {event.title}
                       </h3>
-                      <p className="text-white/70 text-sm leading-relaxed  line-clamp-4">
+                      <p className="text-white/70 text-sm leading-relaxed line-clamp-4">
                         {event.desc}
                       </p>
                     </div>
@@ -865,53 +677,24 @@ export default function Beranda() {
         </motion.div>
       </section>
 
-      {/* =========================================
-          7. KEGIATAN LAINNYA 
-          ========================================= */}
+      {/* 7. KEGIATAN LAINNYA */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-full mx-auto bg-primary relative overflow-hidden">
-        {/* Background Dekorasi */}
         <div className="absolute inset-0 pointer-events-none z-0">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
           <div
             className="absolute w-[35rem] h-[35rem] rounded-full blur-[140px] bg-info/15 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse"
             style={{ animationDelay: "1s" }}
           ></div>
-
-          {/* Ornamen Floating */}
-          <div
-            className="absolute top-10 left-10 sm:left-20 animate-pulse text-accent/40"
-            style={{ animationDuration: "3s" }}
-          >
-            <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-              <circle
-                cx="12"
-                cy="12"
-                r="3"
-                stroke="currentColor"
-                strokeWidth="2"
-              ></circle>
-              <circle
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeDasharray="4 4"
-              ></circle>
-            </svg>
-          </div>
         </div>
 
-        {/* container */}
-        <motion.div
-          variants={fadeUpContainer}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-50px" }}
-          className="max-w-[75rem] mx-auto relative z-10"
-        >
-          {/* Title */}
-          <div className="mb-16 flex flex-col items-center text-center">
+        <div className="max-w-7xl mx-auto relative z-10">
+          <motion.div
+            variants={fadeUpContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={scrollSettings}
+            className="mb-16 flex flex-col items-center text-center"
+          >
             <motion.div
               variants={fadeUpItem}
               className="flex items-center gap-4 mb-4"
@@ -927,19 +710,6 @@ export default function Beranda() {
               className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6 relative"
             >
               Program <span className="text-accent">Lainnya</span>
-              <svg
-                className="absolute -top-6 -right-10 w-6 h-6 text-accent/60 hidden sm:block animate-[spin_10s_linear_infinite]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="1.5"
-                  d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                />
-              </svg>
             </motion.h2>
             <motion.p
               variants={fadeUpItem}
@@ -948,14 +718,16 @@ export default function Beranda() {
               Beragam inisiatif dan kegiatan seru untuk mengembangkan potensi
               mahasiswa secara maksimal.
             </motion.p>
-          </div>
+          </motion.div>
 
-          {/* Content */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayedPrograms.map((prog) => (
+            {displayedPrograms.map((prog, index) => (
               <motion.div
-                variants={fadeUpItem}
                 key={prog.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={scrollSettings}
+                transition={{ duration: 0.5, delay: (index % 6) * 0.1 }}
                 className="h-full"
               >
                 <Link
@@ -981,15 +753,16 @@ export default function Beranda() {
             ))}
           </div>
 
-          {/* Tombol Muat Lebih Banyak */}
           {kegiatanLainnya.length > 6 && (
             <motion.div
-              variants={fadeUpItem}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={scrollSettings}
               className="mt-14 flex justify-center"
             >
               <button
                 onClick={() => setShowAll(!showAll)}
-                className="group inline-flex items-center justify-center gap-3 px-6 py-2.5 bg-primary hover:bg-accent/20 border border-accent/50 text-accent font-bold text-sm sm:text-base rounded-full transition-all duration-300 hover:scale-105  shadow-lg cursor-pointer"
+                className="group inline-flex items-center justify-center gap-3 px-6 py-2.5 bg-primary hover:bg-accent/20 border border-accent/50 text-accent font-bold text-sm sm:text-base rounded-full transition-all duration-300 hover:scale-105 shadow-lg cursor-pointer"
               >
                 {showAll ? "Tampilkan Lebih Sedikit" : "Muat Lebih Banyak"}
                 <div className="bg-accent/20 rounded-full w-6 h-6 flex items-center justify-center">
@@ -1010,53 +783,26 @@ export default function Beranda() {
               </button>
             </motion.div>
           )}
-        </motion.div>
+        </div>
       </section>
 
-      {/* 8. ARTIKEL & BERITA (DARK MAGAZINE) */}
+      {/* 8. ARTIKEL & BERITA */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 bg-linear-to-b from-primary to-[#043761] border-y border-white/5 relative overflow-hidden">
-        {/* Background Dekorasi */}
         <div className="absolute inset-0 pointer-events-none z-0">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
           <div
             className="absolute w-[35rem] h-[35rem] rounded-full blur-[140px] bg-info/15 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse"
             style={{ animationDelay: "1s" }}
           ></div>
-
-          {/* Ornamen Floating */}
-          <div
-            className="absolute top-10 left-10 sm:left-20 animate-pulse text-accent/40"
-            style={{ animationDuration: "3s" }}
-          >
-            <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-              <circle
-                cx="12"
-                cy="12"
-                r="3"
-                stroke="currentColor"
-                strokeWidth="2"
-              ></circle>
-              <circle
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeDasharray="4 4"
-              ></circle>
-            </svg>
-          </div>
         </div>
 
-        {/* Content */}
         <motion.div
           variants={fadeUpContainer}
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true, margin: "-50px" }}
-          className="max-w-300 mx-auto relative z-10"
+          viewport={scrollSettings}
+          className="max-w-7xl mx-auto relative z-10"
         >
-          {/* Title */}
           <div className="mb-16 flex flex-col items-center text-center">
             <motion.div
               variants={fadeUpItem}
@@ -1064,7 +810,7 @@ export default function Beranda() {
             >
               <span className="w-8 sm:w-12 h-0.5 bg-accent rounded-full"></span>
               <span className="text-accent font-bold text-sm uppercase tracking-widest">
-                update
+                Update
               </span>
               <span className="w-8 sm:w-12 h-0.5 bg-accent rounded-full"></span>
             </motion.div>
@@ -1073,19 +819,6 @@ export default function Beranda() {
               className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-6 relative"
             >
               Kabar <span className="text-accent">HIMSIKA</span>
-              <svg
-                className="absolute -top-6 -right-10 w-6 h-6 text-accent/60 hidden sm:block animate-[spin_10s_linear_infinite]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="1.5"
-                  d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                />
-              </svg>
             </motion.h2>
             <motion.p
               variants={fadeUpItem}
@@ -1097,7 +830,6 @@ export default function Beranda() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-            {/* Featured Article Utama */}
             {featuredBerita && (
               <motion.div variants={fadeUpItem} className="lg:col-span-7">
                 <Link
@@ -1129,7 +861,6 @@ export default function Beranda() {
               </motion.div>
             )}
 
-            {/* List Artikel Samping */}
             <div className="lg:col-span-5 flex flex-col gap-6 sm:gap-8">
               {listBerita.map((berita) => (
                 <motion.div variants={fadeUpItem} key={berita.id}>
@@ -1144,8 +875,8 @@ export default function Beranda() {
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                     </div>
-                    <div className="flex flex-col pr-4">
-                      <span className="text-accent text-[10px] font-bold uppercase tracking-widest mb-2">
+                    <div className="flex-1 min-w-0 flex flex-col pr-2 sm:pr-4">
+                      <span className="text-accent text-[10px] font-bold uppercase tracking-widest mb-2 truncate">
                         {berita.category}
                       </span>
                       <h3 className="text-lg font-bold text-white leading-snug group-hover:text-accent transition-colors mb-2 line-clamp-2">
@@ -1161,7 +892,6 @@ export default function Beranda() {
             </div>
           </div>
 
-          {/* Tombol Lihat Semua */}
           <motion.div
             variants={fadeUpItem}
             className="mt-16 flex justify-center"
@@ -1177,48 +907,21 @@ export default function Beranda() {
         </motion.div>
       </section>
 
-      {/* =========================================
-          9. KALENDER TAHUNAN (NEON TIMELINE)
-          ========================================= */}
+      {/* 9. KALENDER TAHUNAN */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-full mx-auto bg-[#043761] relative overflow-hidden pb-32">
-        {/* Dekorasi Konsisten */}
         <div className="absolute inset-0 pointer-events-none z-0">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:3rem_3rem]"></div>
           <div
             className="absolute w-[20rem] h-[20rem] rounded-full blur-[100px] bg-info/15 bottom-0 left-1/2 -translate-x-1/2 animate-pulse"
             style={{ animationDuration: "8s" }}
           ></div>
-
-          {/* Ornamen Floating */}
-          <div
-            className="absolute bottom-40 right-10 sm:right-32 animate-pulse text-accent/30"
-            style={{ animationDuration: "3s" }}
-          >
-            <svg width="32" height="32" fill="none" viewBox="0 0 24 24">
-              <circle
-                cx="12"
-                cy="12"
-                r="3"
-                stroke="currentColor"
-                strokeWidth="2"
-              ></circle>
-              <circle
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeDasharray="4 4"
-              ></circle>
-            </svg>
-          </div>
         </div>
 
         <motion.div
           variants={fadeUpContainer}
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true, margin: "-50px" }}
+          viewport={scrollSettings}
           className="max-w-3xl mx-auto relative z-10"
         >
           <div className="text-center mb-16 relative">
@@ -1227,22 +930,9 @@ export default function Beranda() {
               className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4 inline-block relative"
             >
               Timeline <span className="text-accent">Akademik</span>
-              <svg
-                className="absolute -top-6 -right-10 w-6 h-6 text-accent/60 hidden sm:block animate-[spin_10s_linear_infinite]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="1.5"
-                  d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                />
-              </svg>
             </motion.h2>
             <motion.p variants={fadeUpItem} className="text-white/80">
-              Lorem ipsum dolor sit amet consectetur adipisicing.
+              Jadwal pelaksanaan program tahunan Himpunan Mahasiswa.
             </motion.p>
           </div>
 
@@ -1253,11 +943,8 @@ export default function Beranda() {
                 key={index}
                 className="mb-12 ml-8 sm:ml-12 relative group"
               >
-                {/* Dot Timeline Glowing */}
                 <span className="absolute -left-[39px] sm:-left-[55px] top-1.5 w-4 h-4 bg-[#043761] border-2 border-accent rounded-full group-hover:bg-accent group-hover:shadow-[0_0_15px_rgba(255,195,0,0.6)] group-hover:scale-125 transition-all duration-300"></span>
-
                 <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 group-hover:border-accent/50 group-hover:bg-white/10 transition-all duration-300 shadow-lg relative overflow-hidden">
-                  {/* Efek kilap kiri */}
                   <div className="absolute top-0 left-0 w-1 h-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <span className="text-accent font-bold text-xs uppercase tracking-[0.15em] block mb-2">
                     {item.month}
