@@ -2,20 +2,22 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Link } from "react-router-dom";
 import {
-  Gamepad2,
   Calendar,
-  Trophy,
-  Swords,
+  Briefcase,
   Target,
-  Users,
-  Medal,
   ExternalLink,
   CheckCircle2,
   Clock,
   Image as ImageIcon,
-  Rocket,
   X,
-  Briefcase, // Jangan lupa X diimport untuk tombol close modal
+  Trophy,
+  MessageSquare,
+  Layout,
+  Cpu,
+  Brain,
+  Network,
+  Award,
+  Zap
 } from "lucide-react";
 
 // --- SILAKAN IMPORT GAMBAR ASLI KAMU DI SINI ---
@@ -50,33 +52,81 @@ const timelineData = [
   },
 ];
 
-// Data Capaian Kegiatan
+// Data Capaian Kegiatan ISCT (10 Poin, Compact Version)
 const achievementsData = [
   {
     id: 1,
-    icon: Users,
-    title: "Partisipasi Masif",
-    desc: "Diikuti oleh lebih dari 50+ tim dari berbagai angkatan dan program studi, menciptakan atmosfer kompetitif yang sehat.",
-    tag: "Antusiasme",
+    icon: Trophy,
+    title: "Pelaksanaan Berjalan Sukses",
+    desc: "Program ISCT terlaksana dengan baik di PT INTI dan dihadiri oleh mahasiswa aktif Sistem Informasi.",
+    tag: "Sukses",
   },
   {
     id: 2,
-    icon: Swords,
-    title: "Sportivitas Tinggi",
-    desc: "Seluruh pertandingan berjalan dengan fair play dan menjunjung tinggi nilai persaudaraan antar mahasiswa.",
-    tag: "Fair Play",
+    icon: Target,
+    title: "Wawasan Dunia Industri",
+    desc: "Memperoleh pemahaman langsung tentang implementasi teknologi dan proses kerja di perusahaan.",
+    tag: "Wawasan",
   },
   {
     id: 3,
-    icon: Medal,
-    title: "Regenerasi Atlet E-Sports",
-    desc: "Berhasil menjaring bakat-bakat baru yang berpotensi mewakili universitas di kancah turnamen nasional.",
-    tag: "Bakat",
+    icon: MessageSquare,
+    title: "Interaksi Profesional",
+    desc: "Tanya jawab dan diskusi interaktif dengan ahli teknologi seputar produk dan sistem informasi industri.",
+    tag: "Diskusi",
+  },
+  {
+    id: 4,
+    icon: Layout,
+    title: "Kunjungan Showroom",
+    desc: "Menyaksikan berbagai inovasi dan produk unggulan teknologi PT INTI secara langsung.",
+    tag: "Eksplorasi",
+  },
+  {
+    id: 5,
+    icon: Cpu,
+    title: "Transformasi Digital",
+    desc: "Memahami peran teknologi informasi dalam mendukung digitalisasi dan operasional bisnis modern.",
+    tag: "Digital",
+  },
+  {
+    id: 6,
+    icon: Brain,
+    title: "Peningkatan Soft Skill",
+    desc: "Meningkatkan kemampuan komunikasi, berpikir kritis, dan percaya diri dalam menghadapi dunia kerja.",
+    tag: "Soft Skill",
+  },
+  {
+    id: 7,
+    icon: Network,
+    title: "Networking Profesional",
+    desc: "Menjalin koneksi dengan para praktisi teknologi sebagai bekal penting menuju dunia karir.",
+    tag: "Relasi",
+  },
+  {
+    id: 8,
+    icon: Briefcase,
+    title: "Arah Karir & Motivasi",
+    desc: "Mendapat gambaran jelas mengenai peluang karir di bidang SI dan persiapan kebutuhan industri.",
+    tag: "Karir",
+  },
+  {
+    id: 9,
+    icon: Award,
+    title: "Pengembangan SDM",
+    desc: "Berkontribusi pada peningkatan kompetensi IT dan memperkuat Himsika sebagai wadah pengembangan.",
+    tag: "Komitmen",
+  },
+  {
+    id: 10,
+    icon: Zap,
+    title: "Dampak Positif",
+    desc: "Mendapatkan ilmu baru, pengalaman lapangan, serta pemahaman tantangan sektor IT secara real.",
+    tag: "Impact",
   },
 ];
 
 export default function ISCTPage() {
-  // State untuk menyimpan gambar yang diklik (Lightbox)
   const [selectedImage, setSelectedImage] = useState(null);
 
   return (
@@ -90,41 +140,18 @@ export default function ISCTPage() {
           style={{ animationDuration: "7s" }}
         ></div>
 
-        {/* Ornamen SVG Tambahan */}
         <div className="absolute top-24 left-10 sm:left-20 animate-[spin_8s_linear_infinite] text-accent/30">
           <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 0C12 6.62742 6.62742 12 0 12C6.62742 12 12 17.3726 12 24C12 17.3726 17.3726 12 24 12C17.3726 12 12 6.62742 12 0Z" />
           </svg>
         </div>
-        <div
-          className="absolute top-1/3 right-10 sm:right-24 animate-bounce text-white/10"
-          style={{ animationDuration: "5s" }}
-        >
-          <svg
-            width="40"
-            height="40"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-          >
+        <div className="absolute top-1/3 right-10 sm:right-24 animate-bounce text-white/10" style={{ animationDuration: "5s" }}>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
             <circle cx="12" cy="12" r="8" />
           </svg>
         </div>
-        <div
-          className="absolute bottom-1/4 left-10 sm:left-24 animate-pulse text-red-400/20"
-          style={{ animationDuration: "4s" }}
-        >
-          <svg
-            width="35"
-            height="35"
-            viewBox="0 0 44 22"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
+        <div className="absolute bottom-1/4 left-10 sm:left-24 animate-pulse text-red-400/20" style={{ animationDuration: "4s" }}>
+          <svg width="35" height="35" viewBox="0 0 44 22" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
             <path d="M2 11l7-9 11 18 13-16 9 11" />
           </svg>
         </div>
@@ -135,7 +162,7 @@ export default function ISCTPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto space-y-24 relative z-10">
+      <div className="max-w-7xl mx-auto space-y-20 relative z-10">
         {/* ================= HERO & ABOUT SECTION ================= */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-8 space-y-8 text-center lg:text-left">
@@ -230,8 +257,8 @@ export default function ISCTPage() {
           </motion.div>
         </section>
 
-        {/* ================= GALERI KEGIATAN (MARQUEE STYLE) ================= */}
-        <section className="space-y-12">
+        {/* ================= GALERI KEGIATAN (COMPACT MARQUEE) ================= */}
+        <section className="space-y-10 pt-8">
           <div className="text-center space-y-4">
             <div className="flex items-center justify-center gap-4 mb-2">
               <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
@@ -244,101 +271,48 @@ export default function ISCTPage() {
               <ImageIcon className="w-8 h-8 text-accent" />
               Keseruan ISCT
             </h2>
-            <p className="text-white/50 text-xs sm:text-sm font-bold tracking-[0.2em] uppercase mt-4">
-              Hover untuk berhenti · Klik untuk perbesar
-            </p>
           </div>
 
-          {/* Marquee Wrapper - Masking Kiri & Kanan agar Memudar */}
-          <div className="marquee-wrapper relative flex flex-col gap-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]">
-            {/* --- BARIS 1 (Scroll ke Kiri) --- */}
+          <div className="marquee-wrapper relative flex flex-col gap-4 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]">
             <div className="flex w-fit">
-              <div className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee">
+              <div className="marquee-content flex shrink-0 gap-4 pr-4 animate-marquee">
                 {[1, 2, 3, 4, 5].map((item, idx) => (
-                  <div
-                    key={`row1-a-${idx}`}
-                    onClick={() => setSelectedImage(FotoKegiatan1)}
-                    className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
-                  >
-                    <img
-                      src={FotoKegiatan1}
-                      alt={`Galeri Kegiatan ${item}`}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
+                  <div key={`row1-a-${idx}`} onClick={() => setSelectedImage(FotoKegiatan1)} className="w-[260px] sm:w-[320px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group">
+                    <img src={FotoKegiatan1} alt="Galeri" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                        Perbesar Foto
-                      </span>
+                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">Perbesar Foto</span>
                     </div>
                   </div>
                 ))}
               </div>
-              <div
-                className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee"
-                aria-hidden="true"
-              >
+              <div className="marquee-content flex shrink-0 gap-4 pr-4 animate-marquee" aria-hidden="true">
                 {[1, 2, 3, 4, 5].map((item, idx) => (
-                  <div
-                    key={`row1-b-${idx}`}
-                    onClick={() => setSelectedImage(FotoKegiatan1)}
-                    className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
-                  >
-                    <img
-                      src={FotoKegiatan1}
-                      alt={`Galeri Kegiatan ${item}`}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
+                  <div key={`row1-b-${idx}`} onClick={() => setSelectedImage(FotoKegiatan1)} className="w-[260px] sm:w-[320px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group">
+                    <img src={FotoKegiatan1} alt="Galeri" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                        Perbesar Foto
-                      </span>
+                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">Perbesar Foto</span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-
-            {/* --- BARIS 2 (Scroll ke Kanan / Reverse) --- */}
             <div className="flex w-fit">
-              <div className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee-reverse">
+              <div className="marquee-content flex shrink-0 gap-4 pr-4 animate-marquee-reverse">
                 {[1, 2, 3, 4, 5].map((item, idx) => (
-                  <div
-                    key={`row2-a-${idx}`}
-                    onClick={() => setSelectedImage(FotoKegiatan1)}
-                    className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
-                  >
-                    <img
-                      src={FotoKegiatan1}
-                      alt={`Galeri Kegiatan ${item}`}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
+                  <div key={`row2-a-${idx}`} onClick={() => setSelectedImage(FotoKegiatan1)} className="w-[260px] sm:w-[320px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group">
+                    <img src={FotoKegiatan1} alt="Galeri" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                        Perbesar Foto
-                      </span>
+                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">Perbesar Foto</span>
                     </div>
                   </div>
                 ))}
               </div>
-              <div
-                className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee-reverse"
-                aria-hidden="true"
-              >
+              <div className="marquee-content flex shrink-0 gap-4 pr-4 animate-marquee-reverse" aria-hidden="true">
                 {[1, 2, 3, 4, 5].map((item, idx) => (
-                  <div
-                    key={`row2-b-${idx}`}
-                    onClick={() => setSelectedImage(FotoKegiatan1)}
-                    className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
-                  >
-                    <img
-                      src={FotoKegiatan1}
-                      alt={`Galeri Kegiatan ${item}`}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
+                  <div key={`row2-b-${idx}`} onClick={() => setSelectedImage(FotoKegiatan1)} className="w-[260px] sm:w-[320px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group">
+                    <img src={FotoKegiatan1} alt="Galeri" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                        Perbesar Foto
-                      </span>
+                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">Perbesar Foto</span>
                     </div>
                   </div>
                 ))}
@@ -346,28 +320,69 @@ export default function ISCTPage() {
             </div>
           </div>
 
-          {/* Keyframes Animasi Khusus Marquee & Hover Pause */}
           <style>{`
-            @keyframes marquee {
-              0% { transform: translateX(0); }
-              100% { transform: translateX(-100%); }
-            }
-            .animate-marquee {
-              animation: marquee 35s linear infinite;
-            }
-            .animate-marquee-reverse {
-              animation: marquee 40s linear infinite reverse;
-            }
-            
-            /* Fitur berhenti saat kursor diarahkan ke area galeri */
-            .marquee-wrapper:hover .marquee-content {
-              animation-play-state: paused;
-            }
+            @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+            .animate-marquee { animation: marquee 35s linear infinite; }
+            .animate-marquee-reverse { animation: marquee 40s linear infinite reverse; }
+            .marquee-wrapper:hover .marquee-content { animation-play-state: paused; }
           `}</style>
         </section>
 
-        {/* ================= TIMELINE SECTION ================= */}
-        <section id="timeline" className="space-y-16 pt-10">
+        {/* ================= CAPAIAN SECTION (VERSI COMPACT 10 ITEM) ================= */}
+        <section id="capaian" className="space-y-10 pt-12">
+          <div className="text-center space-y-4">
+            <div className="flex items-center justify-center gap-4 mb-2">
+              <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
+              <span className="text-accent font-bold text-sm uppercase tracking-widest">
+                Highlights
+              </span>
+              <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
+              <Target className="w-8 h-8 text-accent" />
+              Pencapaian ISCT 2026
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {achievementsData.map((item, index) => {
+              const IconComponent = item.icon;
+              return (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.3, delay: (index % 4) * 0.1 }}
+                  className="p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-accent/50 hover:bg-white/10 backdrop-blur-sm transition-all duration-300 hover:shadow-lg group flex flex-col relative overflow-hidden"
+                >
+                  <div className="space-y-4 relative z-10">
+                    <div className="flex items-center justify-between">
+                      <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center group-hover:scale-110 group-hover:bg-accent group-hover:border-accent transition-all duration-300">
+                        <IconComponent className="w-5 h-5 text-white group-hover:text-slate-900 transition-colors" />
+                      </div>
+                      <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-full bg-white/5 border border-white/10 text-white/60 group-hover:border-accent/30 group-hover:text-accent transition-colors">
+                        {item.tag}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-bold text-white group-hover:text-accent transition-colors mb-1.5">
+                        {item.title}
+                      </h3>
+                      <p className="text-xs text-white/70 leading-relaxed">
+                        {item.desc}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ================= TIMELINE SECTION (VERSI COMPACT) ================= */}
+        <section id="timeline" className="space-y-10 pt-12">
           <div className="text-center space-y-4">
             <div className="flex items-center justify-center gap-4 mb-2">
               <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
@@ -384,38 +399,32 @@ export default function ISCTPage() {
 
           <div className="relative max-w-4xl mx-auto px-4 sm:px-0">
             <div className="absolute left-6 sm:left-1/2 top-0 bottom-0 w-0.5 bg-white/10 -translate-x-1/2" />
-            <div className="space-y-12">
+            <div className="space-y-8">
               {timelineData.map((item, index) => {
                 const isEven = index % 2 === 0;
                 return (
                   <motion.div
                     key={index}
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
+                    transition={{ duration: 0.4, delay: 0.1 }}
                     className={`relative flex flex-col sm:flex-row items-center ${isEven ? "sm:flex-row-reverse" : ""}`}
                   >
-                    <div className="absolute left-6 sm:left-1/2 -translate-x-1/2 z-10 w-12 h-12 rounded-full bg-primary border-4 border-[#043761] flex items-center justify-center shadow-[0_0_15px_rgba(255,195,0,0.2)]">
-                      <div
-                        className={`w-full h-full rounded-full flex items-center justify-center border ${item.status === "Done" ? "border-emerald-400/50 bg-emerald-400/10 text-emerald-400" : item.status === "Active" ? "border-accent bg-accent/20 text-accent shadow-[0_0_10px_rgba(255,195,0,0.5)]" : "border-white/20 bg-white/5 text-white/50"}`}
-                      >
-                        {item.status === "Done" ? (
-                          <CheckCircle2 className="w-5 h-5" />
-                        ) : (
-                          <Clock className="w-5 h-5" />
-                        )}
+                    <div className="absolute left-6 sm:left-1/2 -translate-x-1/2 z-10 w-10 h-10 rounded-full bg-primary border-4 border-[#043761] flex items-center justify-center">
+                      <div className={`w-full h-full rounded-full flex items-center justify-center border ${item.status === "Done" ? "border-emerald-400/50 bg-emerald-400/10 text-emerald-400" : item.status === "Active" ? "border-accent bg-accent/20 text-accent shadow-[0_0_10px_rgba(255,195,0,0.5)]" : "border-white/20 bg-white/5 text-white/50"}`}>
+                        {item.status === "Done" ? <CheckCircle2 className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
                       </div>
                     </div>
 
-                    <div className="w-full sm:w-[calc(50%-3rem)] ml-14 sm:ml-0">
-                      <div className="p-6 sm:p-8 rounded-2xl bg-white/5 border border-white/10 hover:border-accent/50 backdrop-blur-md transition-all duration-300 hover:shadow-[0_10px_30px_rgba(255,195,0,0.15)] group hover:-translate-y-1 relative overflow-hidden">
-                        <div className="flex items-center justify-between mb-4">
-                          <span className="px-3 py-1.5 text-xs font-bold rounded-lg bg-accent/20 text-accent border border-accent/30 tracking-wider">
+                    <div className="w-full sm:w-[calc(50%-2.5rem)] ml-12 sm:ml-0">
+                      <div className="p-5 sm:p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-accent/50 backdrop-blur-md transition-all duration-300 hover:shadow-lg group relative overflow-hidden">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-accent/20 text-accent border border-accent/30 tracking-wider">
                             {item.date}
                           </span>
                         </div>
-                        <h3 className="text-xl font-bold text-white group-hover:text-accent transition-colors mb-2">
+                        <h3 className="text-lg font-bold text-white group-hover:text-accent transition-colors mb-1.5">
                           {item.title}
                         </h3>
                         <p className="text-sm text-white/70 leading-relaxed">
@@ -429,61 +438,6 @@ export default function ISCTPage() {
             </div>
           </div>
         </section>
-
-        {/* ================= CAPAIAN SECTION ================= */}
-        <section className="space-y-16 pt-10">
-          <div className="text-center space-y-4">
-            <div className="flex items-center justify-center gap-4 mb-2">
-              <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
-              <span className="text-accent font-bold text-sm uppercase tracking-widest">
-                Highlights
-              </span>
-              <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
-              <Target className="w-8 h-8 text-accent" />
-              Capaian ISCT
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {achievementsData.map((item, index) => {
-              const IconComponent = item.icon;
-              return (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                  className="p-8 rounded-[2rem] bg-white/5 border border-white/10 hover:border-accent/50 hover:bg-white/10 backdrop-blur-sm transition-all duration-300 hover:shadow-[0_15px_30px_rgba(255,195,0,0.1)] group flex flex-col justify-between relative overflow-hidden"
-                >
-                  <div className="absolute -top-10 -right-10 w-32 h-32 bg-accent/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-
-                  <div className="space-y-5 relative z-10">
-                    <div className="flex items-start justify-between">
-                      <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 group-hover:bg-accent group-hover:border-accent transition-all duration-300 shadow-inner">
-                        <IconComponent className="w-7 h-7 text-white group-hover:text-primary transition-colors" />
-                      </div>
-                      <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/60 group-hover:border-accent/30 group-hover:text-accent transition-colors">
-                        {item.tag}
-                      </span>
-                    </div>
-
-                    <div>
-                      <h3 className="text-xl font-bold text-white group-hover:text-accent transition-colors mb-3">
-                        {item.title}
-                      </h3>
-                      <p className="text-sm text-white/70 leading-relaxed">
-                        {item.desc}
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </section>
       </div>
 
       {/* ================= MODAL LIGHTBOX ================= */}
@@ -493,17 +447,16 @@ export default function ISCTPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setSelectedImage(null)} // Tutup jika area luar diklik
+            onClick={() => setSelectedImage(null)}
             className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-8"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()} // Supaya tidak tertutup jika gambarnya diklik
+              onClick={(e) => e.stopPropagation()}
               className="relative max-w-5xl w-full flex flex-col items-center justify-center"
             >
-              {/* Tombol Tutup (X) */}
               <button
                 onClick={() => setSelectedImage(null)}
                 className="absolute -top-12 right-0 md:-right-12 z-10 w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-accent hover:text-slate-900 transition-all cursor-pointer"
@@ -511,11 +464,10 @@ export default function ISCTPage() {
                 <X className="w-6 h-6" />
               </button>
 
-              {/* Gambar Full Size */}
               <img
                 src={selectedImage}
                 alt="Full Size Gallery"
-                className="w-full h-auto max-h-[85vh] object-contain rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10"
+                className="w-full h-auto max-h-[85vh] object-contain rounded-2xl shadow-2xl border border-white/10"
               />
             </motion.div>
           </motion.div>
