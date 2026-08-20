@@ -44,7 +44,7 @@ function App() {
                 <Route path="/" element={<Beranda />} />
                 <Route path="/education-fair" element={<Edufair2026 />} />
                 <Route path="/isct" element={<ISCT />} />
-                <Route path="/`make-connection" element={<MakeConnection />} />
+                <Route path="/make-connection" element={<MakeConnection />} />
                 <Route path="/artikel" element={<Artikel />} />
                 <Route path="/business-company" element={<BusinessCompany />} />
                 <Route

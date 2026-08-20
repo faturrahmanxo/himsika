@@ -72,7 +72,7 @@ const achievementsData = [
   },
 ];
 
-export default function ISCTPage() {
+export default function EdufairPage() {
   const [selectedImage, setSelectedImage] = useState(null);
 
   return (

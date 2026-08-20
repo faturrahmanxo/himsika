@@ -59,7 +59,7 @@ const allEvents = [
     image: logoHimsika,
     title: "Make Connection",
     desc: "Make Connection merupakan program kerja Divisi Relasi, kegiatan ini berupa studi banding ke Himpunan Mahasiswa Komputer di luar Unsika. Dengan diadakannya  Make Connection ini Pengurus Himsika akan mendapatkan input yang baru dan menjalin hubungan dengan Himpunan Mahasiswa Komputer yang dituju. ",
-    link: "/kegiatan/revoist",
+    link: "/make-connection",
   },
   {
     id: 8,
