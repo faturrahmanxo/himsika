@@ -6,6 +6,7 @@ import Navbar from "./layouts/Navbar.jsx";
 import Beranda from "./pages/Beranda";
 import Edufair2026 from "./pages/events/Edufair.jsx";
 import ISCT from "./pages/events/ISCT.jsx";
+import MakeConnection from "./pages/events/MakeConnection";
 import Artikel from "./pages/Artikel";
 import BusinessCompany from "./pages/BusinessCompany";
 import DetailArtikel from "./pages/articles/makeconnection-artikel.jsx";
@@ -43,6 +44,7 @@ function App() {
                 <Route path="/" element={<Beranda />} />
                 <Route path="/education-fair" element={<Edufair2026 />} />
                 <Route path="/isct" element={<ISCT />} />
+                <Route path="/`make-connection" element={<MakeConnection />} />
                 <Route path="/artikel" element={<Artikel />} />
                 <Route path="/business-company" element={<BusinessCompany />} />
                 <Route
