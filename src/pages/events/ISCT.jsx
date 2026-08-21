@@ -286,7 +286,7 @@ export default function ISCTPage() {
                   Dillan Gustav Alfaro
                 </h3>
                 <p className="text-sm text-white/50 font-medium">
-                  Ketua Pelaksana Make Connection 2026
+                  Ketua Pelaksana ISCT 2026
                 </p>
               </div>
             </div>

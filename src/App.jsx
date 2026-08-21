@@ -2,19 +2,33 @@ import React, { useState, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import { AnimatePresence } from "motion/react";
 
+// Layouts
 import Navbar from "./layouts/Navbar.jsx";
-import Beranda from "./pages/Beranda";
-import Edufair2026 from "./pages/events/Edufair.jsx";
-import ISCT from "./pages/events/ISCT.jsx";
-import MakeConnection from "./pages/events/MakeConnection.jsx";
-import AAS from "./pages/events/AAS.jsx"; 
-import Artikel from "./pages/Artikel";
-import BusinessCompany from "./pages/BusinessCompany";
-import DetailArtikel from "./pages/articles/makeconnection-artikel.jsx";
-import StrukturOrganisasi from "./pages/profils/StrukturOrganisasi.jsx";
 import Footer from "./layouts/Footer.jsx";
 
+// Pages
+import Beranda from "./pages/Beranda";
+import Artikel from "./pages/Artikel";
+import BusinessCompany from "./pages/BusinessCompany";
+
+// Profils
+import StrukturOrganisasi from "./pages/profils/StrukturOrganisasi.jsx";
+import Logo from "./pages/profils/Logo.jsx";
+import DetailArtikel from "./pages/articles/makeconnection-artikel.jsx";
+
+// Events
+import Edufair from "./pages/events/Edufair.jsx";
+import ISCT from "./pages/events/ISCT.jsx";
+import MakeConnection from "./pages/events/MakeConnection.jsx";
+import LKMMPD from "./pages/events/LKMMPD.jsx";
+import Isgath from "./pages/events/Isgath.jsx";
+import StudyClub from "./pages/events/StudyClub.jsx";
+import Revoist from "./pages/events/Revoist.jsx";
+import AAS from "./pages/events/AAS.jsx";
+
+// Components
 import Preloader from "./components/Preloader";
+import ArrowToTop from "./components/ArrowToTop.jsx";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -43,12 +57,17 @@ function App() {
 
               <Routes>
                 <Route path="/" element={<Beranda />} />
-                <Route path="/education-fair" element={<Edufair2026 />} />
+                <Route path="/education-fair" element={<Edufair />} />
                 <Route path="/isct" element={<ISCT />} />
                 <Route path="/make-connection" element={<MakeConnection />} />
+                <Route path="/lkmmpd" element={<LKMMPD />} />
+                <Route path="/isgath" element={<Isgath />} />
+                <Route path="/study-club" element={<StudyClub />} />
+                <Route path="/revoist" element={<Revoist />} />
                 <Route path="/aas" element={<AAS />} />
                 <Route path="/artikel" element={<Artikel />} />
                 <Route path="/business-company" element={<BusinessCompany />} />
+                <Route path="/logo" element={<Logo />} />
                 <Route
                   path="/struktur-organisasi"
                   element={<StrukturOrganisasi />}
@@ -57,6 +76,7 @@ function App() {
               </Routes>
 
               <Footer />
+              <ArrowToTop />
             </div>
           )}
         </AnimatePresence>

@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 
 // --- SILAKAN IMPORT GAMBAR ASLI KAMU DI SINI ---
-import Gathan from "../../assets/images/pengurus/divisiRelasi/Gathan.webp";
+import Florencia from "../../assets/images/pengurus/divisiInternal/Florencia.webp";
 
 // Import Foto Galeri Kegiatan (Baris 1)
 import FotoKegiatan1 from "../../assets/images/events/ISCT/galeri1.webp";
@@ -58,12 +58,12 @@ const galeriBaris2 = [
   FotoKegiatan10,
 ];
 
-// Data Timeline Make Connection
+// Data Timeline Revoist 6.0
 const timelineData = [
   {
     date: "15 April 2026",
     title: "Open Recruitment Kepanitiaan",
-    desc: "Pendaftaran untuk anggota kepanitiaan program kerja Make Connection resmi dibuka.",
+    desc: "Pendaftaran untuk anggota kepanitiaan program kerja Revoist 6.0 resmi dibuka.",
     status: "Done",
   },
   {
@@ -86,7 +86,7 @@ const timelineData = [
   },
 ];
 
-// Data Capaian Kegiatan Make Connection 2026
+// Data Capaian Kegiatan Revoist 6.0
 const achievementsData = [
   {
     id: 1,
@@ -139,7 +139,7 @@ const achievementsData = [
   },
 ];
 
-export default function MakeConnectionPage() {
+export default function RevoistPage() {
   // State untuk menyimpan gambar yang diklik (Lightbox)
   const [selectedImage, setSelectedImage] = useState(null);
 
@@ -219,9 +219,9 @@ export default function MakeConnectionPage() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight text-white leading-tight"
             >
-              Make Connection<br className="hidden lg:block" />
+              Revoist <br className="hidden lg:block" />
               <span className="text-accent drop-shadow-[0_0_20px_rgba(255,195,0,0.3)]">
-              2026
+                6.0
               </span>
             </motion.h1>
 
@@ -231,11 +231,10 @@ export default function MakeConnectionPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-white/70 text-lg leading-relaxed max-w-3xl"
             >
-              Make Connection merupakan program kerja Divisi Relasi, kegiatan
-              ini berupa studi banding ke Himpunan Mahasiswa Komputer di luar
-              Unsika. Dengan diadakannya Make Connection ini, Pengurus Himsika
-              akan mendapatkan input yang baru dan menjalin hubungan dengan
-              Himpunan Mahasiswa Komputer yang dituju.
+              Revoist 6.0 merupakan perayaan Dies Natalis Himsika yang ke-6
+              dengan mengusung tema “Symphony in Celebration of Lights, Laughs,
+              and Legacy” yang menggambarkan sebuah momen selebrasi penuh
+              harmoni, layaknya alunan musik yang meriah.
             </motion.p>
 
             <motion.div
@@ -271,8 +270,8 @@ export default function MakeConnectionPage() {
 
               <div className="aspect-[4/5] w-full rounded-2xl overflow-hidden mb-6 border border-white/10 relative">
                 <img
-                  src={Gathan}
-                  alt="Ketua Pelaksana Make Connection"
+                  src={Florencia}
+                  alt="Ketua Pelaksana Revoist 6.0"
                   className="w-full h-full object-cover transition-all duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#043761] via-transparent to-transparent opacity-80"></div>
@@ -285,10 +284,10 @@ export default function MakeConnectionPage() {
 
               <div className="text-center">
                 <h3 className="text-xl font-extrabold text-white mb-1">
-                  Gathan Abramovic
+                  Florencia Irena Nifili Gulo
                 </h3>
                 <p className="text-sm text-white/50 font-medium">
-                  Ketua Pelaksana Make Connection 2026
+                  Ketua Pelaksana Revoist 6.0
                 </p>
               </div>
             </div>
@@ -310,7 +309,6 @@ export default function MakeConnectionPage() {
               Keseruan Kegiatan
             </h2>
 
-            {/* Teks bantuan Responsif: Sembunyikan 'Hover untuk berhenti' di ukuran hp (di bawah md/768px) */}
             <p className="text-white/50 text-xs sm:text-sm font-bold tracking-[0.2em] uppercase mt-4">
               <span className="hidden md:inline">
                 Hover untuk berhenti &middot;{" "}
@@ -319,7 +317,6 @@ export default function MakeConnectionPage() {
             </p>
           </div>
 
-          {/* Marquee Wrapper - Masking Kiri & Kanan agar Memudar */}
           <div className="marquee-wrapper relative flex flex-col gap-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]">
             {/* --- BARIS 1 (Scroll ke Kiri) --- */}
             <div className="marquee-row flex w-fit">
@@ -416,7 +413,6 @@ export default function MakeConnectionPage() {
             </div>
           </div>
 
-          {/* Keyframes Animasi & CSS Hover Paused Khusus Layar >= 768px Per-Baris */}
           <style>{`
             @keyframes marquee {
               0% { transform: translateX(0); }
@@ -429,7 +425,6 @@ export default function MakeConnectionPage() {
               animation: marquee 40s linear infinite reverse;
             }
             
-            /* Efek berhenti HANYA berlaku di layar >= 768px (md) DAN HANYA pada baris yang di-hover */
             @media (min-width: 768px) {
               .marquee-row:hover .marquee-content {
                 animation-play-state: paused;
@@ -450,7 +445,7 @@ export default function MakeConnectionPage() {
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
               <Target className="w-8 h-8 text-accent" />
-              Pencapaian Kegiatan Make Connection 2026
+              Pencapaian Kegiatan Revoist 6.0
             </h2>
           </div>
 
@@ -575,7 +570,6 @@ export default function MakeConnectionPage() {
               onClick={(e) => e.stopPropagation()}
               className="relative max-w-5xl w-full flex flex-col items-center justify-center"
             >
-              {/* Tombol Tutup (X) */}
               <button
                 onClick={() => setSelectedImage(null)}
                 className="absolute -top-12 right-0 md:-right-12 z-10 w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-accent hover:text-slate-900 transition-all cursor-pointer"
@@ -583,7 +577,6 @@ export default function MakeConnectionPage() {
                 <X className="w-6 h-6" />
               </button>
 
-              {/* Gambar Full Size */}
               <img
                 src={selectedImage}
                 alt="Full Size Gallery"

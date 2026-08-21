@@ -31,7 +31,7 @@ export const navMenu = [
     label: "Profil",
     to: null,
     children: [
-      { label: "Logo", to: "/logo-himsika" },
+      { label: "Logo", to: "/logo" },
       { label: "Sejarah", to: "/sejarah-himsika" },
       { label: "Visi Misi", to: "/visi-misi" },
       { label: "Struktur Organisasi", to: "/struktur-organisasi" },

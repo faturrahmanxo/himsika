@@ -330,19 +330,19 @@ export default function Beranda() {
             <div className="flex flex-col items-start relative z-10">
               <motion.h1
                 variants={item}
-                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-tight"
+                className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white leading-tight"
               >
                 Himpunan Mahasiswa
               </motion.h1>
               <motion.h1
                 variants={item}
-                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-accent leading-tight pb-2 drop-shadow-lg"
+                className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter text-accent leading-tight pb-2 drop-shadow-lg"
               >
                 Sistem Informasi
               </motion.h1>
               <motion.p
                 variants={item}
-                className="mt-4 sm:mt-6 text-base sm:text-lg text-white/90 font-medium tracking-wide max-w-xl leading-relaxed drop-shadow-md"
+                className="mt-4 sm:mt-6 text-base sm:text-lg text-white/90 font-medium tracking-wide max-w-lg leading-relaxed drop-shadow-md"
               >
                 Kembangkan potensi, ciptakan prestasi. Wadah sinergi dan inovasi
                 untuk menciptakan karya nyata yang berdampak pada teknologi.
