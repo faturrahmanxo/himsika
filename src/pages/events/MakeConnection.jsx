@@ -25,39 +25,37 @@ import {
 } from "lucide-react";
 
 // --- SILAKAN IMPORT GAMBAR ASLI KAMU DI SINI ---
-import Dilan from "../../assets/images/pengurus/divisiRelasi/Dilan.webp";
+import Gathan from "../../assets/images/pengurus/divisiRelasi/Gathan.webp";
 
 // Import Foto Galeri Kegiatan (Baris 1)
 import FotoKegiatan1 from "../../assets/images/events/ISCT/galeri1.webp";
-// Contoh import foto lainnya (Ganti path sesuai file kamu):
-// import FotoKegiatan2 from "../../assets/images/events/galeri2.webp";
-// import FotoKegiatan3 from "../../assets/images/events/galeri3.webp";
-// import FotoKegiatan4 from "../../assets/images/events/galeri4.webp";
-// import FotoKegiatan5 from "../../assets/images/events/galeri5.webp";
+import FotoKegiatan2 from "../../assets/images/events/ISCT/galeri2.webp";
+import FotoKegiatan3 from "../../assets/images/events/ISCT/galeri3.webp";
+import FotoKegiatan4 from "../../assets/images/events/ISCT/galeri4.webp";
+import FotoKegiatan5 from "../../assets/images/events/ISCT/galeri5.webp";
 
 // Import Foto Galeri Kegiatan (Baris 2)
-// import FotoKegiatan6 from "../../assets/images/events/galeri6.webp";
-// import FotoKegiatan7 from "../../assets/images/events/galeri7.webp";
-// import FotoKegiatan8 from "../../assets/images/events/galeri8.webp";
-// import FotoKegiatan9 from "../../assets/images/events/galeri9.webp";
-// import FotoKegiatan10 from "../../assets/images/events/galeri10.webp";
+import FotoKegiatan6 from "../../assets/images/events/ISCT/galeri6.webp";
+import FotoKegiatan7 from "../../assets/images/events/ISCT/galeri7.webp";
+import FotoKegiatan8 from "../../assets/images/events/ISCT/galeri8.webp";
+import FotoKegiatan9 from "../../assets/images/events/ISCT/galeri9.webp";
+import FotoKegiatan10 from "../../assets/images/events/ISCT/galeri10.webp";
 
 // Array Data Foto untuk Baris 1 & Baris 2
-// (Dibuat fallback ke FotoKegiatan1 jika foto lain belum di-import)
 const galeriBaris1 = [
   FotoKegiatan1,
-  FotoKegiatan1, // ganti dengan FotoKegiatan2
-  FotoKegiatan1, // ganti dengan FotoKegiatan3
-  FotoKegiatan1, // ganti dengan FotoKegiatan4
-  FotoKegiatan1, // ganti dengan FotoKegiatan5
+  FotoKegiatan2,
+  FotoKegiatan3,
+  FotoKegiatan4,
+  FotoKegiatan5,
 ];
 
 const galeriBaris2 = [
-  FotoKegiatan1, // ganti dengan FotoKegiatan6
-  FotoKegiatan1, // ganti dengan FotoKegiatan7
-  FotoKegiatan1, // ganti dengan FotoKegiatan8
-  FotoKegiatan1, // ganti dengan FotoKegiatan9
-  FotoKegiatan1, // ganti dengan FotoKegiatan10
+  FotoKegiatan6,
+  FotoKegiatan7,
+  FotoKegiatan8,
+  FotoKegiatan9,
+  FotoKegiatan10,
 ];
 
 // Data Timeline Make Connection
@@ -273,7 +271,7 @@ export default function MakeConnectionPage() {
 
               <div className="aspect-[4/5] w-full rounded-2xl overflow-hidden mb-6 border border-white/10 relative">
                 <img
-                  src={Dilan}
+                  src={Gathan}
                   alt="Ketua Pelaksana Make Connection"
                   className="w-full h-full object-cover transition-all duration-700"
                 />
@@ -287,7 +285,7 @@ export default function MakeConnectionPage() {
 
               <div className="text-center">
                 <h3 className="text-xl font-extrabold text-white mb-1">
-                  Dillan Gustav Alfaro
+                  Gathan Abramovic
                 </h3>
                 <p className="text-sm text-white/50 font-medium">
                   Ketua Pelaksana Make Connection 2026

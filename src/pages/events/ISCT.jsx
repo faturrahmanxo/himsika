@@ -7,7 +7,7 @@ import {
   Trophy,
   Swords,
   Target,
-  Users,
+  Users, 
   Medal,
   ExternalLink,
   CheckCircle2,
@@ -42,21 +42,20 @@ import FotoKegiatan9 from "../../assets/images/events/ISCT/galeri9.webp";
 import FotoKegiatan10 from "../../assets/images/events/ISCT/galeri10.webp";
 
 // Array Data Foto untuk Baris 1 & Baris 2
-// (Dibuat fallback ke FotoKegiatan1 jika foto lain belum di-import)
 const galeriBaris1 = [
   FotoKegiatan1,
-  FotoKegiatan2, 
-  FotoKegiatan3, 
-  FotoKegiatan4, 
-  FotoKegiatan5, 
+  FotoKegiatan2,
+  FotoKegiatan3,
+  FotoKegiatan4,
+  FotoKegiatan5,
 ];
 
 const galeriBaris2 = [
-  FotoKegiatan6, // ganti dengan FotoKegiatan6
-  FotoKegiatan7, // ganti dengan FotoKegiatan7
-  FotoKegiatan8, // ganti dengan FotoKegiatan8
-  FotoKegiatan9, // ganti dengan FotoKegiatan9
-  FotoKegiatan10, // ganti dengan FotoKegiatan10
+  FotoKegiatan6,
+  FotoKegiatan7,
+  FotoKegiatan8,
+  FotoKegiatan9,
+  FotoKegiatan10,
 ];
 
 // Data Timeline Make Connection
@@ -309,7 +308,6 @@ export default function ISCTPage() {
               Keseruan Kegiatan
             </h2>
 
-            {/* Teks bantuan Responsif: Sembunyikan 'Hover untuk berhenti' di ukuran hp (di bawah md/768px) */}
             <p className="text-white/50 text-xs sm:text-sm font-bold tracking-[0.2em] uppercase mt-4">
               <span className="hidden md:inline">
                 Hover untuk berhenti &middot;{" "}
@@ -318,7 +316,6 @@ export default function ISCTPage() {
             </p>
           </div>
 
-          {/* Marquee Wrapper - Masking Kiri & Kanan agar Memudar */}
           <div className="marquee-wrapper relative flex flex-col gap-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]">
             {/* --- BARIS 1 (Scroll ke Kiri) --- */}
             <div className="marquee-row flex w-fit">
@@ -415,7 +412,6 @@ export default function ISCTPage() {
             </div>
           </div>
 
-          {/* Keyframes Animasi & CSS Hover Paused Khusus Layar >= 768px Per-Baris */}
           <style>{`
             @keyframes marquee {
               0% { transform: translateX(0); }
@@ -428,7 +424,6 @@ export default function ISCTPage() {
               animation: marquee 40s linear infinite reverse;
             }
             
-            /* Efek berhenti HANYA berlaku di layar >= 768px (md) DAN HANYA pada baris yang di-hover */
             @media (min-width: 768px) {
               .marquee-row:hover .marquee-content {
                 animation-play-state: paused;
@@ -574,7 +569,6 @@ export default function ISCTPage() {
               onClick={(e) => e.stopPropagation()}
               className="relative max-w-5xl w-full flex flex-col items-center justify-center"
             >
-              {/* Tombol Tutup (X) */}
               <button
                 onClick={() => setSelectedImage(null)}
                 className="absolute -top-12 right-0 md:-right-12 z-10 w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-accent hover:text-slate-900 transition-all cursor-pointer"
@@ -582,7 +576,6 @@ export default function ISCTPage() {
                 <X className="w-6 h-6" />
               </button>
 
-              {/* Gambar Full Size */}
               <img
                 src={selectedImage}
                 alt="Full Size Gallery"

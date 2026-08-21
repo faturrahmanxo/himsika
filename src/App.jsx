@@ -6,8 +6,8 @@ import Navbar from "./layouts/Navbar.jsx";
 import Beranda from "./pages/Beranda";
 import Edufair2026 from "./pages/events/Edufair.jsx";
 import ISCT from "./pages/events/ISCT.jsx";
-import MakeConnection from "./pages/events/MakeConnection";
-import AAS from "./pages/events/AAS.jsx"; // Sesuaikan nama filemu
+import MakeConnection from "./pages/events/MakeConnection.jsx";
+import AAS from "./pages/events/AAS.jsx"; 
 import Artikel from "./pages/Artikel";
 import BusinessCompany from "./pages/BusinessCompany";
 import DetailArtikel from "./pages/articles/makeconnection-artikel.jsx";
