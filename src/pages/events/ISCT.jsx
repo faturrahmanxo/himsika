@@ -15,67 +15,132 @@ import {
   Image as ImageIcon,
   Rocket,
   X,
-  Briefcase, // Jangan lupa X diimport untuk tombol close modal
+  Briefcase,
+  BookOpen,
+  MessageSquare,
+  Brain,
+  Compass,
+  HeartHandshake,
+  Network,
 } from "lucide-react";
 
 // --- SILAKAN IMPORT GAMBAR ASLI KAMU DI SINI ---
 import Dilan from "../../assets/images/pengurus/divisiRelasi/Dilan.webp";
-import FotoKegiatan1 from "../../assets/images/events/galeri1.webp";
 
-// Data Timeline ISCT
+// Import Foto Galeri Kegiatan (Baris 1)
+import FotoKegiatan1 from "../../assets/images/events/ISCT/galeri1.webp";
+import FotoKegiatan2 from "../../assets/images/events/ISCT/galeri2.webp";
+import FotoKegiatan3 from "../../assets/images/events/ISCT/galeri3.webp";
+// import FotoKegiatan4 from "../../assets/images/events/galeri4.webp";
+// import FotoKegiatan5 from "../../assets/images/events/galeri5.webp";
+
+// Import Foto Galeri Kegiatan (Baris 2)
+// import FotoKegiatan6 from "../../assets/images/events/galeri6.webp";
+// import FotoKegiatan7 from "../../assets/images/events/galeri7.webp";
+// import FotoKegiatan8 from "../../assets/images/events/galeri8.webp";
+// import FotoKegiatan9 from "../../assets/images/events/galeri9.webp";
+// import FotoKegiatan10 from "../../assets/images/events/galeri10.webp";
+
+// Array Data Foto untuk Baris 1 & Baris 2
+// (Dibuat fallback ke FotoKegiatan1 jika foto lain belum di-import)
+const galeriBaris1 = [
+  FotoKegiatan1,
+  FotoKegiatan2, // ganti dengan FotoKegiatan2
+  FotoKegiatan3, // ganti dengan FotoKegiatan3
+  FotoKegiatan1, // ganti dengan FotoKegiatan4
+  FotoKegiatan1, // ganti dengan FotoKegiatan5
+];
+
+const galeriBaris2 = [
+  FotoKegiatan1, // ganti dengan FotoKegiatan6
+  FotoKegiatan1, // ganti dengan FotoKegiatan7
+  FotoKegiatan1, // ganti dengan FotoKegiatan8
+  FotoKegiatan1, // ganti dengan FotoKegiatan9
+  FotoKegiatan1, // ganti dengan FotoKegiatan10
+];
+
+// Data Timeline Make Connection
 const timelineData = [
   {
-    date: "10 September 2026",
-    title: "Open Registration",
-    desc: "Pendaftaran peserta turnamen resmi dibuka untuk seluruh mahasiswa.",
+    date: "15 April 2026",
+    title: "Open Recruitment Kepanitiaan",
+    desc: "Pendaftaran untuk anggota kepanitiaan program kerja Make Connection resmi dibuka.",
     status: "Done",
   },
   {
-    date: "25 September 2026",
-    title: "Technical Meeting",
-    desc: "Penjelasan rules, pembagian bracket, dan tata tertib turnamen.",
+    date: "02 Mei 2026",
+    title: "Rapat Koordinasi Himpunan",
+    desc: "Pembahasan konsep acara, fiksasi rundown, dan pembagian tugas antar divisi.",
     status: "Done",
   },
   {
-    date: "01 Oktober 2026",
-    title: "Opening & Match Day 1",
-    desc: "Upacara pembukaan dilanjutkan dengan babak penyisihan pertama.",
+    date: "09 Mei 2026",
+    title: "Pelaksanaan Kunjungan (Match Day)",
+    desc: "Pemberangkatan dan pelaksanaan studi banding ke Himpunan Mahasiswa tujuan.",
     status: "Active",
   },
   {
-    date: "05 Oktober 2026",
-    title: "Grand Final & Awarding",
-    desc: "Pertandingan puncak penentuan juara dan penyerahan hadiah.",
+    date: "12 Mei 2026",
+    title: "Evaluasi & Follow Up",
+    desc: "Rapat evaluasi kegiatan dan perumusan rencana kolaborasi lanjutan.",
     status: "Upcoming",
   },
 ];
 
-// Data Capaian Kegiatan
+// Data Capaian Kegiatan Make Connection 2026
 const achievementsData = [
   {
     id: 1,
-    icon: Users,
-    title: "Partisipasi Masif",
-    desc: "Diikuti oleh lebih dari 50+ tim dari berbagai angkatan dan program studi, menciptakan atmosfer kompetitif yang sehat.",
-    tag: "Antusiasme",
+    icon: Network,
+    title: "Terbangunnya Relasi",
+    desc: "Terjalinnya hubungan kolaboratif antara HIMSIKA Unsika dan Himatif UIN SGD Bandung sebagai langkah awal kerja sama jangka panjang.",
+    tag: "Koneksi",
   },
   {
     id: 2,
-    icon: Swords,
-    title: "Sportivitas Tinggi",
-    desc: "Seluruh pertandingan berjalan dengan fair play dan menjunjung tinggi nilai persaudaraan antar mahasiswa.",
-    tag: "Fair Play",
+    icon: BookOpen,
+    title: "Peningkatan Wawasan",
+    desc: "Pengurus mendapatkan pemahaman mendalam terkait struktur organisasi, manajemen program kerja, dan strategi pengembangan himpunan.",
+    tag: "Edukasi",
   },
   {
     id: 3,
-    icon: Medal,
-    title: "Regenerasi Atlet E-Sports",
-    desc: "Berhasil menjaring bakat-bakat baru yang berpotensi mewakili universitas di kancah turnamen nasional.",
-    tag: "Bakat",
+    icon: MessageSquare,
+    title: "Sharing Knowledge",
+    desc: "Terjadinya pertukaran informasi dan pengalaman melalui sesi sharing dan forum group discussion yang memperkaya perspektif pengurus.",
+    tag: "Diskusi",
+  },
+  {
+    id: 4,
+    icon: Brain,
+    title: "Penguatan Soft Skill",
+    desc: "Peserta mampu mengembangkan kemampuan komunikasi, kerja sama tim, leadership, serta kemampuan problem solving melalui diskusi interaktif.",
+    tag: "Pengembangan",
+  },
+  {
+    id: 5,
+    icon: Compass,
+    title: "Pengalaman Akademik",
+    desc: "Pengurus memperoleh insight mengenai lingkungan kampus UIN SGD Bandung melalui sesi tur kampus dan interaksi lintas institusi.",
+    tag: "Eksplorasi",
+  },
+  {
+    id: 6,
+    icon: HeartHandshake,
+    title: "Kebersamaan Terjalin",
+    desc: "Kegiatan interaktif dan permainan berhasil mempererat hubungan personal antar peserta dari dua himpunan.",
+    tag: "Kekeluargaan",
+  },
+  {
+    id: 7,
+    icon: Rocket,
+    title: "Fondasi Kolaborasi",
+    desc: "Kegiatan ini menjadi pondasi bagi rencana kolaborasi lebih luas, seperti proyek bersama, kegiatan akademik, serta pengembangan himpunan.",
+    tag: "Masa Depan",
   },
 ];
 
-export default function ISCTPage() {
+export default function MakeConnectionPage() {
   // State untuk menyimpan gambar yang diklik (Lightbox)
   const [selectedImage, setSelectedImage] = useState(null);
 
@@ -86,7 +151,7 @@ export default function ISCTPage() {
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
         <div className="absolute w-[40rem] h-[40rem] rounded-full blur-[150px] bg-accent/15 top-0 left-0 -translate-x-1/4 -translate-y-1/4 animate-pulse"></div>
         <div
-          className="absolute w-[30rem] h-[30rem] rounded-full blur-[120px] bg-red-500/10 bottom-0 right-0 translate-x-1/3 translate-y-1/3 animate-pulse"
+          className="absolute w-[30rem] h-[30rem] rounded-full blur-[120px] bg-blue-500/10 bottom-0 right-0 translate-x-1/3 translate-y-1/3 animate-pulse"
           style={{ animationDuration: "7s" }}
         ></div>
 
@@ -112,7 +177,7 @@ export default function ISCTPage() {
           </svg>
         </div>
         <div
-          className="absolute bottom-1/4 left-10 sm:left-24 animate-pulse text-red-400/20"
+          className="absolute bottom-1/4 left-10 sm:left-24 animate-pulse text-blue-400/20"
           style={{ animationDuration: "4s" }}
         >
           <svg
@@ -145,20 +210,19 @@ export default function ISCTPage() {
               transition={{ duration: 0.5 }}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 border border-white/20 text-accent text-xs font-bold uppercase tracking-widest backdrop-blur-sm shadow-[0_0_15px_rgba(255,195,0,0.15)]"
             >
-              <Briefcase className="w-4 h-4 text-accent" />
-              Company Visit & Education
+              <Users className="w-4 h-4 text-accent" />
+              Studi Banding & Relasi
             </motion.div>
 
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight"
+              className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight text-white leading-tight"
             >
-              Information System <br className="hidden lg:block" />
-              Company Tour{" "}
+              Make <br className="hidden lg:block" />
               <span className="text-accent drop-shadow-[0_0_20px_rgba(255,195,0,0.3)]">
-                (ISCT)
+                Connection
               </span>
             </motion.h1>
 
@@ -168,9 +232,11 @@ export default function ISCTPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-white/70 text-lg leading-relaxed max-w-3xl"
             >
-              Information System Company Tour merupakan program kerja Divisi
-              Relasi berupa kunjungan ke perusahaan-perusahaan yang bergerak di
-              bidang sistem informasi.
+              Make Connection merupakan program kerja Divisi Relasi, kegiatan
+              ini berupa studi banding ke Himpunan Mahasiswa Komputer di luar
+              Unsika. Dengan diadakannya Make Connection ini, Pengurus Himsika
+              akan mendapatkan input yang baru dan menjalin hubungan dengan
+              Himpunan Mahasiswa Komputer yang dituju.
             </motion.p>
 
             <motion.div
@@ -179,18 +245,18 @@ export default function ISCTPage() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="flex flex-wrap items-center justify-center lg:justify-start gap-4"
             >
-              <Link
-                to="/daftar-isct"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-slate-900 font-bold rounded-full hover:scale-105 hover:shadow-[0_0_30px_rgba(255,195,0,0.4)] transition-all duration-300"
-              >
-                Daftar Sekarang
-                <ExternalLink className="w-5 h-5" />
-              </Link>
               <a
                 href="#timeline"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-white/5 border border-white/20 text-white font-bold rounded-full hover:bg-white/10 transition-all duration-300 backdrop-blur-sm"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-slate-900 font-bold rounded-full hover:scale-105 hover:shadow-[0_0_30px_rgba(255,195,0,0.4)] transition-all duration-300"
               >
                 Lihat Jadwal
+                <Calendar className="w-5 h-5" />
+              </a>
+              <a
+                href="#capaian"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-white/5 border border-white/20 text-white font-bold rounded-full hover:bg-white/10 transition-all duration-300 backdrop-blur-sm"
+              >
+                Output Kegiatan
               </a>
             </motion.div>
           </div>
@@ -207,7 +273,7 @@ export default function ISCTPage() {
               <div className="aspect-[4/5] w-full rounded-2xl overflow-hidden mb-6 border border-white/10 relative">
                 <img
                   src={Dilan}
-                  alt="Ketua Pelaksana ISCT"
+                  alt="Ketua Pelaksana Make Connection"
                   className="w-full h-full object-cover transition-all duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#043761] via-transparent to-transparent opacity-80"></div>
@@ -223,7 +289,7 @@ export default function ISCTPage() {
                   Dillan Gustav Alfaro
                 </h3>
                 <p className="text-sm text-white/50 font-medium">
-                  Ketua Pelaksana ISCT 2026
+                  Ketua Pelaksana Make Connection 2026
                 </p>
               </div>
             </div>
@@ -231,7 +297,7 @@ export default function ISCTPage() {
         </section>
 
         {/* ================= GALERI KEGIATAN (MARQUEE STYLE) ================= */}
-        <section className="space-y-12">
+        <section className="space-y-12 pt-10">
           <div className="text-center space-y-4">
             <div className="flex items-center justify-center gap-4 mb-2">
               <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
@@ -242,27 +308,32 @@ export default function ISCTPage() {
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
               <ImageIcon className="w-8 h-8 text-accent" />
-              Keseruan ISCT
+              Keseruan Kegiatan
             </h2>
+
+            {/* Teks bantuan Responsif: Sembunyikan 'Hover untuk berhenti' di ukuran hp (di bawah md/768px) */}
             <p className="text-white/50 text-xs sm:text-sm font-bold tracking-[0.2em] uppercase mt-4">
-              Hover untuk berhenti · Klik untuk perbesar
+              <span className="hidden md:inline">
+                Hover untuk berhenti &middot;{" "}
+              </span>
+              Klik untuk perbesar
             </p>
           </div>
 
           {/* Marquee Wrapper - Masking Kiri & Kanan agar Memudar */}
           <div className="marquee-wrapper relative flex flex-col gap-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]">
             {/* --- BARIS 1 (Scroll ke Kiri) --- */}
-            <div className="flex w-fit">
+            <div className="marquee-row flex w-fit">
               <div className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee">
-                {[1, 2, 3, 4, 5].map((item, idx) => (
+                {galeriBaris1.map((foto, idx) => (
                   <div
                     key={`row1-a-${idx}`}
-                    onClick={() => setSelectedImage(FotoKegiatan1)}
+                    onClick={() => setSelectedImage(foto)}
                     className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
                   >
                     <img
-                      src={FotoKegiatan1}
-                      alt={`Galeri Kegiatan ${item}`}
+                      src={foto}
+                      alt={`Galeri Kegiatan 1 - Foto ${idx + 1}`}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -277,15 +348,15 @@ export default function ISCTPage() {
                 className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee"
                 aria-hidden="true"
               >
-                {[1, 2, 3, 4, 5].map((item, idx) => (
+                {galeriBaris1.map((foto, idx) => (
                   <div
                     key={`row1-b-${idx}`}
-                    onClick={() => setSelectedImage(FotoKegiatan1)}
+                    onClick={() => setSelectedImage(foto)}
                     className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
                   >
                     <img
-                      src={FotoKegiatan1}
-                      alt={`Galeri Kegiatan ${item}`}
+                      src={foto}
+                      alt={`Galeri Kegiatan 1 - Foto Duplikat ${idx + 1}`}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -299,17 +370,17 @@ export default function ISCTPage() {
             </div>
 
             {/* --- BARIS 2 (Scroll ke Kanan / Reverse) --- */}
-            <div className="flex w-fit">
+            <div className="marquee-row flex w-fit">
               <div className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee-reverse">
-                {[1, 2, 3, 4, 5].map((item, idx) => (
+                {galeriBaris2.map((foto, idx) => (
                   <div
                     key={`row2-a-${idx}`}
-                    onClick={() => setSelectedImage(FotoKegiatan1)}
+                    onClick={() => setSelectedImage(foto)}
                     className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
                   >
                     <img
-                      src={FotoKegiatan1}
-                      alt={`Galeri Kegiatan ${item}`}
+                      src={foto}
+                      alt={`Galeri Kegiatan 2 - Foto ${idx + 1}`}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -324,15 +395,15 @@ export default function ISCTPage() {
                 className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee-reverse"
                 aria-hidden="true"
               >
-                {[1, 2, 3, 4, 5].map((item, idx) => (
+                {galeriBaris2.map((foto, idx) => (
                   <div
                     key={`row2-b-${idx}`}
-                    onClick={() => setSelectedImage(FotoKegiatan1)}
+                    onClick={() => setSelectedImage(foto)}
                     className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
                   >
                     <img
-                      src={FotoKegiatan1}
-                      alt={`Galeri Kegiatan ${item}`}
+                      src={foto}
+                      alt={`Galeri Kegiatan 2 - Foto Duplikat ${idx + 1}`}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -346,7 +417,7 @@ export default function ISCTPage() {
             </div>
           </div>
 
-          {/* Keyframes Animasi Khusus Marquee & Hover Pause */}
+          {/* Keyframes Animasi & CSS Hover Paused Khusus Layar >= 768px Per-Baris */}
           <style>{`
             @keyframes marquee {
               0% { transform: translateX(0); }
@@ -359,15 +430,72 @@ export default function ISCTPage() {
               animation: marquee 40s linear infinite reverse;
             }
             
-            /* Fitur berhenti saat kursor diarahkan ke area galeri */
-            .marquee-wrapper:hover .marquee-content {
-              animation-play-state: paused;
+            /* Efek berhenti HANYA berlaku di layar >= 768px (md) DAN HANYA pada baris yang di-hover */
+            @media (min-width: 768px) {
+              .marquee-row:hover .marquee-content {
+                animation-play-state: paused;
+              }
             }
           `}</style>
         </section>
 
+        {/* ================= CAPAIAN SECTION ================= */}
+        <section id="capaian" className="space-y-16 pt-16">
+          <div className="text-center space-y-4">
+            <div className="flex items-center justify-center gap-4 mb-2">
+              <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
+              <span className="text-accent font-bold text-sm uppercase tracking-widest">
+                Highlights
+              </span>
+              <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
+              <Target className="w-8 h-8 text-accent" />
+              Pencapaian Kegiatan Make Connection 2026
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {achievementsData.map((item, index) => {
+              const IconComponent = item.icon;
+              return (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.4, delay: (index % 3) * 0.1 }}
+                  className="p-8 rounded-[2rem] bg-white/5 border border-white/10 hover:border-accent/50 hover:bg-white/10 backdrop-blur-sm transition-all duration-300 hover:shadow-[0_15px_30px_rgba(255,195,0,0.1)] group flex flex-col justify-between relative overflow-hidden"
+                >
+                  <div className="absolute -top-10 -right-10 w-32 h-32 bg-accent/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+
+                  <div className="space-y-5 relative z-10">
+                    <div className="flex items-start justify-between">
+                      <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 group-hover:bg-accent group-hover:border-accent transition-all duration-300 shadow-inner">
+                        <IconComponent className="w-7 h-7 text-white group-hover:text-slate-900 transition-colors" />
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/60 group-hover:border-accent/30 group-hover:text-accent transition-colors">
+                        {item.tag}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3 className="text-xl font-bold text-white group-hover:text-accent transition-colors mb-3">
+                        {item.title}
+                      </h3>
+                      <p className="text-sm text-white/70 leading-relaxed">
+                        {item.desc}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </section>
+
         {/* ================= TIMELINE SECTION ================= */}
-        <section id="timeline" className="space-y-16 pt-10">
+        <section id="timeline" className="space-y-16 pt-16">
           <div className="text-center space-y-4">
             <div className="flex items-center justify-center gap-4 mb-2">
               <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
@@ -378,7 +506,7 @@ export default function ISCTPage() {
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
               <Calendar className="w-8 h-8 text-accent" />
-              Timeline Turnamen
+              Timeline Kegiatan
             </h2>
           </div>
 
@@ -429,61 +557,6 @@ export default function ISCTPage() {
             </div>
           </div>
         </section>
-
-        {/* ================= CAPAIAN SECTION ================= */}
-        <section className="space-y-16 pt-10">
-          <div className="text-center space-y-4">
-            <div className="flex items-center justify-center gap-4 mb-2">
-              <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
-              <span className="text-accent font-bold text-sm uppercase tracking-widest">
-                Highlights
-              </span>
-              <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
-              <Target className="w-8 h-8 text-accent" />
-              Capaian ISCT
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {achievementsData.map((item, index) => {
-              const IconComponent = item.icon;
-              return (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                  className="p-8 rounded-[2rem] bg-white/5 border border-white/10 hover:border-accent/50 hover:bg-white/10 backdrop-blur-sm transition-all duration-300 hover:shadow-[0_15px_30px_rgba(255,195,0,0.1)] group flex flex-col justify-between relative overflow-hidden"
-                >
-                  <div className="absolute -top-10 -right-10 w-32 h-32 bg-accent/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-
-                  <div className="space-y-5 relative z-10">
-                    <div className="flex items-start justify-between">
-                      <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 group-hover:bg-accent group-hover:border-accent transition-all duration-300 shadow-inner">
-                        <IconComponent className="w-7 h-7 text-white group-hover:text-primary transition-colors" />
-                      </div>
-                      <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/60 group-hover:border-accent/30 group-hover:text-accent transition-colors">
-                        {item.tag}
-                      </span>
-                    </div>
-
-                    <div>
-                      <h3 className="text-xl font-bold text-white group-hover:text-accent transition-colors mb-3">
-                        {item.title}
-                      </h3>
-                      <p className="text-sm text-white/70 leading-relaxed">
-                        {item.desc}
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </section>
       </div>
 
       {/* ================= MODAL LIGHTBOX ================= */}
@@ -493,14 +566,14 @@ export default function ISCTPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setSelectedImage(null)} // Tutup jika area luar diklik
+            onClick={() => setSelectedImage(null)}
             className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-8"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()} // Supaya tidak tertutup jika gambarnya diklik
+              onClick={(e) => e.stopPropagation()}
               className="relative max-w-5xl w-full flex flex-col items-center justify-center"
             >
               {/* Tombol Tutup (X) */}

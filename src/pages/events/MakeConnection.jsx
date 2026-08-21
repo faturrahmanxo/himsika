@@ -21,14 +21,46 @@ import {
   Brain,
   Compass,
   HeartHandshake,
-  Network
+  Network,
 } from "lucide-react";
 
 // --- SILAKAN IMPORT GAMBAR ASLI KAMU DI SINI ---
 import Dilan from "../../assets/images/pengurus/divisiRelasi/Dilan.webp";
-import FotoKegiatan1 from "../../assets/images/events/galeri1.webp";
 
-// Data Timeline Make Connection (Bisa kamu edit teksnya nanti)
+// Import Foto Galeri Kegiatan (Baris 1)
+import FotoKegiatan1 from "../../assets/images/events/ISCT/galeri1.webp";
+// Contoh import foto lainnya (Ganti path sesuai file kamu):
+// import FotoKegiatan2 from "../../assets/images/events/galeri2.webp";
+// import FotoKegiatan3 from "../../assets/images/events/galeri3.webp";
+// import FotoKegiatan4 from "../../assets/images/events/galeri4.webp";
+// import FotoKegiatan5 from "../../assets/images/events/galeri5.webp";
+
+// Import Foto Galeri Kegiatan (Baris 2)
+// import FotoKegiatan6 from "../../assets/images/events/galeri6.webp";
+// import FotoKegiatan7 from "../../assets/images/events/galeri7.webp";
+// import FotoKegiatan8 from "../../assets/images/events/galeri8.webp";
+// import FotoKegiatan9 from "../../assets/images/events/galeri9.webp";
+// import FotoKegiatan10 from "../../assets/images/events/galeri10.webp";
+
+// Array Data Foto untuk Baris 1 & Baris 2
+// (Dibuat fallback ke FotoKegiatan1 jika foto lain belum di-import)
+const galeriBaris1 = [
+  FotoKegiatan1,
+  FotoKegiatan1, // ganti dengan FotoKegiatan2
+  FotoKegiatan1, // ganti dengan FotoKegiatan3
+  FotoKegiatan1, // ganti dengan FotoKegiatan4
+  FotoKegiatan1, // ganti dengan FotoKegiatan5
+];
+
+const galeriBaris2 = [
+  FotoKegiatan1, // ganti dengan FotoKegiatan6
+  FotoKegiatan1, // ganti dengan FotoKegiatan7
+  FotoKegiatan1, // ganti dengan FotoKegiatan8
+  FotoKegiatan1, // ganti dengan FotoKegiatan9
+  FotoKegiatan1, // ganti dengan FotoKegiatan10
+];
+
+// Data Timeline Make Connection
 const timelineData = [
   {
     date: "15 April 2026",
@@ -201,7 +233,11 @@ export default function MakeConnectionPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-white/70 text-lg leading-relaxed max-w-3xl"
             >
-              Make Connection merupakan program kerja Divisi Relasi, kegiatan ini berupa studi banding ke Himpunan Mahasiswa Komputer di luar Unsika. Dengan diadakannya Make Connection ini, Pengurus Himsika akan mendapatkan input yang baru dan menjalin hubungan dengan Himpunan Mahasiswa Komputer yang dituju.
+              Make Connection merupakan program kerja Divisi Relasi, kegiatan
+              ini berupa studi banding ke Himpunan Mahasiswa Komputer di luar
+              Unsika. Dengan diadakannya Make Connection ini, Pengurus Himsika
+              akan mendapatkan input yang baru dan menjalin hubungan dengan
+              Himpunan Mahasiswa Komputer yang dituju.
             </motion.p>
 
             <motion.div
@@ -275,25 +311,30 @@ export default function MakeConnectionPage() {
               <ImageIcon className="w-8 h-8 text-accent" />
               Keseruan Kegiatan
             </h2>
+
+            {/* Teks bantuan Responsif: Sembunyikan 'Hover untuk berhenti' di ukuran hp (di bawah md/768px) */}
             <p className="text-white/50 text-xs sm:text-sm font-bold tracking-[0.2em] uppercase mt-4">
-              Hover untuk berhenti · Klik untuk perbesar
+              <span className="hidden md:inline">
+                Hover untuk berhenti &middot;{" "}
+              </span>
+              Klik untuk perbesar
             </p>
           </div>
 
           {/* Marquee Wrapper - Masking Kiri & Kanan agar Memudar */}
           <div className="marquee-wrapper relative flex flex-col gap-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]">
             {/* --- BARIS 1 (Scroll ke Kiri) --- */}
-            <div className="flex w-fit">
+            <div className="marquee-row flex w-fit">
               <div className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee">
-                {[1, 2, 3, 4, 5].map((item, idx) => (
+                {galeriBaris1.map((foto, idx) => (
                   <div
                     key={`row1-a-${idx}`}
-                    onClick={() => setSelectedImage(FotoKegiatan1)}
+                    onClick={() => setSelectedImage(foto)}
                     className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
                   >
                     <img
-                      src={FotoKegiatan1}
-                      alt={`Galeri Kegiatan ${item}`}
+                      src={foto}
+                      alt={`Galeri Kegiatan 1 - Foto ${idx + 1}`}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -308,15 +349,15 @@ export default function MakeConnectionPage() {
                 className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee"
                 aria-hidden="true"
               >
-                {[1, 2, 3, 4, 5].map((item, idx) => (
+                {galeriBaris1.map((foto, idx) => (
                   <div
                     key={`row1-b-${idx}`}
-                    onClick={() => setSelectedImage(FotoKegiatan1)}
+                    onClick={() => setSelectedImage(foto)}
                     className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
                   >
                     <img
-                      src={FotoKegiatan1}
-                      alt={`Galeri Kegiatan ${item}`}
+                      src={foto}
+                      alt={`Galeri Kegiatan 1 - Foto Duplikat ${idx + 1}`}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -330,17 +371,17 @@ export default function MakeConnectionPage() {
             </div>
 
             {/* --- BARIS 2 (Scroll ke Kanan / Reverse) --- */}
-            <div className="flex w-fit">
+            <div className="marquee-row flex w-fit">
               <div className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee-reverse">
-                {[1, 2, 3, 4, 5].map((item, idx) => (
+                {galeriBaris2.map((foto, idx) => (
                   <div
                     key={`row2-a-${idx}`}
-                    onClick={() => setSelectedImage(FotoKegiatan1)}
+                    onClick={() => setSelectedImage(foto)}
                     className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
                   >
                     <img
-                      src={FotoKegiatan1}
-                      alt={`Galeri Kegiatan ${item}`}
+                      src={foto}
+                      alt={`Galeri Kegiatan 2 - Foto ${idx + 1}`}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -355,15 +396,15 @@ export default function MakeConnectionPage() {
                 className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee-reverse"
                 aria-hidden="true"
               >
-                {[1, 2, 3, 4, 5].map((item, idx) => (
+                {galeriBaris2.map((foto, idx) => (
                   <div
                     key={`row2-b-${idx}`}
-                    onClick={() => setSelectedImage(FotoKegiatan1)}
+                    onClick={() => setSelectedImage(foto)}
                     className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
                   >
                     <img
-                      src={FotoKegiatan1}
-                      alt={`Galeri Kegiatan ${item}`}
+                      src={foto}
+                      alt={`Galeri Kegiatan 2 - Foto Duplikat ${idx + 1}`}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -377,7 +418,7 @@ export default function MakeConnectionPage() {
             </div>
           </div>
 
-          {/* Keyframes Animasi Khusus Marquee & Hover Pause */}
+          {/* Keyframes Animasi & CSS Hover Paused Khusus Layar >= 768px Per-Baris */}
           <style>{`
             @keyframes marquee {
               0% { transform: translateX(0); }
@@ -390,14 +431,16 @@ export default function MakeConnectionPage() {
               animation: marquee 40s linear infinite reverse;
             }
             
-            /* Fitur berhenti saat kursor diarahkan ke area galeri */
-            .marquee-wrapper:hover .marquee-content {
-              animation-play-state: paused;
+            /* Efek berhenti HANYA berlaku di layar >= 768px (md) DAN HANYA pada baris yang di-hover */
+            @media (min-width: 768px) {
+              .marquee-row:hover .marquee-content {
+                animation-play-state: paused;
+              }
             }
           `}</style>
         </section>
 
-        {/* ================= CAPAIAN SECTION (Dipindah ke Atas Timeline) ================= */}
+        {/* ================= CAPAIAN SECTION ================= */}
         <section id="capaian" className="space-y-16 pt-16">
           <div className="text-center space-y-4">
             <div className="flex items-center justify-center gap-4 mb-2">
@@ -413,7 +456,6 @@ export default function MakeConnectionPage() {
             </h2>
           </div>
 
-          {/* Dibuat grid-cols-1 sampai 3 biar responsif dan muat 7 item dengan rapi */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {achievementsData.map((item, index) => {
               const IconComponent = item.icon;
@@ -525,14 +567,14 @@ export default function MakeConnectionPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setSelectedImage(null)} // Tutup jika area luar diklik
+            onClick={() => setSelectedImage(null)}
             className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-8"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()} // Supaya tidak tertutup jika gambarnya diklik
+              onClick={(e) => e.stopPropagation()}
               className="relative max-w-5xl w-full flex flex-col items-center justify-center"
             >
               {/* Tombol Tutup (X) */}
