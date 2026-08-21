@@ -13,62 +13,121 @@ import {
   Image as ImageIcon,
   Rocket,
   X,
+  Trophy,
+  Star,
+  TrendingUp,
+  Cpu,
+  Flag,
+  Layout,
+  Flame,
+  Network,
+  Award,
+  Zap
 } from "lucide-react";
 
 // --- SILAKAN IMPORT GAMBAR ASLI KAMU DI SINI ---
 import Imelvi from "../../assets/images/pengurus/divisiEdukasi/Imelvi.webp";
 import FotoKegiatan1 from "../../assets/images/events/edufair/galeri1.webp";
 
-// Data Timeline ISCT (Disesuaikan untuk Company Tour)
+// Data Timeline Edufair 2026
 const timelineData = [
   {
-    date: "10 September 2026",
-    title: "Open Registration",
-    desc: "Pendaftaran peserta kunjungan industri resmi dibuka untuk seluruh mahasiswa.",
+    date: "01 Juli 2026",
+    title: "Open Registration Silogy Expo",
+    desc: "Pendaftaran perlombaan tingkat nasional untuk siswa SMA/SMK dan Mahasiswa resmi dibuka.",
     status: "Done",
   },
   {
-    date: "25 September 2026",
-    title: "Technical Meeting",
-    desc: "Briefing terkait tata tertib, jadwal keberangkatan, dan pembagian kelompok kerja.",
+    date: "15 Agustus 2026",
+    title: "Technical Meeting & Seleksi",
+    desc: "Briefing peserta lomba dan tahap seleksi awal karya inovasi peserta Silogy Expo.",
     status: "Done",
   },
   {
-    date: "01 Oktober 2026",
-    title: "Company Visit Day",
-    desc: "Kunjungan langsung ke perusahaan, observasi lingkungan kerja, dan pemaparan materi.",
+    date: "05 September 2026",
+    title: "Seminar & Workshop AI",
+    desc: "Sesi materi pakar teknologi & praktik langsung (hands-on) membangun model AI.",
     status: "Active",
   },
   {
-    date: "05 Oktober 2026",
-    title: "Sharing Session & Penutup",
-    desc: "Sesi diskusi mendalam bersama praktisi, evaluasi kegiatan, dan penyerahan plakat.",
+    date: "06 September 2026",
+    title: "Pameran Karya & Awarding",
+    desc: "Puncak acara Silogy Expo, pameran inovasi, dan pengumuman juara lomba tingkat nasional.",
     status: "Upcoming",
   },
 ];
 
-// Data Capaian Kegiatan (Disesuaikan untuk Company Tour)
+// Data Capaian Kegiatan Edufair 2026 (Dibuat lebih ringkas agar rapi)
 const achievementsData = [
   {
     id: 1,
-    icon: Target,
-    title: "Wawasan Industri",
-    desc: "Memberikan gambaran nyata mengenai alur kerja dan teknologi yang digunakan di industri saat ini.",
-    tag: "Edukasi",
+    icon: Trophy,
+    title: "Sukses 2 Event Besar",
+    desc: "Seminar Nasional & Silogy Expo berjalan sukses dengan ratusan peserta hybrid.",
+    tag: "Sukses",
   },
   {
     id: 2,
-    icon: Users,
-    title: "Relasi Profesional",
-    desc: "Membangun koneksi dan jaringan antara mahasiswa dengan para profesional di perusahaan.",
-    tag: "Networking",
+    icon: Star,
+    title: "Pemateri Ahli",
+    desc: "Menghadirkan pakar AI, teknologi, dan literasi keuangan digital terkemuka.",
+    tag: "Ekspertis",
   },
   {
     id: 3,
-    icon: Lightbulb,
-    title: "Kesiapan Karier",
-    desc: "Mempersiapkan kompetensi lulusan agar sesuai dengan standar dan ekspektasi dunia kerja.",
-    tag: "Karier",
+    icon: TrendingUp,
+    title: "Wawasan Teknologi",
+    desc: "Edukasi tren AI, Machine Learning, Deep Learning, hingga cryptocurrency.",
+    tag: "Knowledge",
+  },
+  {
+    id: 4,
+    icon: Cpu,
+    title: "Workshop Hands-On",
+    desc: "Praktik langsung membangun model AI untuk meningkatkan skill teknis peserta.",
+    tag: "Praktik",
+  },
+  {
+    id: 5,
+    icon: Flag,
+    title: "Lomba Nasional",
+    desc: "Kompetisi inovasi kreatif bagi siswa SMA/SMK dan mahasiswa lintas daerah.",
+    tag: "Silogy",
+  },
+  {
+    id: 6,
+    icon: Layout,
+    title: "Pameran Inovasi",
+    desc: "Menampilkan proyek dan karya mahasiswa Sistem Informasi yang kreatif.",
+    tag: "Karya",
+  },
+  {
+    id: 7,
+    icon: Flame,
+    title: "Antusiasme Tinggi",
+    desc: "Partisipasi sangat aktif menunjukkan minat besar pada teknologi dan finansial.",
+    tag: "Fokus",
+  },
+  {
+    id: 8,
+    icon: Network,
+    title: "Ruang Kolaborasi",
+    desc: "Mempertemukan mahasiswa, dosen, dan praktisi industri dalam satu wadah.",
+    tag: "Relasi",
+  },
+  {
+    id: 9,
+    icon: Award,
+    title: "Pengembangan SDM",
+    desc: "Kontribusi nyata Himsika dalam meningkatkan kompetensi dan ekosistem digital.",
+    tag: "Komitmen",
+  },
+  {
+    id: 10,
+    icon: Zap,
+    title: "Dampak Nyata",
+    desc: "Peningkatan signifikan pada keterampilan teknis dan jaringan profesional peserta.",
+    tag: "Impact",
   },
 ];
 
@@ -86,7 +145,6 @@ export default function EdufairPage() {
           style={{ animationDuration: "7s" }}
         ></div>
 
-        {/* Ornamen SVG Tambahan */}
         <div className="absolute top-24 left-10 sm:left-20 animate-[spin_8s_linear_infinite] text-accent/30">
           <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 0C12 6.62742 6.62742 12 0 12C6.62742 12 12 17.3726 12 24C12 17.3726 17.3726 12 24 12C17.3726 12 12 6.62742 12 0Z" />
@@ -96,14 +154,7 @@ export default function EdufairPage() {
           className="absolute top-1/3 right-10 sm:right-24 animate-bounce text-white/10"
           style={{ animationDuration: "5s" }}
         >
-          <svg
-            width="40"
-            height="40"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-          >
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
             <circle cx="12" cy="12" r="8" />
           </svg>
         </div>
@@ -111,27 +162,13 @@ export default function EdufairPage() {
           className="absolute bottom-1/4 left-10 sm:left-24 animate-pulse text-red-400/20"
           style={{ animationDuration: "4s" }}
         >
-          <svg
-            width="35"
-            height="35"
-            viewBox="0 0 44 22"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
+          <svg width="35" height="35" viewBox="0 0 44 22" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
             <path d="M2 11l7-9 11 18 13-16 9 11" />
-          </svg>
-        </div>
-        <div className="absolute bottom-20 right-20 animate-[spin_12s_linear_infinite_reverse] text-accent/30">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2v20M2 12h20" />
           </svg>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto space-y-24 relative z-10">
+      <div className="max-w-7xl mx-auto space-y-20 relative z-10">
         {/* ================= HERO & ABOUT SECTION ================= */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-8 space-y-8 text-center lg:text-left">
@@ -142,7 +179,7 @@ export default function EdufairPage() {
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 border border-white/20 text-accent text-xs font-bold uppercase tracking-widest backdrop-blur-sm shadow-[0_0_15px_rgba(255,195,0,0.15)]"
             >
               <Rocket className="w-4 h-4 text-accent" />
-              Education
+              Technology & Education
             </motion.div>
 
             <motion.h1
@@ -165,7 +202,7 @@ export default function EdufairPage() {
               className="text-white/70 text-lg leading-relaxed max-w-3xl"
             >
               Education Fair merupakan ajang multi event yang berisi kegiatan
-              seminar, workshop, pameran inovasi, dan Silogy National
+              seminar nasional, workshop AI interaktif, pameran inovasi, dan Silogy National
               Competition 2026.
             </motion.p>
 
@@ -175,18 +212,18 @@ export default function EdufairPage() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="flex flex-wrap items-center justify-center lg:justify-start gap-4"
             >
-              <Link
-                to="/daftar-isct"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-slate-900 font-bold rounded-full hover:scale-105 hover:shadow-[0_0_30px_rgba(255,195,0,0.4)] transition-all duration-300"
-              >
-                Daftar Sekarang
-                <ExternalLink className="w-5 h-5" />
-              </Link>
               <a
                 href="#timeline"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-white/5 border border-white/20 text-white font-bold rounded-full hover:bg-white/10 transition-all duration-300 backdrop-blur-sm"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-slate-900 font-bold rounded-full hover:scale-105 hover:shadow-[0_0_30px_rgba(255,195,0,0.4)] transition-all duration-300"
               >
                 Lihat Jadwal
+                <Calendar className="w-5 h-5" />
+              </a>
+              <a
+                href="#capaian"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-white/5 border border-white/20 text-white font-bold rounded-full hover:bg-white/10 transition-all duration-300 backdrop-blur-sm"
+              >
+                Output Kegiatan
               </a>
             </motion.div>
           </div>
@@ -203,7 +240,7 @@ export default function EdufairPage() {
               <div className="aspect-[4/5] w-full rounded-2xl overflow-hidden mb-6 border border-white/10 relative">
                 <img
                   src={Imelvi}
-                  alt="Ketua Pelaksana ISCT"
+                  alt="Ketua Pelaksana Edufair"
                   className="w-full h-full object-cover transition-all duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#043761] via-transparent to-transparent opacity-80"></div>
@@ -226,8 +263,8 @@ export default function EdufairPage() {
           </motion.div>
         </section>
 
-        {/* ================= GALERI KEGIATAN (MARQUEE STYLE) ================= */}
-        <section className="space-y-12">
+        {/* ================= GALERI KEGIATAN ================= */}
+        <section className="space-y-10 pt-8">
           <div className="text-center space-y-4">
             <div className="flex items-center justify-center gap-4 mb-2">
               <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
@@ -240,26 +277,18 @@ export default function EdufairPage() {
               <ImageIcon className="w-8 h-8 text-accent" />
               Keseruan Edufair
             </h2>
-            <p className="text-white/50 text-xs sm:text-sm font-bold tracking-[0.2em] uppercase mt-4">
-              Hover untuk berhenti · Klik untuk perbesar
-            </p>
           </div>
 
-          <div className="marquee-wrapper relative flex flex-col gap-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]">
-            {/* --- BARIS 1 (Scroll ke Kiri) --- */}
+          <div className="marquee-wrapper relative flex flex-col gap-4 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]">
             <div className="flex w-fit">
-              <div className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee">
+              <div className="marquee-content flex shrink-0 gap-4 pr-4 animate-marquee">
                 {[1, 2, 3, 4, 5].map((item, idx) => (
                   <div
                     key={`row1-a-${idx}`}
                     onClick={() => setSelectedImage(FotoKegiatan1)}
-                    className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
+                    className="w-[260px] sm:w-[320px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
                   >
-                    <img
-                      src={FotoKegiatan1}
-                      alt={`Galeri Kegiatan ${item}`}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
+                    <img src={FotoKegiatan1} alt="Galeri" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
                         Perbesar Foto
@@ -268,72 +297,35 @@ export default function EdufairPage() {
                   </div>
                 ))}
               </div>
-              <div
-                className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee"
-                aria-hidden="true"
-              >
+              <div className="marquee-content flex shrink-0 gap-4 pr-4 animate-marquee" aria-hidden="true">
                 {[1, 2, 3, 4, 5].map((item, idx) => (
-                  <div
-                    key={`row1-b-${idx}`}
-                    onClick={() => setSelectedImage(FotoKegiatan1)}
-                    className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
-                  >
-                    <img
-                      src={FotoKegiatan1}
-                      alt={`Galeri Kegiatan ${item}`}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
+                  <div key={`row1-b-${idx}`} onClick={() => setSelectedImage(FotoKegiatan1)} className="w-[260px] sm:w-[320px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group">
+                    <img src={FotoKegiatan1} alt="Galeri" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                        Perbesar Foto
-                      </span>
+                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">Perbesar Foto</span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* --- BARIS 2 (Scroll ke Kanan / Reverse) --- */}
             <div className="flex w-fit">
-              <div className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee-reverse">
+              <div className="marquee-content flex shrink-0 gap-4 pr-4 animate-marquee-reverse">
                 {[1, 2, 3, 4, 5].map((item, idx) => (
-                  <div
-                    key={`row2-a-${idx}`}
-                    onClick={() => setSelectedImage(FotoKegiatan1)}
-                    className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
-                  >
-                    <img
-                      src={FotoKegiatan1}
-                      alt={`Galeri Kegiatan ${item}`}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
+                  <div key={`row2-a-${idx}`} onClick={() => setSelectedImage(FotoKegiatan1)} className="w-[260px] sm:w-[320px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group">
+                    <img src={FotoKegiatan1} alt="Galeri" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                        Perbesar Foto
-                      </span>
+                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">Perbesar Foto</span>
                     </div>
                   </div>
                 ))}
               </div>
-              <div
-                className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee-reverse"
-                aria-hidden="true"
-              >
+              <div className="marquee-content flex shrink-0 gap-4 pr-4 animate-marquee-reverse" aria-hidden="true">
                 {[1, 2, 3, 4, 5].map((item, idx) => (
-                  <div
-                    key={`row2-b-${idx}`}
-                    onClick={() => setSelectedImage(FotoKegiatan1)}
-                    className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
-                  >
-                    <img
-                      src={FotoKegiatan1}
-                      alt={`Galeri Kegiatan ${item}`}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
+                  <div key={`row2-b-${idx}`} onClick={() => setSelectedImage(FotoKegiatan1)} className="w-[260px] sm:w-[320px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group">
+                    <img src={FotoKegiatan1} alt="Galeri" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                        Perbesar Foto
-                      </span>
+                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">Perbesar Foto</span>
                     </div>
                   </div>
                 ))}
@@ -342,21 +334,123 @@ export default function EdufairPage() {
           </div>
 
           <style>{`
-            @keyframes marquee {
-              0% { transform: translateX(0); }
-              100% { transform: translateX(-100%); }
-            }
-            .animate-marquee {
-              animation: marquee 35s linear infinite;
-            }
-            .animate-marquee-reverse {
-              animation: marquee 40s linear infinite reverse;
-            }
-            
-            .marquee-wrapper:hover .marquee-content {
-              animation-play-state: paused;
-            }
+            @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+            .animate-marquee { animation: marquee 35s linear infinite; }
+            .animate-marquee-reverse { animation: marquee 40s linear infinite reverse; }
+            .marquee-wrapper:hover .marquee-content { animation-play-state: paused; }
           `}</style>
+        </section>
+
+        {/* ================= CAPAIAN SECTION (VERSI COMPACT) ================= */}
+        <section id="capaian" className="space-y-10 pt-12">
+          <div className="text-center space-y-4">
+            <div className="flex items-center justify-center gap-4 mb-2">
+              <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
+              <span className="text-accent font-bold text-sm uppercase tracking-widest">
+                Highlights
+              </span>
+              <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
+              <Target className="w-8 h-8 text-accent" />
+              Pencapaian Edufair 2026
+            </h2>
+          </div>
+
+          {/* Grid dibikin sampai 4 kolom di layar besar agar tidak panjang ke bawah */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {achievementsData.map((item, index) => {
+              const IconComponent = item.icon;
+              return (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.3, delay: (index % 4) * 0.1 }}
+                  className="p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-accent/50 hover:bg-white/10 backdrop-blur-sm transition-all duration-300 hover:shadow-lg group flex flex-col relative overflow-hidden"
+                >
+                  <div className="space-y-4 relative z-10">
+                    <div className="flex items-center justify-between">
+                      <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center group-hover:scale-110 group-hover:bg-accent group-hover:border-accent transition-all duration-300">
+                        <IconComponent className="w-5 h-5 text-white group-hover:text-slate-900 transition-colors" />
+                      </div>
+                      <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-full bg-white/5 border border-white/10 text-white/60 group-hover:border-accent/30 group-hover:text-accent transition-colors">
+                        {item.tag}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-bold text-white group-hover:text-accent transition-colors mb-1.5">
+                        {item.title}
+                      </h3>
+                      <p className="text-xs text-white/70 leading-relaxed">
+                        {item.desc}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ================= TIMELINE SECTION (VERSI COMPACT) ================= */}
+        <section id="timeline" className="space-y-10 pt-12">
+          <div className="text-center space-y-4">
+            <div className="flex items-center justify-center gap-4 mb-2">
+              <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
+              <span className="text-accent font-bold text-sm uppercase tracking-widest">
+                Jadwal
+              </span>
+              <span className="w-8 sm:w-12 h-[2px] bg-accent rounded-full"></span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white flex items-center justify-center gap-3">
+              <Calendar className="w-8 h-8 text-accent" />
+              Timeline Kegiatan
+            </h2>
+          </div>
+
+          <div className="relative max-w-4xl mx-auto px-4 sm:px-0">
+            <div className="absolute left-6 sm:left-1/2 top-0 bottom-0 w-0.5 bg-white/10 -translate-x-1/2" />
+            <div className="space-y-8">
+              {timelineData.map((item, index) => {
+                const isEven = index % 2 === 0;
+                return (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.4, delay: 0.1 }}
+                    className={`relative flex flex-col sm:flex-row items-center ${isEven ? "sm:flex-row-reverse" : ""}`}
+                  >
+                    <div className="absolute left-6 sm:left-1/2 -translate-x-1/2 z-10 w-10 h-10 rounded-full bg-primary border-4 border-[#043761] flex items-center justify-center">
+                      <div className={`w-full h-full rounded-full flex items-center justify-center border ${item.status === "Done" ? "border-emerald-400/50 bg-emerald-400/10 text-emerald-400" : item.status === "Active" ? "border-accent bg-accent/20 text-accent shadow-[0_0_10px_rgba(255,195,0,0.5)]" : "border-white/20 bg-white/5 text-white/50"}`}>
+                        {item.status === "Done" ? <CheckCircle2 className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
+                      </div>
+                    </div>
+
+                    <div className="w-full sm:w-[calc(50%-2.5rem)] ml-12 sm:ml-0">
+                      <div className="p-5 sm:p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-accent/50 backdrop-blur-md transition-all duration-300 hover:shadow-lg group relative overflow-hidden">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-accent/20 text-accent border border-accent/30 tracking-wider">
+                            {item.date}
+                          </span>
+                        </div>
+                        <h3 className="text-lg font-bold text-white group-hover:text-accent transition-colors mb-1.5">
+                          {item.title}
+                        </h3>
+                        <p className="text-sm text-white/70 leading-relaxed">
+                          {item.desc}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
         </section>
       </div>
 
@@ -387,7 +481,7 @@ export default function EdufairPage() {
               <img
                 src={selectedImage}
                 alt="Full Size Gallery"
-                className="w-full h-auto max-h-[85vh] object-contain rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10"
+                className="w-full h-auto max-h-[85vh] object-contain rounded-2xl shadow-2xl border border-white/10"
               />
             </motion.div>
           </motion.div>

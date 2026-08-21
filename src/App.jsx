@@ -7,6 +7,7 @@ import Beranda from "./pages/Beranda";
 import Edufair2026 from "./pages/events/Edufair.jsx";
 import ISCT from "./pages/events/ISCT.jsx";
 import MakeConnection from "./pages/events/MakeConnection";
+import AAS from "./pages/events/AAS.jsx"; // Sesuaikan nama filemu
 import Artikel from "./pages/Artikel";
 import BusinessCompany from "./pages/BusinessCompany";
 import DetailArtikel from "./pages/articles/makeconnection-artikel.jsx";
@@ -45,6 +46,7 @@ function App() {
                 <Route path="/education-fair" element={<Edufair2026 />} />
                 <Route path="/isct" element={<ISCT />} />
                 <Route path="/make-connection" element={<MakeConnection />} />
+                <Route path="/aas" element={<AAS />} />
                 <Route path="/artikel" element={<Artikel />} />
                 <Route path="/business-company" element={<BusinessCompany />} />
                 <Route
