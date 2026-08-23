@@ -16,7 +16,6 @@ export default function AASPage() {
   const [activeTab, setActiveTab] = useState("aas");
 
   return (
-    // PERBAIKAN 1: Menambahkan pt-32 sm:pt-40 agar konten turun ke bawah Navbar Utama
     <div className="min-h-screen pt-32 sm:pt-40 pb-20 bg-linear-to-b from-[#02182b] via-[#043761] to-[#02182b] font-primary relative overflow-hidden flex flex-col items-center selection:bg-accent selection:text-slate-900">
       
       {/* ================= BACKGROUND DEKORASI ================= */}
@@ -27,7 +26,6 @@ export default function AASPage() {
       </div>
 
       {/* ================= HEADER NAVBAR (TOGGLE PILL STYLE) ================= */}
-      {/* PERBAIKAN 2: Desain diubah jadi kapsul melayang (rounded-full) agar lebih elegan */}
       <nav className="w-[90%] max-w-[360px] bg-[#011425]/90 backdrop-blur-md rounded-full py-3 px-6 flex justify-between items-center relative z-20 shadow-2xl border border-white/10 mb-10">
         <Link 
           to="/" 
@@ -102,7 +100,7 @@ export default function AASPage() {
                   </span>
                 </a>
 
-                <a href="#" className="group relative w-full bg-gradient-to-r from-[#032340] to-[#054378] border border-white/10 rounded-2xl py-4 px-6 flex items-center shadow-[0_10px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_25px_rgba(255,195,0,0.2)] hover:border-accent/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                {/* INI YANG SUDAH DIPERBAIKI (Hanya menggunakan Link) */}
                 <Link to="/aas/lomba-beasiswa" className="group relative w-full bg-gradient-to-r from-[#032340] to-[#054378] border border-white/10 rounded-2xl py-4 px-6 flex items-center shadow-[0_10px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_25px_rgba(255,195,0,0.2)] hover:border-accent/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform">
@@ -111,7 +109,6 @@ export default function AASPage() {
                   <span className="flex-1 text-center font-bold text-white text-sm sm:text-base tracking-wide pr-10">
                     LOMBA & BEASISWA
                   </span>
-                </a>
                 </Link>
 
                 <a href="#" className="group relative w-full bg-gradient-to-r from-[#032340] to-[#054378] border border-white/10 rounded-2xl py-4 px-6 flex items-center shadow-[0_10px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_25px_rgba(255,195,0,0.2)] hover:border-accent/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
@@ -135,7 +132,7 @@ export default function AASPage() {
                 </a>
               </div>
 
-              {/* Sosial Media (Menggunakan SVG Manual anti-error) */}
+              {/* Sosial Media */}
               <div className="flex gap-4 mb-12">
                 <a href="#" className="w-12 h-12 bg-[#02182b] border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-accent hover:text-slate-900 transition-colors shadow-lg">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
