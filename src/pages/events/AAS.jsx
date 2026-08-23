@@ -103,6 +103,7 @@ export default function AASPage() {
                 </a>
 
                 <a href="#" className="group relative w-full bg-gradient-to-r from-[#032340] to-[#054378] border border-white/10 rounded-2xl py-4 px-6 flex items-center shadow-[0_10px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_25px_rgba(255,195,0,0.2)] hover:border-accent/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                <Link to="/aas/lomba-beasiswa" className="group relative w-full bg-gradient-to-r from-[#032340] to-[#054378] border border-white/10 rounded-2xl py-4 px-6 flex items-center shadow-[0_10px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_25px_rgba(255,195,0,0.2)] hover:border-accent/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform">
                     <Award className="w-5 h-5 text-[#043761]" />
@@ -111,6 +112,7 @@ export default function AASPage() {
                     LOMBA & BEASISWA
                   </span>
                 </a>
+                </Link>
 
                 <a href="#" className="group relative w-full bg-gradient-to-r from-[#032340] to-[#054378] border border-white/10 rounded-2xl py-4 px-6 flex items-center shadow-[0_10px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_25px_rgba(255,195,0,0.2)] hover:border-accent/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -160,11 +162,11 @@ export default function AASPage() {
                 <span className="text-xs font-bold text-white/50 tracking-widest uppercase mb-1">
                   Contact Person
                 </span>
-                <a href="https://wa.me/6280000000000" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 font-medium transition-colors bg-emerald-400/10 px-4 py-2 rounded-full border border-emerald-400/20">
+                <a href="https://wa.me/6285133052875" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 font-medium transition-colors bg-emerald-400/10 px-4 py-2 rounded-full border border-emerald-400/20">
                   <MessageCircle className="w-4 h-4" />
                   <span className="text-sm">Auzilia Chantika Ardiana</span>
                 </a>
-                <a href="https://wa.me/6280000000000" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 font-medium transition-colors bg-emerald-400/10 px-4 py-2 rounded-full border border-emerald-400/20">
+                <a href="https://wa.me/6289668484467" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 font-medium transition-colors bg-emerald-400/10 px-4 py-2 rounded-full border border-emerald-400/20">
                   <MessageCircle className="w-4 h-4" />
                   <span className="text-sm">Meyta Sabrina</span>
                 </a>
