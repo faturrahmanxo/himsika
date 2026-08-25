@@ -7,7 +7,7 @@ import {
   Trophy,
   Swords,
   Target,
-  Users, 
+  Users,
   Medal,
   ExternalLink,
   CheckCircle2,
@@ -207,10 +207,9 @@ export default function ISCTPage() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 border border-white/20 text-accent text-xs font-bold uppercase tracking-widest backdrop-blur-sm shadow-[0_0_15px_rgba(255,195,0,0.15)]"
+              className="inline-flex items-center gap-2 text-xs font-black text-[#043761] tracking-widest uppercase bg-accent px-4 py-1.5 rounded-full mb-6 shadow-[0_0_20px_rgba(255,195,0,0.3)]"
             >
-              <Users className="w-4 h-4 text-accent" />
-              Studi Banding & Relasi
+              <Users className="w-4 h-4" /> Academic Achievement Support
             </motion.div>
 
             <motion.h1
