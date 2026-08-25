@@ -245,8 +245,6 @@ export default function AdminDashboard() {
     });
   };
 
-  // Ambient background: pola grid + blob cahaya + ikon melayang (sebagian berputar pelan)
-  // supaya halaman tidak terasa monoton/flat.
   const AmbientBackground = () => (
     <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
@@ -330,7 +328,7 @@ export default function AdminDashboard() {
             <button
               type="submit"
               disabled={authLoading}
-              className="w-full py-3.5 bg-accent text-[#043761] font-bold rounded-full hover:bg-[#ffcf33] transition-colors mt-2 text-sm shadow-[0_0_15px_rgba(255,195,0,0.2)]"
+              className="w-full py-3.5 bg-accent text-[#043761] font-bold rounded-full hover:bg-[#ffcf33] transition-colors mt-2 text-sm shadow-[0_0_15px_rgba(255,195,0,0.2)] cursor-pointer"
             >
               {authLoading ? "Memproses..." : "Masuk"}
             </button>
@@ -344,15 +342,15 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-linear-to-b from-[#043761] via-primary to-[#043761] font-primary relative overflow-hidden">
       <AmbientBackground />
 
-      {/* Overlay saat sidebar dibuka di mobile */}
+      {/* Overlay mobile (dibuat tidak terlalu gelap dan tidak terlalu blur) */}
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+          className="fixed inset-0 bg-black/30 backdrop-blur-xs z-40 md:hidden cursor-pointer"
         ></div>
       )}
 
-      {/* SIDEBAR */}
+      {/* SIDEBAR (warna dikembalikan seperti semula: bg-white/5 backdrop-blur-2xl) */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 w-72 bg-white/5 backdrop-blur-2xl border-r border-white/10 flex flex-col transition-transform duration-300 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -360,9 +358,10 @@ export default function AdminDashboard() {
       >
         <button
           onClick={() => setSidebarOpen(false)}
-          className="md:hidden absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-white transition-colors"
+          type="button"
+          className="md:hidden absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:text-accent hover:bg-white/20 transition-colors cursor-pointer z-30"
         >
-          <X className="w-4 h-4" />
+          <X className="w-4 h-4 pointer-events-none" />
         </button>
 
         {/* Brand: Logo + HIMSIKA + label Admin */}
@@ -397,26 +396,26 @@ export default function AdminDashboard() {
               setActiveMenu("lomba");
               setSidebarOpen(false);
             }}
-            className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl font-bold text-sm transition-all duration-300 border ${
+            className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl font-bold text-sm transition-all duration-300 border cursor-pointer ${
               activeMenu === "lomba"
                 ? "bg-accent border-accent text-[#043761] shadow-[0_0_15px_rgba(255,195,0,0.4)]"
                 : "bg-white/5 border-white/10 text-white/70 hover:border-accent/50 hover:text-accent hover:bg-white/10"
             }`}
           >
-            <Trophy className="w-4 h-4" /> Kelola Lomba
+            <Trophy className="w-4 h-4 pointer-events-none" /> Kelola Lomba
           </button>
           <button
             onClick={() => {
               setActiveMenu("artikel");
               setSidebarOpen(false);
             }}
-            className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl font-bold text-sm transition-all duration-300 border ${
+            className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl font-bold text-sm transition-all duration-300 border cursor-pointer ${
               activeMenu === "artikel"
                 ? "bg-accent border-accent text-[#043761] shadow-[0_0_15px_rgba(255,195,0,0.4)]"
                 : "bg-white/5 border-white/10 text-white/70 hover:border-accent/50 hover:text-accent hover:bg-white/10"
             }`}
           >
-            <FileText className="w-4 h-4" /> Kelola Artikel
+            <FileText className="w-4 h-4 pointer-events-none" /> Kelola Artikel
           </button>
         </nav>
 
@@ -424,9 +423,10 @@ export default function AdminDashboard() {
         <div className="p-5 border-t border-white/10 relative z-10">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 py-3 bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white font-bold rounded-full transition-all text-xs"
+            type="button"
+            className="w-full flex items-center justify-center gap-2 py-3 bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white font-bold rounded-full transition-all text-xs cursor-pointer"
           >
-            <LogOut className="w-3.5 h-3.5" /> Keluar Akun
+            <LogOut className="w-3.5 h-3.5 pointer-events-none" /> Keluar Akun
           </button>
         </div>
       </aside>
@@ -437,9 +437,10 @@ export default function AdminDashboard() {
         <header className="h-16 px-4 sm:px-6 flex items-center justify-between md:hidden sticky top-0 z-30 bg-white/5 backdrop-blur-xl border-b border-white/10">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:text-white transition-colors"
+            type="button"
+            className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:text-white transition-colors cursor-pointer"
           >
-            <Menu className="w-4.5 h-4.5" />
+            <Menu className="w-4.5 h-4.5 pointer-events-none" />
           </button>
           <span className="text-sm font-bold text-white/80">
             {activeMenu === "lomba" ? "Kelola Lomba" : "Kelola Artikel"}
@@ -495,7 +496,7 @@ export default function AdminDashboard() {
                     <button
                       type="button"
                       onClick={resetForm}
-                      className="text-xs font-bold text-white/50 hover:text-red-400 flex items-center gap-1.5 transition-colors bg-white/5 hover:bg-white/10 px-3 py-2 rounded-full"
+                      className="text-xs font-bold text-white/50 hover:text-red-400 flex items-center gap-1.5 transition-colors bg-white/5 hover:bg-white/10 px-3 py-2 rounded-full cursor-pointer"
                     >
                       <X className="w-3 h-3" /> Batal Edit
                     </button>
@@ -595,7 +596,7 @@ export default function AdminDashboard() {
                       <button
                         type="button"
                         onClick={handleAddContact}
-                        className="text-[10px] font-bold bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white px-4 py-2 rounded-full border border-emerald-500/20 transition-all flex items-center gap-1.5"
+                        className="text-[10px] font-bold bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white px-4 py-2 rounded-full border border-emerald-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
                       >
                         <Plus className="w-3 h-3" /> Tambah Narahubung
                       </button>
@@ -632,9 +633,9 @@ export default function AdminDashboard() {
                           <button
                             type="button"
                             onClick={() => handleRemoveContact(index)}
-                            className="w-full sm:w-auto p-3 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white border border-red-500/20 rounded-2xl transition-colors flex items-center justify-center shrink-0"
+                            className="w-full sm:w-auto p-3 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white border border-red-500/20 rounded-2xl transition-colors flex items-center justify-center shrink-0 cursor-pointer"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4 pointer-events-none" />
                           </button>
                         </div>
                       ))}
@@ -658,7 +659,7 @@ export default function AdminDashboard() {
                             type="button"
                             key={cat}
                             onClick={() => handleToggleCategory(cat)}
-                            className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold border backdrop-blur-sm transition-all duration-300 ${
+                            className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold border backdrop-blur-sm transition-all duration-300 cursor-pointer ${
                               isSelected
                                 ? "bg-accent border-accent text-slate-900 shadow-[0_0_15px_rgba(255,195,0,0.4)]"
                                 : "bg-white/5 border-white/10 text-white/60 hover:border-accent/50 hover:text-accent hover:bg-white/10"
@@ -793,13 +794,15 @@ export default function AdminDashboard() {
                                 <div className="inline-flex items-center gap-2">
                                   <button
                                     onClick={() => handleEditTrigger(item)}
-                                    className="text-xs font-bold text-blue-400 hover:text-white hover:bg-blue-500/80 px-3 py-1.5 rounded-full transition-colors"
+                                    type="button"
+                                    className="text-xs font-bold text-blue-400 hover:text-white hover:bg-blue-500/80 px-3 py-1.5 rounded-full transition-colors cursor-pointer"
                                   >
                                     Edit
                                   </button>
                                   <button
                                     onClick={() => handleDelete(item.id)}
-                                    className="text-xs font-bold text-red-400 hover:text-white hover:bg-red-500/80 px-3 py-1.5 rounded-full transition-colors"
+                                    type="button"
+                                    className="text-xs font-bold text-red-400 hover:text-white hover:bg-red-500/80 px-3 py-1.5 rounded-full transition-colors cursor-pointer"
                                   >
                                     Hapus
                                   </button>
