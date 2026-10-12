@@ -127,7 +127,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/event"
+                  to="/artikel"
                   className="text-primary-foreground/70 hover:text-accent transition-colors flex items-center group"
                 >
                   <span className="mr-2 text-accent opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all">
@@ -138,7 +138,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/artikel"
+                  to="/education-fair"
                   className="text-primary-foreground/70 hover:text-accent transition-colors flex items-center group"
                 >
                   <span className="mr-2 text-accent opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all">
@@ -257,15 +257,12 @@ const Footer = () => {
           <p className="text-sm text-primary-foreground/60 text-center md:text-left">
             &copy; {currentYear} HIMSIKA UNSIKA. All rights reserved.
           </p>
-          <div className="flex gap-4 text-sm text-primary-foreground/60">
-            <Link to="#" className="hover:text-accent transition-colors">
-              Privacy Policy
-            </Link>
-            <span>•</span>
-            <Link to="#" className="hover:text-accent transition-colors">
-              Terms of Service
-            </Link>
-          </div>
+          <a
+            href="mailto:himsika@cs.unsika.ac.id"
+            className="text-sm text-primary-foreground/60 hover:text-accent transition-colors"
+          >
+            himsika@cs.unsika.ac.id
+          </a>
         </div>
       </div>
     </footer>

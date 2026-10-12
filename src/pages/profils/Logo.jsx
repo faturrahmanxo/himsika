@@ -3,8 +3,10 @@ import { motion } from "framer-motion";
 import { Sparkles, Hexagon, Compass } from "lucide-react";
 
 // --- IMPORT GAMBAR LOGO ---
-import HimsikaLogo from "../../assets/logo/HIMSIKA.png";
-import AksaraCakraLogo from "../../assets/logo/AksaraCakra.png";
+// Versi *-trim sudah dipangkas padding transparannya, jadi logo mengisi
+// ruangnya hampir penuh (sebelumnya hanya ~75% dari kanvas).
+import HimsikaLogo from "../../assets/logo/HIMSIKA-trim.png";
+import AksaraCakraLogo from "../../assets/logo/AksaraCakra-trim.png";
 
 // Data Makna Logo HIMSIKA
 const himsikaMeanings = [
@@ -119,7 +121,7 @@ export default function LogoPage() {
 
             {/* Tengah (Logo Utama Zentris + Orbit Ring) */}
             <div className="col-span-4 flex justify-center sticky top-40 h-fit">
-              <div className="relative w-full max-w-[280px] aspect-square flex items-center justify-center">
+              <div className="relative w-full max-w-[340px] aspect-square flex items-center justify-center">
                 {/* Efek Lingkaran Jaringan/Orbit */}
                 <div className="absolute inset-0 border border-white/5 rounded-full animate-[spin_30s_linear_infinite]"></div>
                 <div className="absolute -inset-10 border border-dashed border-accent/20 rounded-full animate-[spin_40s_linear_infinite_reverse]"></div>
@@ -132,7 +134,7 @@ export default function LogoPage() {
                     duration: 4,
                     ease: "easeInOut",
                   }}
-                  className="w-full h-full rounded-full bg-gradient-to-b from-white/5 to-transparent border border-white/10 p-8 backdrop-blur-md shadow-2xl flex items-center justify-center relative z-10"
+                  className="w-full h-full rounded-full bg-gradient-to-b from-white/5 to-transparent border border-white/10 p-4 backdrop-blur-md shadow-2xl flex items-center justify-center relative z-10"
                 >
                   <img
                     src={HimsikaLogo}
@@ -172,7 +174,7 @@ export default function LogoPage() {
           <div className="flex lg:hidden flex-col gap-12">
             {/* Logo Mobile */}
             <div className="flex justify-center">
-              <div className="w-56 h-56 rounded-full bg-white/5 border border-white/10 p-6 backdrop-blur-md flex items-center justify-center shadow-xl relative">
+              <div className="w-64 h-64 rounded-full bg-white/5 border border-white/10 p-4 backdrop-blur-md flex items-center justify-center shadow-xl relative">
                 <div className="absolute -inset-4 border border-dashed border-accent/20 rounded-full animate-[spin_20s_linear_infinite]"></div>
                 <img
                   src={HimsikaLogo}
@@ -228,12 +230,12 @@ export default function LogoPage() {
 
             {/* Tengah (Logo Kabinet Zentris) */}
             <div className="lg:col-span-4 flex flex-col items-center order-1 lg:order-2">
-              <div className="relative w-48 h-48 sm:w-56 sm:h-56 flex items-center justify-center mb-4">
+              <div className="relative w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center mb-4">
                 <div className="absolute inset-0 border border-dashed border-white/10 rounded-full animate-[spin_25s_linear_infinite]"></div>
                 <img
                   src={AksaraCakraLogo}
                   alt="Logo Kabinet Aksara Cakra"
-                  className="w-[80%] h-[80%] object-contain drop-shadow-[0_0_25px_rgba(255,195,0,0.25)]"
+                  className="w-[92%] h-[92%] object-contain drop-shadow-[0_0_25px_rgba(255,195,0,0.25)]"
                 />
               </div>
               <div className="text-center">

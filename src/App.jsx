@@ -18,6 +18,9 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 // Profils
 import StrukturOrganisasi from "./pages/profils/StrukturOrganisasi.jsx";
 import Logo from "./pages/profils/Logo.jsx";
+import Sejarah from "./pages/profils/Sejarah.jsx";
+import VisiMisi from "./pages/profils/VisiMisi.jsx";
+import Galeri from "./pages/profils/Galeri.jsx";
 import DetailArtikel from "./pages/articles/makeconnection-artikel.jsx";
 
 // Events
@@ -54,6 +57,9 @@ function PublicLayout() {
         <Route path="/aas/lomba-beasiswa" element={<LombaBeasiswa />} />
         <Route path="/business-company" element={<BusinessCompany />} />
         <Route path="/logo" element={<Logo />} />
+        <Route path="/sejarah-himsika" element={<Sejarah />} />
+        <Route path="/visi-misi" element={<VisiMisi />} />
+        <Route path="/galeri-kegiatan" element={<Galeri />} />
         <Route path="/struktur-organisasi" element={<StrukturOrganisasi />} />
         <Route path="/artikel/:id" element={<DetailArtikel />} />
       </Routes>
