@@ -59,9 +59,17 @@ Aturan: setiap gerakan punya alasan tertulis, tidak ada yang berjalan terus-mene
 | Hover naik 4px pada kartu | Menandai elemen yang bisa diklik. |
 | Lightbox galeri | Melihat foto ukuran penuh. Ini satu-satunya lapisan mengambang. |
 | Transisi buka/tutup (drawer, akordeon) | Menjelaskan dari mana panel datang. |
+| Scrollytelling zoom (halaman Logo) | Membedah 9 elemen logo satu per satu; posisi gulir = posisi kamera. Digerakkan loop rAF, bukan animasi berulang — berhenti total saat gulir berhenti. Wajib mati saat `prefers-reduced-motion` (diganti tampilan statis). |
 
 Yang **tidak** dipakai: animasi berulang tanpa henti (pulse, float, spin), efek masuk
 bertumpuk pada satu elemen, dan glow di mana-mana.
+
+## Motif Latar
+
+Grid garis halus (`linear-gradient` 1px, opacity ~4%, `bg-size: 4rem`) adalah motif
+identitas situs — dipakai konsisten di halaman-halaman utama sebagai tekstur latar,
+selalu di bawah konten (`pointer-events-none`, `aria-hidden`). Bukan hiasan per halaman;
+kalau dipakai, pakai versi yang sama.
 
 ## Batas Dosis (R-10 s/d R-13)
 
