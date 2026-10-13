@@ -33,6 +33,9 @@ import StudyClub from "./pages/events/StudyClub.jsx";
 import Revoist from "./pages/events/Revoist.jsx";
 import AAS from "./pages/events/AAS.jsx";
 import LombaBeasiswa from "./pages/events/LombaBeasiswa.jsx";
+import Prestasi from "./pages/events/Prestasi.jsx";
+import SharingSession from "./pages/events/SharingSession.jsx";
+import ArsipMateri from "./pages/events/ArsipMateri.jsx";
 
 // Components
 import Preloader from "./components/Preloader";
@@ -55,6 +58,9 @@ function PublicLayout() {
         <Route path="/aas" element={<AAS />} />
         <Route path="/artikel" element={<Artikel />} />
         <Route path="/aas/lomba-beasiswa" element={<LombaBeasiswa />} />
+        <Route path="/aas/prestasi" element={<Prestasi />} />
+        <Route path="/aas/sharing-session" element={<SharingSession />} />
+        <Route path="/aas/arsip-materi" element={<ArsipMateri />} />
         <Route path="/business-company" element={<BusinessCompany />} />
         <Route path="/logo" element={<Logo />} />
         <Route path="/sejarah-himsika" element={<Sejarah />} />
