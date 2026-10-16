@@ -158,6 +158,17 @@ const Footer = () => {
                   Business Company
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/kontak"
+                  className="text-primary-foreground/70 hover:text-accent transition-colors flex items-center group"
+                >
+                  <span className="mr-2 text-accent opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all">
+                    ›
+                  </span>{" "}
+                  Kontak & Aspirasi
+                </Link>
+              </li>
             </ul>
           </div>
 

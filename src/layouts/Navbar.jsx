@@ -55,6 +55,7 @@ export const navMenu = [
     ],
   },
   { id: 5, label: "Business Company", to: "/business-company", children: [] },
+  { id: 6, label: "Kontak", to: "/kontak", children: [] },
 ];
 
 const Navbar = () => {

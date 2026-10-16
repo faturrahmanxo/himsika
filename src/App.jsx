@@ -11,6 +11,7 @@ import Footer from "./layouts/Footer.jsx";
 import Beranda from "./pages/Beranda";
 import Artikel from "./pages/Artikel";
 import BusinessCompany from "./pages/BusinessCompany";
+import Kontak from "./pages/Kontak.jsx";
 
 // Admin
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -67,6 +68,7 @@ function PublicLayout() {
         <Route path="/visi-misi" element={<VisiMisi />} />
         <Route path="/galeri-kegiatan" element={<Galeri />} />
         <Route path="/struktur-organisasi" element={<StrukturOrganisasi />} />
+        <Route path="/kontak" element={<Kontak />} />
         <Route path="/artikel/:id" element={<DetailArtikel />} />
       </Routes>
       <Footer />
