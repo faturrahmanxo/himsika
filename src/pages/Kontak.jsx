@@ -180,7 +180,7 @@ export default function Kontak() {
                   </a>
 
                   <a
-                    href="https://wa.me/62881024501246"
+                    href="https://wa.me/62881024501248"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/40 transition-all group/item"
@@ -192,7 +192,7 @@ export default function Kontak() {
                       </div>
                     </div>
                     <span className="text-xs font-mono text-accent bg-accent/10 px-2.5 py-1 rounded-lg">
-                      +62 881-0245-01246
+                      +62 881-0245-01248
                     </span>
                   </a>
                 </div>
