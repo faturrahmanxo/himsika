@@ -21,7 +21,7 @@ import Logo from "./pages/profils/Logo.jsx";
 import Sejarah from "./pages/profils/Sejarah.jsx";
 import VisiMisi from "./pages/profils/VisiMisi.jsx";
 import Galeri from "./pages/profils/Galeri.jsx";
-import DetailArtikel from "./pages/articles/makeconnection-artikel.jsx";
+import DetailArtikel from "./pages/articles/detail-artikel.jsx";
 
 // Events
 import Edufair from "./pages/events/Edufair.jsx";
