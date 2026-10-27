@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 // Import Swiper React components & Modules
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination, EffectFade } from "swiper/modules";
+import { Sparkles, Package, CheckCircle2 } from "lucide-react";
 
 // Import Swiper styles
 import "swiper/css";
@@ -13,9 +14,46 @@ import Image1 from "../assets/images/businessCompany/jahim.png";
 import Image2 from "../assets/images/businessCompany/gelang&keychain.png";
 import Image3 from "../assets/images/businessCompany/kaos&lanyard.png";
 
+// Mengubah "Rp 85.000" -> 85000, untuk keperluan hitung persentase diskon
+const parsePrice = (str) => Number(String(str).replace(/[^0-9]/g, "")) || 0;
+
+// Hitung persentase diskon dari harga asli vs harga sekarang.
+// Return null kalau tidak ada diskon (harga asli tidak lebih besar).
+const getDiscountPercent = (originalPrice, currentPrice) => {
+  const original = parsePrice(originalPrice);
+  const current = parsePrice(currentPrice);
+  if (!original || !current || original <= current) return null;
+  return Math.round(((original - current) / original) * 100);
+};
+
+const WhatsAppIcon = ({ className }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347" />
+  </svg>
+);
+
 export default function BusinessCompany() {
   // State untuk Tab Kategori
   const [activeCategory, setActiveCategory] = useState("merchandise");
+
+  // --- SEO: judul tab & meta description halaman ---
+  useEffect(() => {
+    document.title =
+      "Business & Company — Merchandise dan Jasa Kreatif HIMSIKA";
+    const setMeta = (name, content) => {
+      let el = document.querySelector(`meta[name="${name}"]`);
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute("name", name);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", content);
+    };
+    setMeta(
+      "description",
+      "Katalog merchandise eksklusif (satuan & paket bundling hemat) dan layanan jasa kreatif dari HIMSIKA — mulai dari kaos, gelang, sticker, hingga jasa desain grafis dan pembuatan website.",
+    );
+  }, []);
 
   // Mockup Data Banner / Swipe
   const heroSlides = [
@@ -33,13 +71,38 @@ export default function BusinessCompany() {
     },
   ];
 
-  // Mockup Data Merchandise
-  const merchandiseData = [
+  // Mockup Data Paket Bundling — beberapa item digabung jadi satu paket hemat
+  const bundlingData = [
+    {
+      id: 1,
+      image: Image1,
+      name: "Paket Hemat Awal Semester",
+      items: [
+        "T-Shirt HIMSIKA Eksklusif",
+        "Totebag Kanvas HIMSIKA",
+        "Sticker Pack Vol. 1",
+      ],
+      price: "Rp 130.000",
+      originalPrice: "Rp 165.000",
+    },
+    {
+      id: 2,
+      image: Image2,
+      name: "Paket Aksesoris Lengkap",
+      items: ["Gelang & Keychain HIMSIKA (Set)", "Sticker Pack Vol. 1"],
+      price: "Rp 35.000",
+      originalPrice: "Rp 40.000",
+    },
+  ];
+
+  // Mockup Data Merchandise Satuan
+  const satuanData = [
     {
       id: 1,
       image: Image1,
       name: "T-Shirt HIMSIKA Eksklusif (Lengan Pendek)",
       price: "Rp 85.000",
+      originalPrice: "Rp 100.000",
     },
     {
       id: 2,
@@ -52,6 +115,7 @@ export default function BusinessCompany() {
       image: Image3,
       name: "Sticker Pack Vol. 1 (Isi 10 Pcs)",
       price: "Rp 15.000",
+      originalPrice: "Rp 20.000",
     },
     {
       id: 4,
@@ -190,8 +254,25 @@ export default function BusinessCompany() {
       </div>
       {/* ========================================= */}
 
+      {/* 0. HERO TITLE — eyebrow + h1, konsisten dengan halaman lain di situs */}
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center mb-10 sm:mb-14 relative z-10">
+        <span className="inline-flex items-center gap-2 text-[11px] sm:text-xs font-black text-slate-900 tracking-widest uppercase bg-accent px-4 py-1.5 rounded-full mb-4 sm:mb-6 shadow-[0_0_20px_rgba(255,195,0,0.3)]">
+          <Sparkles className="w-3.5 h-3.5" /> Business & Company
+        </span>
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-4 leading-tight">
+          Merchandise &{" "}
+          <span className="text-accent drop-shadow-[0_0_15px_rgba(255,195,0,0.4)]">
+            Jasa Kreatif
+          </span>
+        </h1>
+        <p className="text-white/70 text-sm sm:text-lg leading-relaxed max-w-2xl mx-auto">
+          Dukung karya mahasiswa Sistem Informasi lewat merchandise eksklusif
+          dan layanan jasa digital dari HIMSIKA.
+        </p>
+      </div>
+
       {/* 1. HERO SECTION (SWIPE BANNER) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 pt-4 relative z-10">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 relative z-10">
         <div className="w-full aspect-[16/9] md:aspect-[21/9] rounded-[2rem] overflow-hidden shadow-2xl border border-white/10 relative group bg-white/5 backdrop-blur-sm">
           <Swiper
             modules={[Autoplay, Pagination, EffectFade]}
@@ -212,9 +293,9 @@ export default function BusinessCompany() {
                   />
                   {/* Cinematic Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#043761]/95 via-[#043761]/50 to-transparent flex flex-col justify-end p-8 sm:p-12 lg:p-16 text-left">
-                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-3 sm:mb-4 drop-shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white mb-3 sm:mb-4 drop-shadow-[0_0_15px_rgba(0,0,0,0.5)]">
                       {slide.title}
-                    </h1>
+                    </h2>
                     <p className="text-white/90 text-sm sm:text-lg max-w-2xl drop-shadow-md">
                       {slide.desc}
                     </p>
@@ -231,27 +312,10 @@ export default function BusinessCompany() {
         id="katalog"
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24 relative z-10"
       >
-        {/* Judul & Filter Kategori */}
-        <div className="flex flex-col items-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-8 relative inline-block">
-            Katalog{" "}
-            <span className="text-accent drop-shadow-[0_0_15px_rgba(255,195,0,0.4)]">
-              Business
-            </span>
-            {/* Bintang Sparkle */}
-            <svg
-              className="absolute -top-5 -right-8 w-6 h-6 text-accent/60 hidden sm:block animate-[spin_10s_linear_infinite]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1.5"
-                d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-              />
-            </svg>
+        {/* Label & Filter Kategori */}
+        <div className="flex flex-col items-center mb-10 sm:mb-12">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-accent/80 mb-5">
+            Pilih Kategori
           </h2>
 
           <div className="flex p-1.5 bg-white/5 border border-white/10 rounded-full shadow-lg backdrop-blur-md">
@@ -278,106 +342,195 @@ export default function BusinessCompany() {
           </div>
         </div>
 
-        {/* TAMPILAN MERCHANDISE */}
+        {/* TAMPILAN MERCHANDISE — dipecah jadi 2 konsep tampilan:
+            1) Paket Bundling: kartu promo horizontal (lebih menonjol, berisi daftar item)
+            2) Beli Satuan: grid kompak seperti sebelumnya */}
         {activeCategory === "merchandise" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
-            {merchandiseData.map((item) => (
-              <article
-                key={item.id}
-                className="bg-white/5 backdrop-blur-md rounded-[1.5rem] overflow-hidden border border-white/10 hover:border-accent/50 shadow-sm hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)] hover:-translate-y-2 transition-all duration-300 group flex flex-col relative"
-              >
-                {/* Efek Garis Hover Atas */}
-                <div className="absolute top-0 left-0 right-0 h-1 bg-accent opacity-0 group-hover:opacity-100 transition-opacity z-20" />
+          <div className="animate-fade-in">
+            {/* --- SUB SECTION: PAKET BUNDLING --- */}
+            <div className="flex items-center gap-3 mb-5 sm:mb-6">
+              <span className="w-6 h-[2px] bg-accent rounded-full"></span>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-accent">
+                Paket Bundling — Lebih Hemat
+              </h3>
+            </div>
 
-                {/* Gambar */}
-                <div className="aspect-square overflow-hidden relative">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    loading="lazy"
-                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-[#043761]/20 group-hover:bg-transparent transition-colors duration-500 z-10 pointer-events-none"></div>
-                  {/* Badge */}
-                  <div className="absolute top-4 left-4 bg-accent/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold text-slate-900 uppercase tracking-widest shadow-sm z-20">
-                    Merch
-                  </div>
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 mb-12 sm:mb-16">
+              {bundlingData.map((bundle) => {
+                const discount = bundle.originalPrice
+                  ? getDiscountPercent(bundle.originalPrice, bundle.price)
+                  : null;
 
-                {/* Konten */}
-                <div className="p-6 flex flex-col flex-grow relative z-10">
-                  <h3 className="text-lg font-bold text-white leading-snug mb-2 group-hover:text-accent transition-colors line-clamp-2">
-                    {item.name}
-                  </h3>
+                return (
+                  <article
+                    key={bundle.id}
+                    className="relative bg-gradient-to-br from-white/10 to-white/[0.02] backdrop-blur-md rounded-[1.75rem] border border-accent/20 hover:border-accent/50 shadow-lg hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)] transition-all duration-300 overflow-hidden flex flex-col sm:flex-row group"
+                  >
+                    {discount && (
+                      <span className="absolute top-3 left-3 z-10 bg-rose-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md">
+                        Hemat {discount}%
+                      </span>
+                    )}
 
-                  <div className="mt-auto pt-4 flex items-center justify-between border-t border-white/10">
-                    <span className="text-lg font-black text-accent drop-shadow-md">
-                      {item.price}
-                    </span>
-                    <button
-                      onClick={() => handleOrder(item.name)}
-                      className="w-10 h-10 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center group-hover:bg-accent group-hover:text-slate-900 group-hover:border-accent group-hover:shadow-[0_0_15px_rgba(255,195,0,0.5)] transition-all duration-300 cursor-pointer"
-                      aria-label={`Pesan ${item.name}`}
-                    >
-                      <svg
-                        className="w-4 h-4"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </article>
-            ))}
+                    {/* Gambar Paket */}
+                    <div className="sm:w-2/5 aspect-[16/9] sm:aspect-auto overflow-hidden relative shrink-0">
+                      <img
+                        src={bundle.image}
+                        alt={bundle.name}
+                        loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+
+                    {/* Konten Paket */}
+                    <div className="flex-1 p-5 sm:p-6 flex flex-col">
+                      <span className="inline-flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-accent mb-2">
+                        <Package className="w-3 h-3" /> Paket Bundling
+                      </span>
+                      <h4 className="text-base sm:text-lg font-bold text-white mb-3 group-hover:text-accent transition-colors">
+                        {bundle.name}
+                      </h4>
+
+                      <ul className="space-y-1.5 mb-4 flex-grow">
+                        {bundle.items.map((it, i) => (
+                          <li
+                            key={i}
+                            className="flex items-center gap-2 text-xs text-white/60"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5 text-accent/70 shrink-0" />
+                            {it}
+                          </li>
+                        ))}
+                      </ul>
+
+                      <div className="flex items-end justify-between gap-3 pt-3 border-t border-white/10">
+                        <div className="flex flex-col min-w-0">
+                          {bundle.originalPrice && (
+                            <span className="text-[11px] text-white/40 line-through leading-none mb-0.5 truncate">
+                              {bundle.originalPrice}
+                            </span>
+                          )}
+                          <span className="text-lg font-black text-accent leading-none truncate">
+                            {bundle.price}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => handleOrder(bundle.name)}
+                          className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-accent text-slate-900 text-xs font-bold hover:bg-[#ffcf33] transition-all shadow-[0_0_15px_rgba(255,195,0,0.3)] shrink-0 cursor-pointer"
+                        >
+                          <WhatsAppIcon className="w-3.5 h-3.5" /> Order Paket
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+
+            {/* --- SUB SECTION: BELI SATUAN --- */}
+            <div className="flex items-center gap-3 mb-5 sm:mb-6">
+              <span className="w-6 h-[2px] bg-white/30 rounded-full"></span>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-white/50">
+                Beli Satuan
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+              {satuanData.map((item) => {
+                const discount = item.originalPrice
+                  ? getDiscountPercent(item.originalPrice, item.price)
+                  : null;
+
+                return (
+                  <article
+                    key={item.id}
+                    className="bg-white/5 backdrop-blur-md rounded-2xl overflow-hidden border border-white/10 hover:border-accent/50 transition-all duration-300 group flex flex-col"
+                  >
+                    {/* Gambar */}
+                    <div className="aspect-square overflow-hidden relative">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      {/* Badge kategori */}
+                      <span className="absolute top-2.5 left-2.5 bg-white/10 backdrop-blur-sm border border-white/10 px-2.5 py-1 rounded-full text-[9px] font-bold text-white/80 uppercase tracking-widest">
+                        Satuan
+                      </span>
+                      {/* Badge diskon (harga coret) */}
+                      {discount && (
+                        <span className="absolute top-2.5 right-2.5 bg-rose-500 px-2 py-1 rounded-full text-[9px] font-black text-white shadow-md">
+                          -{discount}%
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Konten */}
+                    <div className="p-3.5 sm:p-5 flex flex-col flex-grow">
+                      <h3 className="text-xs sm:text-base font-bold text-white leading-snug mb-2 sm:mb-3 group-hover:text-accent transition-colors line-clamp-2">
+                        {item.name}
+                      </h3>
+
+                      <div className="mt-auto pt-3 flex items-end justify-between gap-2 border-t border-white/10">
+                        <div className="flex flex-col min-w-0">
+                          {item.originalPrice && (
+                            <span className="text-[10px] sm:text-[11px] text-white/40 line-through leading-none mb-0.5 truncate">
+                              {item.originalPrice}
+                            </span>
+                          )}
+                          <span className="text-sm sm:text-lg font-black text-accent leading-none truncate">
+                            {item.price}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => handleOrder(item.name)}
+                          aria-label={`Pesan ${item.name}`}
+                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center group-hover:bg-accent group-hover:text-slate-900 group-hover:border-accent group-hover:shadow-[0_0_15px_rgba(255,195,0,0.5)] transition-all duration-300 shrink-0 cursor-pointer"
+                        >
+                          <WhatsAppIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
           </div>
         )}
 
         {/* TAMPILAN JASA */}
         {activeCategory === "jasa" && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 animate-fade-in">
             {jasaData.map((item) => (
               <article
                 key={item.id}
-                className="bg-white/5 backdrop-blur-md rounded-[1.5rem] overflow-hidden border border-white/10 hover:border-accent/50 shadow-sm hover:shadow-[0_10px_30px_rgba(0,0,0,0.3)] hover:-translate-y-2 transition-all duration-300 group flex flex-col relative"
+                className="bg-white/5 backdrop-blur-md rounded-2xl overflow-hidden border border-white/10 hover:border-accent/50 transition-all duration-300 group flex flex-col"
               >
-                {/* Efek Garis Hover Atas */}
-                <div className="absolute top-0 left-0 right-0 h-1 bg-accent opacity-0 group-hover:opacity-100 transition-opacity z-20" />
-
                 {/* Gambar */}
                 <div className="aspect-square overflow-hidden relative">
                   <img
                     src={item.image}
                     alt={item.name}
                     loading="lazy"
-                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-[#043761]/20 group-hover:bg-transparent transition-colors duration-500 z-10 pointer-events-none"></div>
-                  {/* Badge */}
-                  <div className="absolute top-4 left-4 bg-accent/90 backdrop-blur-sm text-slate-900 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-md z-20">
+                  <span className="absolute top-2.5 left-2.5 bg-accent/90 backdrop-blur-sm text-slate-900 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest">
                     Layanan Jasa
-                  </div>
+                  </span>
                 </div>
 
                 {/* Konten */}
-                <div className="p-6 flex flex-col flex-grow relative z-10">
-                  <h3 className="text-xl font-bold text-white leading-snug mb-6 group-hover:text-accent transition-colors flex-grow">
+                <div className="p-4 sm:p-6 flex flex-col flex-grow">
+                  <h3 className="text-base sm:text-xl font-bold text-white leading-snug mb-5 sm:mb-6 group-hover:text-accent transition-colors flex-grow">
                     {item.name}
                   </h3>
 
-                  {/* Tombol Order Jasa (Lebar penuh tanpa harga) */}
                   <button
                     onClick={() => handleOrder(item.name)}
-                    className="w-full py-3.5 rounded-xl bg-white/5 border border-white/10 text-white font-bold flex items-center justify-center gap-2 group-hover:bg-accent group-hover:text-slate-900 group-hover:border-accent group-hover:shadow-[0_0_15px_rgba(255,195,0,0.5)] transition-all duration-300 backdrop-blur-sm cursor-pointer"
+                    className="w-full py-3 sm:py-3.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm sm:text-base font-bold flex items-center justify-center gap-2 group-hover:bg-accent group-hover:text-slate-900 group-hover:border-accent group-hover:shadow-[0_0_15px_rgba(255,195,0,0.5)] transition-all duration-300 backdrop-blur-sm cursor-pointer"
                   >
-                    <svg
-                      className="w-5 h-5"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347" />
-                    </svg>
+                    <WhatsAppIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                     Konsultasi & Order
                   </button>
                 </div>

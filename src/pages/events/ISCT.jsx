@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { Link } from "react-router-dom";
 import {
@@ -22,6 +23,8 @@ import {
   Compass,
   HeartHandshake,
   Network,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 // --- SILAKAN IMPORT GAMBAR ASLI KAMU DI SINI ---
@@ -57,6 +60,9 @@ const galeriBaris2 = [
   FotoKegiatan9,
   FotoKegiatan10,
 ];
+
+// Gabungkan semua foto untuk fitur slider Lightbox
+const allGallery = [...galeriBaris1, ...galeriBaris2];
 
 // Data Timeline Make Connection
 const timelineData = [
@@ -140,8 +146,44 @@ const achievementsData = [
 ];
 
 export default function ISCTPage() {
-  // State untuk menyimpan gambar yang diklik (Lightbox)
-  const [selectedImage, setSelectedImage] = useState(null);
+  // State untuk menyimpan INDEX gambar yang diklik (Lightbox Slider)
+  const [selectedIndex, setSelectedIndex] = useState(null);
+
+  // Fungsi navigasi slider
+  const handleNext = (e) => {
+    e?.stopPropagation();
+    setSelectedIndex((prev) => (prev === allGallery.length - 1 ? 0 : prev + 1));
+  };
+
+  const handlePrev = (e) => {
+    e?.stopPropagation();
+    setSelectedIndex((prev) => (prev === 0 ? allGallery.length - 1 : prev - 1));
+  };
+
+  // Efek untuk navigasi menggunakan keyboard (Arrow Kanan, Kiri, dan Escape)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (selectedIndex === null) return;
+      if (e.key === "ArrowRight") handleNext();
+      if (e.key === "ArrowLeft") handlePrev();
+      if (e.key === "Escape") setSelectedIndex(null);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedIndex]);
+
+  // Hapus scroll background saat modal terbuka
+  useEffect(() => {
+    if (selectedIndex !== null) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [selectedIndex]);
 
   return (
     <div className="min-h-screen bg-linear-to-b from-[#043761] via-primary to-[#043761] font-primary pt-32 pb-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden selection:bg-accent selection:text-slate-900">
@@ -154,7 +196,6 @@ export default function ISCTPage() {
           style={{ animationDuration: "7s" }}
         ></div>
 
-        {/* Ornamen SVG Tambahan */}
         <div className="absolute top-24 left-10 sm:left-20 animate-[spin_8s_linear_infinite] text-accent/30">
           <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 0C12 6.62742 6.62742 12 0 12C6.62742 12 12 17.3726 12 24C12 17.3726 17.3726 12 24 12C17.3726 12 12 6.62742 12 0Z" />
@@ -273,11 +314,6 @@ export default function ISCTPage() {
                   className="w-full h-full object-cover transition-all duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#043761] via-transparent to-transparent opacity-80"></div>
-                <div className="absolute bottom-4 left-4 right-4 text-center">
-                  <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-widest bg-accent text-slate-900 rounded-full shadow-lg">
-                    Ketua Pelaksana
-                  </span>
-                </div>
               </div>
 
               <div className="text-center">
@@ -322,7 +358,7 @@ export default function ISCTPage() {
                 {galeriBaris1.map((foto, idx) => (
                   <div
                     key={`row1-a-${idx}`}
-                    onClick={() => setSelectedImage(foto)}
+                    onClick={() => setSelectedIndex(idx)}
                     className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
                   >
                     <img
@@ -345,7 +381,7 @@ export default function ISCTPage() {
                 {galeriBaris1.map((foto, idx) => (
                   <div
                     key={`row1-b-${idx}`}
-                    onClick={() => setSelectedImage(foto)}
+                    onClick={() => setSelectedIndex(idx)}
                     className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
                   >
                     <img
@@ -366,47 +402,53 @@ export default function ISCTPage() {
             {/* --- BARIS 2 (Scroll ke Kanan / Reverse) --- */}
             <div className="marquee-row flex w-fit">
               <div className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee-reverse">
-                {galeriBaris2.map((foto, idx) => (
-                  <div
-                    key={`row2-a-${idx}`}
-                    onClick={() => setSelectedImage(foto)}
-                    className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
-                  >
-                    <img
-                      src={foto}
-                      alt={`Galeri Kegiatan 2 - Foto ${idx + 1}`}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
-                    <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                        Perbesar Foto
-                      </span>
+                {galeriBaris2.map((foto, idx) => {
+                  const globalIdx = galeriBaris1.length + idx;
+                  return (
+                    <div
+                      key={`row2-a-${idx}`}
+                      onClick={() => setSelectedIndex(globalIdx)}
+                      className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
+                    >
+                      <img
+                        src={foto}
+                        alt={`Galeri Kegiatan 2 - Foto ${idx + 1}`}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      />
+                      <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                          Perbesar Foto
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <div
                 className="marquee-content flex shrink-0 gap-6 pr-6 animate-marquee-reverse"
                 aria-hidden="true"
               >
-                {galeriBaris2.map((foto, idx) => (
-                  <div
-                    key={`row2-b-${idx}`}
-                    onClick={() => setSelectedImage(foto)}
-                    className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
-                  >
-                    <img
-                      src={foto}
-                      alt={`Galeri Kegiatan 2 - Foto Duplikat ${idx + 1}`}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
-                    <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                        Perbesar Foto
-                      </span>
+                {galeriBaris2.map((foto, idx) => {
+                  const globalIdx = galeriBaris1.length + idx;
+                  return (
+                    <div
+                      key={`row2-b-${idx}`}
+                      onClick={() => setSelectedIndex(globalIdx)}
+                      className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
+                    >
+                      <img
+                        src={foto}
+                        alt={`Galeri Kegiatan 2 - Foto Duplikat ${idx + 1}`}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      />
+                      <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                          Perbesar Foto
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -514,11 +556,19 @@ export default function ISCTPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-50px" }}
                     transition={{ duration: 0.5, delay: 0.1 }}
-                    className={`relative flex flex-col sm:flex-row items-center ${isEven ? "sm:flex-row-reverse" : ""}`}
+                    className={`relative flex flex-col sm:flex-row items-center ${
+                      isEven ? "sm:flex-row-reverse" : ""
+                    }`}
                   >
                     <div className="absolute left-6 sm:left-1/2 -translate-x-1/2 z-10 w-12 h-12 rounded-full bg-primary border-4 border-[#043761] flex items-center justify-center shadow-[0_0_15px_rgba(255,195,0,0.2)]">
                       <div
-                        className={`w-full h-full rounded-full flex items-center justify-center border ${item.status === "Done" ? "border-emerald-400/50 bg-emerald-400/10 text-emerald-400" : item.status === "Active" ? "border-accent bg-accent/20 text-accent shadow-[0_0_10px_rgba(255,195,0,0.5)]" : "border-white/20 bg-white/5 text-white/50"}`}
+                        className={`w-full h-full rounded-full flex items-center justify-center border ${
+                          item.status === "Done"
+                            ? "border-emerald-400/50 bg-emerald-400/10 text-emerald-400"
+                            : item.status === "Active"
+                              ? "border-accent bg-accent/20 text-accent shadow-[0_0_10px_rgba(255,195,0,0.5)]"
+                              : "border-white/20 bg-white/5 text-white/50"
+                        }`}
                       >
                         {item.status === "Done" ? (
                           <CheckCircle2 className="w-5 h-5" />
@@ -551,39 +601,69 @@ export default function ISCTPage() {
         </section>
       </div>
 
-      {/* ================= MODAL LIGHTBOX ================= */}
-      <AnimatePresence>
-        {selectedImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelectedImage(null)}
-            className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-8"
-          >
+      {/* ================= MODAL LIGHTBOX (DIRENDER KE DOCUMENT.BODY) ================= */}
+      {createPortal(
+        <AnimatePresence>
+          {selectedIndex !== null && (
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative max-w-5xl w-full flex flex-col items-center justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedIndex(null)}
+              className="fixed inset-0 z-[999999] bg-[#02111d]/95 backdrop-blur-xl flex items-center justify-center p-4 sm:p-8"
             >
+              {/* Tombol Close */}
               <button
-                onClick={() => setSelectedImage(null)}
-                className="absolute -top-12 right-0 md:-right-12 z-10 w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-accent hover:text-slate-900 transition-all cursor-pointer"
+                onClick={() => setSelectedIndex(null)}
+                className="absolute top-6 right-6 sm:top-10 sm:right-10 z-50 w-12 h-12 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-accent hover:text-slate-900 transition-all cursor-pointer"
               >
                 <X className="w-6 h-6" />
               </button>
 
-              <img
-                src={selectedImage}
-                alt="Full Size Gallery"
-                className="w-full h-auto max-h-[85vh] object-contain rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10"
-              />
+              {/* Tombol Prev */}
+              <button
+                onClick={handlePrev}
+                className="absolute left-4 sm:left-10 z-50 w-12 h-12 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center hover:bg-accent hover:text-slate-900 hover:scale-110 transition-all cursor-pointer"
+              >
+                <ChevronLeft className="w-7 h-7" />
+              </button>
+
+              {/* Tombol Next */}
+              <button
+                onClick={handleNext}
+                className="absolute right-4 sm:right-10 z-50 w-12 h-12 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center hover:bg-accent hover:text-slate-900 hover:scale-110 transition-all cursor-pointer"
+              >
+                <ChevronRight className="w-7 h-7" />
+              </button>
+
+              {/* Counter Halaman */}
+              <div className="absolute bottom-6 sm:bottom-10 z-50 px-4 py-2 rounded-full bg-black/50 border border-white/20 text-white font-bold text-sm tracking-widest">
+                {selectedIndex + 1} / {allGallery.length}
+              </div>
+
+              {/* Container Gambar */}
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="relative max-w-6xl w-full flex items-center justify-center overflow-hidden"
+              >
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={selectedIndex}
+                    src={allGallery[selectedIndex]}
+                    alt={`Full Size Gallery ${selectedIndex + 1}`}
+                    initial={{ opacity: 0, x: 50, scale: 0.95 }}
+                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: -50, scale: 0.95 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    className="w-full h-auto max-h-[85vh] object-contain rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/10"
+                  />
+                </AnimatePresence>
+              </div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body,
+      )}
     </div>
   );
 }

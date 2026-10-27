@@ -219,9 +219,10 @@ export default function MakeConnectionPage() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight text-white leading-tight"
             >
-              Make Connection<br className="hidden lg:block" />
+              Make Connection
+              <br className="hidden lg:block" />
               <span className="text-accent drop-shadow-[0_0_20px_rgba(255,195,0,0.3)]">
-              2026
+                2026
               </span>
             </motion.h1>
 
@@ -276,11 +277,6 @@ export default function MakeConnectionPage() {
                   className="w-full h-full object-cover transition-all duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#043761] via-transparent to-transparent opacity-80"></div>
-                <div className="absolute bottom-4 left-4 right-4 text-center">
-                  <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-widest bg-accent text-slate-900 rounded-full shadow-lg">
-                    Ketua Pelaksana
-                  </span>
-                </div>
               </div>
 
               <div className="text-center">
