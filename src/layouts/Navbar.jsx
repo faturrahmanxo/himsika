@@ -36,6 +36,7 @@ export const navMenu = [
       { label: "Visi Misi", to: "/visi-misi" },
       { label: "Struktur Organisasi", to: "/struktur-organisasi" },
       { label: "Galeri Kegiatan", to: "/galeri-kegiatan" },
+      { label: "Credit", to: "/credit" },
     ],
   },
   { id: 3, label: "Artikel & Berita", to: "/artikel", children: [] },

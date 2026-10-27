@@ -23,6 +23,7 @@ import Sejarah from "./pages/profils/Sejarah.jsx";
 import VisiMisi from "./pages/profils/VisiMisi.jsx";
 import Galeri from "./pages/profils/Galeri.jsx";
 import DetailArtikel from "./pages/articles/detail-artikel.jsx";
+import Credit from "./pages/profils/Credit.jsx";
 
 // Events
 import Edufair from "./pages/events/Edufair.jsx";
@@ -69,6 +70,7 @@ function PublicLayout() {
         <Route path="/galeri-kegiatan" element={<Galeri />} />
         <Route path="/struktur-organisasi" element={<StrukturOrganisasi />} />
         <Route path="/kontak" element={<Kontak />} />
+        <Route path="/credit" element={<Credit />} />
         <Route path="/artikel/:id" element={<DetailArtikel />} />
       </Routes>
       <Footer />
