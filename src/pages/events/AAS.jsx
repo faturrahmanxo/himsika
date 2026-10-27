@@ -90,7 +90,7 @@ export default function AASPage() {
 
               {/* Tombol-Tombol Link */}
               <div className="w-full space-y-4 mb-12">
-                <a href="#" className="group relative w-full bg-gradient-to-r from-[#032340] to-[#054378] border border-white/10 rounded-2xl py-4 px-6 flex items-center shadow-[0_10px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_25px_rgba(255,195,0,0.2)] hover:border-accent/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                <Link to="/aas/prestasi" className="group relative w-full bg-gradient-to-r from-[#032340] to-[#054378] border border-white/10 rounded-2xl py-4 px-6 flex items-center shadow-[0_10px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_25px_rgba(255,195,0,0.2)] hover:border-accent/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform">
                     <Trophy className="w-5 h-5 text-[#043761]" />
@@ -98,7 +98,7 @@ export default function AASPage() {
                   <span className="flex-1 text-center font-bold text-white text-sm sm:text-base tracking-wide pr-10">
                     PRESTASI MAHASISWA
                   </span>
-                </a>
+                </Link>
 
                 {/* INI YANG SUDAH DIPERBAIKI (Hanya menggunakan Link) */}
                 <Link to="/aas/lomba-beasiswa" className="group relative w-full bg-gradient-to-r from-[#032340] to-[#054378] border border-white/10 rounded-2xl py-4 px-6 flex items-center shadow-[0_10px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_25px_rgba(255,195,0,0.2)] hover:border-accent/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
@@ -111,7 +111,7 @@ export default function AASPage() {
                   </span>
                 </Link>
 
-                <a href="#" className="group relative w-full bg-gradient-to-r from-[#032340] to-[#054378] border border-white/10 rounded-2xl py-4 px-6 flex items-center shadow-[0_10px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_25px_rgba(255,195,0,0.2)] hover:border-accent/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                <Link to="/aas/sharing-session" className="group relative w-full bg-gradient-to-r from-[#032340] to-[#054378] border border-white/10 rounded-2xl py-4 px-6 flex items-center shadow-[0_10px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_25px_rgba(255,195,0,0.2)] hover:border-accent/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform">
                     <Users className="w-5 h-5 text-[#043761]" />
@@ -119,9 +119,9 @@ export default function AASPage() {
                   <span className="flex-1 text-center font-bold text-white text-sm sm:text-base tracking-wide pr-10">
                     SHARING SESSION
                   </span>
-                </a>
+                </Link>
 
-                <a href="#" className="group relative w-full bg-gradient-to-r from-[#032340] to-[#054378] border border-white/10 rounded-2xl py-4 px-6 flex items-center shadow-[0_10px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_25px_rgba(255,195,0,0.2)] hover:border-accent/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                <Link to="/aas/arsip-materi" className="group relative w-full bg-gradient-to-r from-[#032340] to-[#054378] border border-white/10 rounded-2xl py-4 px-6 flex items-center shadow-[0_10px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_10px_25px_rgba(255,195,0,0.2)] hover:border-accent/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform">
                     <BookMarked className="w-5 h-5 text-[#043761]" />
@@ -129,7 +129,7 @@ export default function AASPage() {
                   <span className="flex-1 text-center font-bold text-white text-sm sm:text-base tracking-wide pr-10">
                     ARSIP MATERI
                   </span>
-                </a>
+                </Link>
               </div>
 
               {/* Sosial Media */}

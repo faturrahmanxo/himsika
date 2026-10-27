@@ -11,6 +11,7 @@ import Footer from "./layouts/Footer.jsx";
 import Beranda from "./pages/Beranda";
 import Artikel from "./pages/Artikel";
 import BusinessCompany from "./pages/BusinessCompany";
+import Kontak from "./pages/Kontak.jsx";
 
 // Admin
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -18,7 +19,11 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 // Profils
 import StrukturOrganisasi from "./pages/profils/StrukturOrganisasi.jsx";
 import Logo from "./pages/profils/Logo.jsx";
-import DetailArtikel from "./pages/articles/makeconnection-artikel.jsx";
+import Sejarah from "./pages/profils/Sejarah.jsx";
+import VisiMisi from "./pages/profils/VisiMisi.jsx";
+import Galeri from "./pages/profils/Galeri.jsx";
+import DetailArtikel from "./pages/articles/detail-artikel.jsx";
+import Credit from "./pages/profils/Credit.jsx";
 
 // Events
 import Edufair from "./pages/events/Edufair.jsx";
@@ -30,6 +35,9 @@ import StudyClub from "./pages/events/StudyClub.jsx";
 import Revoist from "./pages/events/Revoist.jsx";
 import AAS from "./pages/events/AAS.jsx";
 import LombaBeasiswa from "./pages/events/LombaBeasiswa.jsx";
+import Prestasi from "./pages/events/Prestasi.jsx";
+import SharingSession from "./pages/events/SharingSession.jsx";
+import ArsipMateri from "./pages/events/ArsipMateri.jsx";
 
 // Components
 import Preloader from "./components/Preloader";
@@ -52,9 +60,17 @@ function PublicLayout() {
         <Route path="/aas" element={<AAS />} />
         <Route path="/artikel" element={<Artikel />} />
         <Route path="/aas/lomba-beasiswa" element={<LombaBeasiswa />} />
+        <Route path="/aas/prestasi" element={<Prestasi />} />
+        <Route path="/aas/sharing-session" element={<SharingSession />} />
+        <Route path="/aas/arsip-materi" element={<ArsipMateri />} />
         <Route path="/business-company" element={<BusinessCompany />} />
         <Route path="/logo" element={<Logo />} />
+        <Route path="/sejarah-himsika" element={<Sejarah />} />
+        <Route path="/visi-misi" element={<VisiMisi />} />
+        <Route path="/galeri-kegiatan" element={<Galeri />} />
         <Route path="/struktur-organisasi" element={<StrukturOrganisasi />} />
+        <Route path="/kontak" element={<Kontak />} />
+        <Route path="/credit" element={<Credit />} />
         <Route path="/artikel/:id" element={<DetailArtikel />} />
       </Routes>
       <Footer />

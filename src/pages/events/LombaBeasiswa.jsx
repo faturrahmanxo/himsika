@@ -1,42 +1,24 @@
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Link } from "react-router-dom";
-import {
-  Calendar,
-  Clock,
-  ExternalLink,
-  Search,
-  Filter,
-  ArrowLeft,
-  BookOpen,
-  Sparkles,
-  X,
-  ChevronRight,
-  Share2,
-  CheckCircle2,
-  ArrowUpDown,
-  Hourglass,
-  MapPin,
-  Check,
-  Trophy,
-  MessageCircle,
-} from "lucide-react";
 
 import LogoAAS from "../../assets/logo/proker/AAS.png";
 import supabase from "../../supabase-client";
+import { LOMBA_CADANGAN } from "../../data/lombaFallback";
 
-const LOMBA_CATEGORIES = [
-  "Semua",
-  "IT & Software",
-  "Beasiswa",
-  "UI/UX Design",
-  "Data Science",
-  "Web Dev",
-  "Data & AI",
-  "Business & Economics",
-  "Design & Poster",
-  "Riset & Karya Tulis",
-];
+// Halaman Info Lomba & Beasiswa (portal AAS).
+//
+// Data: tabel `lomba` di Supabase. Fitur tetap sama seperti versi sebelumnya:
+// cari, saring kategori, urutkan, lihat detail, salin link penyelenggara,
+// dan kontak WhatsApp narahubung.
+//
+// Arah tampilan mengikuti DESIGN.md (ENERGY 2 / RHYTHM 2 / MOTION 2):
+// - Permukaan solid, tanpa grid latar dan tanpa orb glow (R-07, R-10, R-13).
+// - Satu aksen emas dipakai hemat: saring aktif, satu CTA, satu penanda deadline (R-29).
+// - Bentuk daftar-indeks, bukan grid kartu seragam, supaya tenggat terbaca lebih dulu;
+//   tenggat adalah kolom yang menentukan keputusan pengguna (R-05, R-14).
+// - Detail dibuka sebagai panel samping agar arah datangnya jelas (R-19).
+// - Ikon dilepas, label teks yang bekerja (R-04).
 
 const SORT_OPTIONS = [
   { id: "furthest", label: "Deadline Terjauh" },
@@ -44,7 +26,7 @@ const SORT_OPTIONS = [
   { id: "az", label: "Abjad (A-Z)" },
 ];
 
-// Helper untuk format Link WhatsApp
+// Ubah nomor telepon jadi tautan WhatsApp.
 const formatWhatsAppLink = (phone) => {
   if (!phone) return "";
   let cleaned = phone.replace(/\D/g, "");
@@ -53,6 +35,24 @@ const formatWhatsAppLink = (phone) => {
   }
   return `https://wa.me/${cleaned}`;
 };
+
+// Samakan bentuk kolom `categories` yang bisa berupa array atau string Postgres.
+const parseCategories = (cat) => {
+  if (Array.isArray(cat)) {
+    return cat.map((c) => String(c).replace(/["']/g, "").trim()).filter(Boolean);
+  }
+  if (typeof cat === "string") {
+    return cat
+      .replace(/[{}]/g, "")
+      .split(",")
+      .map((c) => c.replace(/["']/g, "").trim())
+      .filter(Boolean);
+  }
+  return [];
+};
+
+const TOMBOL =
+  "inline-flex items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-lg border text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page";
 
 export default function LombaBeasiswa() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -63,79 +63,79 @@ export default function LombaBeasiswa() {
 
   const [lombaData, setLombaData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [sumberCadangan, setSumberCadangan] = useState(false);
 
-  const [isSortOpen, setIsSortOpen] = useState(false);
-  const sortRef = useRef(null);
-
-  const filterContainerRef = useRef(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeftPos, setScrollLeftPos] = useState(0);
-
-  const parseCategories = (cat) => {
-    if (Array.isArray(cat)) {
-      return cat
-        .map((c) => String(c).replace(/["']/g, "").trim())
-        .filter(Boolean);
-    }
-    if (typeof cat === "string") {
-      return cat
-        .replace(/[{}]/g, "")
-        .split(",")
-        .map((c) => c.replace(/["']/g, "").trim())
-        .filter(Boolean);
-    }
-    return [];
-  };
+  const closeRef = useRef(null);
 
   useEffect(() => {
+    let masihDipakai = true;
+
+    // Batas waktu: halaman tidak boleh menunggu database tanpa ujung. Kalau
+    // database diam, daftar cadangan yang dipakai.
+    const batasWaktu = new Promise((_, tolak) =>
+      setTimeout(() => tolak(new Error("database tidak menjawab")), 2500),
+    );
+
     async function fetchLombaFromSupabase() {
       try {
         setIsLoading(true);
-        const { data, error } = await supabase
+        const permintaan = supabase
           .from("lomba")
           .select("*")
           .order("id", { ascending: false });
 
-        if (error) throw error;
-        setLombaData(data || []);
-      } catch (error) {
-        console.error("Gagal mengambil data lomba:", error.message);
+        const { data, error: err } = await Promise.race([permintaan, batasWaktu]);
+        if (err) throw err;
+        if (!masihDipakai) return;
+
+        // Tabel kosong juga dianggap belum ada isinya, jadi pakai cadangan.
+        if (!data || data.length === 0) {
+          setLombaData(LOMBA_CADANGAN);
+          setSumberCadangan(true);
+          return;
+        }
+
+        setLombaData(data);
+        setSumberCadangan(false);
+      } catch {
+        // Database tidak bisa dihubungi. Halaman tetap terisi dari daftar
+        // cadangan yang tersimpan di dalam project.
+        if (!masihDipakai) return;
+        setLombaData(LOMBA_CADANGAN);
+        setSumberCadangan(true);
       } finally {
-        setIsLoading(false);
+        if (masihDipakai) setIsLoading(false);
       }
     }
 
     fetchLombaFromSupabase();
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (sortRef.current && !sortRef.current.contains(event.target)) {
-        setIsSortOpen(false);
-      }
+    return () => {
+      masihDipakai = false;
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-    setStartX(e.pageX - filterContainerRef.current.offsetLeft);
-    setScrollLeftPos(filterContainerRef.current.scrollLeft);
-  };
-  const handleMouseLeave = () => setIsDragging(false);
-  const handleMouseUp = () => setIsDragging(false);
-  const handleMouseMove = (e) => {
-    if (!isDragging) return;
-    e.preventDefault();
-    const x = e.pageX - filterContainerRef.current.offsetLeft;
-    const walk = (x - startX) * 1.5;
-    filterContainerRef.current.scrollLeft = scrollLeftPos - walk;
-  };
+  // Panel detail: Escape menutup, gulir badan halaman dikunci selama terbuka,
+  // fokus dipindah ke tombol tutup lalu dikembalikan saat panel ditutup (R-32).
+  useEffect(() => {
+    if (!selectedLomba) return;
+    const sebelumnya = document.activeElement;
+    const onKey = (e) => {
+      if (e.key === "Escape") setSelectedLomba(null);
+    };
+    document.addEventListener("keydown", onKey);
+    const overflowLama = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeRef.current?.focus();
+
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = overflowLama;
+      if (sebelumnya instanceof HTMLElement) sebelumnya.focus();
+    };
+  }, [selectedLomba]);
 
   const processedData = useMemo(() => {
-    let result = lombaData.filter((item) => {
+    const result = lombaData.filter((item) => {
       const itemCategories = parseCategories(item.categories);
       const matchCategory =
         selectedCategory === "Semua" ||
@@ -168,482 +168,489 @@ export default function LombaBeasiswa() {
     return result;
   }, [lombaData, searchQuery, selectedCategory, sortBy]);
 
-  // FUNGSI SALIN LINK MEDIA SOSIAL PENYELENGGARA
-  const handleShare = (item, e) => {
-    e.stopPropagation();
-    const socialLink = item.instagram_url || item.registration_url;
+  // Tombol saring disusun dari kategori yang benar-benar ada di data, diurutkan
+  // dari yang paling banyak. Jadi tidak ada tombol yang membawa ke hasil kosong.
+  const kategoriTersedia = useMemo(() => {
+    const jumlah = new Map();
+    for (const item of lombaData) {
+      for (const kategori of parseCategories(item.categories)) {
+        jumlah.set(kategori, (jumlah.get(kategori) || 0) + 1);
+      }
+    }
+    return [
+      "Semua",
+      ...[...jumlah.entries()]
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+        .map(([nama]) => nama),
+    ];
+  }, [lombaData]);
 
+  // Salin link media sosial / pendaftaran penyelenggara.
+  const handleShare = (item) => {
+    const socialLink = item.instagram_url || item.registration_url;
     if (socialLink && navigator.clipboard) {
       navigator.clipboard.writeText(socialLink);
       setCopiedId(item.id);
       setTimeout(() => setCopiedId(null), 2000);
     } else {
-      alert("Link media sosial penyelenggara belum tersedia.");
+      setCopiedId("kosong");
+      setTimeout(() => setCopiedId(null), 2000);
     }
   };
 
+  const resetSaringan = () => {
+    setSearchQuery("");
+    setSelectedCategory("Semua");
+  };
+
+  // Penanda "terdekat" hanya bermakna saat daftar diurutkan menurut deadline terdekat.
+  const idTerdekat =
+    sortBy === "nearest" && processedData.length > 0
+      ? processedData[0].id
+      : null;
+
   return (
-    <div className="min-h-screen pt-28 sm:pt-36 pb-24 bg-[#043761] font-primary relative overflow-hidden flex flex-col items-center selection:bg-accent selection:text-[#043761] text-white">
-      {/* Custom Scrollbar Styling */}
-      <style>{`
-        ::-webkit-scrollbar {
-          width: 6px;
-          height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.02);
-        }
-        ::-webkit-scrollbar-thumb {
-          background: #ffc300;
-          border-radius: 9999px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background: #ffcf33;
-        }
-      `}</style>
-
-      <div className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_0%,#000_20%,transparent_100%)]"></div>
-        <div className="absolute w-[40rem] h-[40rem] rounded-full blur-[150px] bg-accent/10 top-0 left-1/2 -translate-x-1/2"></div>
-      </div>
-
-      <div className="w-full max-w-7xl px-4 sm:px-6 relative z-10 flex flex-col items-center">
-        <div className="w-full flex items-center justify-between mb-12">
+    <div className="min-h-screen bg-page font-primary text-white pb-24 selection:bg-accent selection:text-[#02182b]">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Kepala halaman */}
+        <header className="pt-32 pb-10 sm:pt-36 sm:pb-12">
           <Link
             to="/aas"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 hover:text-white text-sm font-semibold backdrop-blur-md transition-all group"
+            className="text-sm font-semibold text-white/70 hover:text-accent transition-colors rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page"
           >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span>Kembali ke AAS</span>
+            Kembali ke AAS
           </Link>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white p-1.5 shadow-lg hidden sm:flex items-center justify-center">
-              <img
-                src={LogoAAS}
-                alt="Logo AAS"
-                className="w-full h-full object-contain"
-              />
+
+          <div className="mt-8 flex items-start gap-4 sm:gap-5">
+            <img
+              src={LogoAAS}
+              alt="Logo AAS"
+              className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-full bg-white object-contain p-1.5"
+            />
+            <div className="min-w-0">
+              <h1 className="text-4xl sm:text-5xl font-black tracking-tight leading-[1.05]">
+                Info Lomba &amp; <span className="text-accent">Beasiswa</span>
+              </h1>
+              <p className="mt-4 text-base sm:text-lg text-white/70 leading-relaxed max-w-2xl">
+                Kumpulan kompetisi dan beasiswa yang dikurasi divisi AAS
+                HIMSIKA. Setiap entri memuat tenggat pendaftaran dan
+                pengumpulan.
+              </p>
             </div>
-            <span className="text-xs font-bold uppercase tracking-widest text-accent bg-white/5 border border-white/10 px-4 py-2 rounded-full backdrop-blur-sm">
-              AAS Portal
-            </span>
           </div>
-        </div>
+        </header>
 
-        <div className="text-center max-w-3xl mb-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <span className="inline-flex items-center gap-2 text-xs font-black text-[#043761] tracking-widest uppercase bg-accent px-4 py-1.5 rounded-full mb-6 shadow-[0_0_20px_rgba(255,195,0,0.3)]">
-              <Sparkles className="w-4 h-4" /> Academic Achievement Support
-            </span>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white drop-shadow-lg mb-6 leading-tight">
-              Info Lomba & <span className="text-accent">Beasiswa</span>
-            </h1>
-            <p className="text-base sm:text-lg text-white/70 font-medium leading-relaxed max-w-2xl mx-auto">
-              Temukan peluang kompetisi dan beasiswa terbaik untuk meningkatkan
-              prestasimu.
-            </p>
-          </motion.div>
-        </div>
-
-        <div className="w-full bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem] p-5 sm:p-8 shadow-2xl mb-8">
-          <div className="flex flex-col lg:flex-row gap-4 mb-4">
-            <div className="relative flex-1 group">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-accent transition-colors" />
+        {/* Perkakas: cari, urutkan, saring */}
+        <section
+          aria-label="Cari dan saring"
+          className="border-y border-border py-5 sm:py-6"
+        >
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <label className="relative flex-1">
+              <span className="sr-only">
+                Cari lomba, penyelenggara, atau kategori
+              </span>
               <input
                 type="text"
-                placeholder="Cari lomba, penyelenggara, atau kategori..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-black/20 border border-white/10 rounded-2xl pl-14 pr-12 py-4 text-sm sm:text-base text-white placeholder:text-white/40 focus:outline-none focus:border-accent/50 focus:bg-black/40 transition-all"
+                placeholder="Cari lomba, penyelenggara, atau kategori"
+                className="w-full bg-deep border border-border rounded-lg pl-4 pr-11 py-3 text-sm sm:text-base text-white placeholder:text-white/40 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
               />
               {searchQuery && (
                 <button
+                  type="button"
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1.5 rounded-full bg-white/5 hover:bg-white/10"
+                  aria-label="Bersihkan pencarian"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-md text-white/50 hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 >
-                  <X className="w-4 h-4" />
+                  &times;
                 </button>
               )}
-            </div>
+            </label>
 
-            <div className="relative shrink-0 z-20" ref={sortRef}>
-              <button
-                onClick={() => setIsSortOpen(!isSortOpen)}
-                className="flex items-center justify-between w-full lg:w-56 gap-3 bg-black/20 hover:bg-black/40 border border-white/10 rounded-2xl px-5 py-4 transition-all cursor-pointer"
+            <label className="sm:w-56 shrink-0">
+              <span className="sr-only">Urutkan</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                style={{ colorScheme: "dark" }}
+                className="w-full bg-deep border border-border rounded-lg px-4 py-3 text-sm font-semibold text-white focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors cursor-pointer"
               >
-                <div className="flex items-center gap-3">
-                  <ArrowUpDown className="w-5 h-5 text-accent" />
-                  <div className="flex flex-col text-left">
-                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-none mb-1">
-                      Urutkan
-                    </span>
-                    <span className="text-sm font-bold text-white leading-none">
-                      {SORT_OPTIONS.find((o) => o.id === sortBy)?.label}
-                    </span>
-                  </div>
-                </div>
-                <ChevronRight
-                  className={`w-4 h-4 text-white/40 transition-transform duration-300 ${isSortOpen ? "rotate-90" : ""}`}
-                />
-              </button>
-              <AnimatePresence>
-                {isSortOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    transition={{ duration: 0.8 }}
-                    className="absolute right-0 top-full mt-2 w-full lg:w-56 bg-[#032847] border border-white/10 rounded-2xl shadow-xl overflow-hidden py-2"
-                  >
-                    {SORT_OPTIONS.map((option) => (
-                      <button
-                        key={option.id}
-                        onClick={() => {
-                          setSortBy(option.id);
-                          setIsSortOpen(false);
-                        }}
-                        className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold transition-colors hover:bg-white/5 ${sortBy === option.id ? "text-accent bg-white/5" : "text-white/70"}`}
-                      >
-                        <span>{option.label}</span>
-                        {sortBy === option.id && <Check className="w-4 h-4" />}
-                      </button>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                {SORT_OPTIONS.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
 
-          <div className="relative flex items-center w-full">
-            <div className="bg-white/5 border border-white/10 rounded-xl p-2.5 mr-3 shrink-0 hidden sm:flex z-10 pointer-events-none">
-              <Filter className="w-4 h-4 text-accent" />
-            </div>
-            <div
-              ref={filterContainerRef}
-              onMouseDown={handleMouseDown}
-              onMouseLeave={handleMouseLeave}
-              onMouseUp={handleMouseUp}
-              onMouseMove={handleMouseMove}
-              className={`flex-1 flex items-center gap-2 overflow-x-auto scrollbar-none py-1 select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
-            >
-              {LOMBA_CATEGORIES.map((cat) => {
-                const isActive = selectedCategory === cat;
-                return (
-                  <button
-                    key={cat}
-                    onClick={() => {
-                      if (!isDragging) setSelectedCategory(cat);
-                    }}
-                    className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold tracking-wide shrink-0 transition-all duration-300 border pointer-events-auto ${isActive ? "bg-accent border-accent text-[#043761] shadow-[0_0_20px_rgba(255,195,0,0.3)]" : "bg-white/5 border-white/10 hover:bg-white/10 hover:border-accent/50 text-white/60 hover:text-accent"}`}
-                  >
-                    {cat}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-white/10 pt-6 mb-8 px-2 sm:px-4">
-          <div className="flex items-center gap-3 text-white/70 text-sm">
-            <Hourglass className="w-4 h-4 text-accent" />
-            <span>
-              Menampilkan{" "}
-              <span className="font-bold text-white text-base">
-                {processedData.length}
-              </span>{" "}
-              dari {lombaData.length} info lomba
-            </span>
-          </div>
-        </div>
-
-        {isLoading ? (
-          <div className="w-full flex flex-col items-center justify-center py-24 my-6 bg-white/5 border border-white/10 rounded-[2rem] backdrop-blur-md shadow-xl">
-            <div className="w-10 h-10 border-3 border-accent border-t-transparent rounded-full animate-spin mb-4 shadow-[0_0_15px_rgba(255,195,0,0.3)]"></div>
-            <p className="text-white/70 font-bold text-sm tracking-wide">
-              Memuat data lomba dari database...
-            </p>
-          </div>
-        ) : processedData.length > 0 ? (
-          <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {processedData.map((item, idx) => {
-              const itemCategories = parseCategories(item.categories);
+          <div
+            role="tablist"
+            aria-label="Saring berdasarkan kategori"
+            className="mt-4 flex flex-wrap gap-2"
+          >
+            {kategoriTersedia.map((cat) => {
+              const aktif = selectedCategory === cat;
               return (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.4,
-                    delay: Math.min(idx * 0.05, 0.5),
-                  }}
-                  className="group bg-white/5 backdrop-blur-lg border border-white/10 hover:border-accent/50 rounded-[2rem] p-6 flex flex-col transition-all duration-500 relative shadow-xl hover:shadow-[0_0_30px_rgba(255,195,0,0.15)] hover:-translate-y-1.5 overflow-hidden"
+                <button
+                  key={cat}
+                  type="button"
+                  role="tab"
+                  aria-selected={aktif}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`${TOMBOL} ${
+                    aktif
+                      ? "bg-accent border-accent text-accent-foreground"
+                      : "bg-transparent border-border text-white/70 hover:text-white hover:border-white/30"
+                  }`}
                 >
-                  <div className="absolute -top-20 -right-20 w-40 h-40 bg-accent/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-
-                  <div className="flex-1 relative z-10">
-                    <div className="flex items-start justify-between gap-2 mb-5">
-                      <div className="flex flex-wrap gap-2">
-                        {itemCategories.slice(0, 2).map((c) => (
-                          <span
-                            key={c}
-                            className="text-[10px] font-bold uppercase tracking-widest bg-accent/10 border border-accent/20 text-accent px-3 py-1 rounded-full"
-                          >
-                            {c}
-                          </span>
-                        ))}
-                        {itemCategories.length > 2 && (
-                          <span className="text-[10px] font-bold text-white/60 bg-white/10 border border-white/10 px-2.5 py-1 rounded-full">
-                            +{itemCategories.length - 2}
-                          </span>
-                        )}
-                      </div>
-                      <button
-                        onClick={(e) => handleShare(item, e)}
-                        title="Salin link penyelenggara"
-                        type="button"
-                        className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/20 transition-all shrink-0 cursor-pointer pointer-events-auto z-20"
-                      >
-                        {copiedId === item.id ? (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400 pointer-events-none" />
-                        ) : (
-                          <Share2 className="w-4 h-4 pointer-events-none" />
-                        )}
-                      </button>
-                    </div>
-
-                    <h3 className="text-xl font-black text-white group-hover:text-accent transition-colors line-clamp-2 leading-snug mb-2">
-                      {item.title}
-                    </h3>
-                    <div className="flex items-center gap-1.5 text-xs text-white/60 font-medium mb-6">
-                      <MapPin className="w-3.5 h-3.5" />
-                      <span className="truncate">{item.organizer}</span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3 mb-4">
-                      <div className="bg-white/5 border border-white/10 rounded-2xl p-3.5">
-                        <Calendar className="w-4 h-4 text-accent mb-2" />
-                        <p className="text-[9px] uppercase tracking-widest text-white/40 font-bold mb-0.5">
-                          Pendaftaran
-                        </p>
-                        <p className="text-xs font-bold text-white truncate">
-                          {item.deadline_pendaftaran}
-                        </p>
-                      </div>
-                      <div className="bg-white/5 border border-white/10 rounded-2xl p-3.5">
-                        <Clock className="w-4 h-4 text-emerald-400 mb-2" />
-                        <p className="text-[9px] uppercase tracking-widest text-white/40 font-bold mb-0.5">
-                          Pengumpulan
-                        </p>
-                        <p className="text-xs font-bold text-white truncate">
-                          {item.deadline_pengumpulan}
-                        </p>
-                      </div>
-                    </div>
-
-                    {item.benefit && (
-                      <div className="bg-white/5 border border-white/10 rounded-2xl p-3 mb-6 flex items-start gap-2.5">
-                        <Trophy className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-                        <p className="text-xs text-white/80 font-medium line-clamp-2 leading-snug">
-                          {item.benefit}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  <button
-                    onClick={() => setSelectedLomba(item)}
-                    type="button"
-                    className="w-full pt-4 mt-auto border-t border-white/10 flex items-center justify-between text-xs font-bold text-white/60 group-hover:text-white transition-colors relative z-10 cursor-pointer pointer-events-auto"
-                  >
-                    <span>Lihat Detail Lengkap</span>
-                    <div className="w-8 h-8 rounded-full bg-accent text-[#043761] flex items-center justify-center transform group-hover:translate-x-2 transition-transform">
-                      <ArrowLeft className="w-4 h-4 rotate-180" />
-                    </div>
-                  </button>
-                </motion.div>
+                  {cat}
+                </button>
               );
             })}
           </div>
-        ) : (
-          <div className="w-full bg-white/5 backdrop-blur-md border border-white/10 rounded-[2rem] p-12 text-center my-8 max-w-lg">
-            <div className="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-6 text-white/30">
-              <Search className="w-10 h-10" />
-            </div>
-            <h3 className="text-xl font-black text-white mb-2">
-              Pencarian Tidak Ditemukan
-            </h3>
+        </section>
+
+        {/* Jumlah hasil */}
+        {!isLoading && (
+          <p className="mt-6 text-sm text-white/60">
+            Menampilkan{" "}
+            <span className="font-bold text-white">
+              {processedData.length}
+            </span>{" "}
+            dari {lombaData.length} info lomba
+          </p>
+        )}
+
+        {/* Keadaan memuat */}
+        {isLoading && (
+          <div className="mt-6 border border-border rounded-2xl bg-card p-10 text-center">
+            <p className="text-sm font-semibold text-white/70">
+              Memuat data lomba...
+            </p>
+          </div>
+        )}
+
+        {/* Keterangan sumber data saat daftar online tidak terjangkau */}
+        {!isLoading && sumberCadangan && lombaData.length > 0 && (
+          <p className="mt-3 text-xs text-white/50">
+            Daftar ini tersimpan di dalam website, bukan dari database online.
+            Hubungi divisi AAS kalau ada info yang perlu diperbarui.
+          </p>
+        )}
+
+        {/* Daftar entri */}
+        {!isLoading && processedData.length > 0 && (
+          <ul className="mt-6 grid gap-4">
+            {processedData.map((item, idx) => {
+              const itemCategories = parseCategories(item.categories);
+              const terdekat = item.id === idTerdekat;
+              return (
+                <li key={item.id}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedLomba(item)}
+                    aria-label={`Lihat detail ${item.title}`}
+                    className={`group w-full text-left flex gap-4 sm:gap-6 p-5 sm:p-6 rounded-2xl bg-card border transition duration-200 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
+                      terdekat
+                        ? "border-accent/60"
+                        : "border-white/12 hover:border-white/25"
+                    }`}
+                  >
+                    <span className="w-7 sm:w-9 shrink-0 pt-1 text-sm font-black text-white/20 tabular-nums">
+                      {String(idx + 1).padStart(2, "0")}
+                    </span>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-4">
+                        <h2 className="text-lg sm:text-xl font-bold leading-snug text-white group-hover:text-accent transition-colors">
+                          {item.title}
+                        </h2>
+                        {terdekat && (
+                          <span className="shrink-0 pt-1 text-[11px] font-bold uppercase tracking-wide text-accent">
+                            Terdekat
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="mt-1.5 text-sm text-white/65">
+                        {item.organizer}
+                      </p>
+
+                      {itemCategories.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-1.5">
+                          {itemCategories.map((c) => (
+                            <span
+                              key={c}
+                              className="rounded-md bg-surface/50 border border-border/50 px-2.5 py-1 text-[11px] font-semibold text-white/70"
+                            >
+                              {c}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs">
+                        <div className="flex gap-2">
+                          <span className="text-white/40">Pendaftaran</span>
+                          <span className="font-semibold text-white/90">
+                            {item.deadline_pendaftaran || "-"}
+                          </span>
+                        </div>
+                        <div className="flex gap-2">
+                          <span className="text-white/40">Pengumpulan</span>
+                          <span className="font-semibold text-white/90">
+                            {item.deadline_pengumpulan || "-"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {item.benefit && (
+                        <p className="mt-3 text-xs text-white/65 line-clamp-2 leading-relaxed">
+                          {item.benefit}
+                        </p>
+                      )}
+
+                      <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-white/70 group-hover:text-white transition-colors">
+                        Lihat detail
+                        <svg
+                          className="w-4 h-4 transition-transform group-hover:translate-x-0.5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
+                      </span>
+                    </div>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        {/* Keadaan kosong: dibedakan antara belum ada data dan saringan tidak cocok */}
+        {!isLoading && processedData.length === 0 && (
+          <div className="mt-6 border border-border rounded-2xl bg-card p-10 sm:p-12 max-w-xl">
+            {lombaData.length === 0 ? (
+              <>
+                <h2 className="text-lg font-bold text-white">
+                  Belum ada info lomba
+                </h2>
+                <p className="mt-2 text-sm text-white/70">
+                  Data akan muncul di sini setelah divisi AAS menambahkannya.
+                </p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-lg font-bold text-white">
+                  Tidak ada yang cocok
+                </h2>
+                <p className="mt-2 text-sm text-white/70">
+                  Tidak ada entri untuk kata kunci atau kategori ini.
+                </p>
+                <button
+                  type="button"
+                  onClick={resetSaringan}
+                  className={`${TOMBOL} mt-5 bg-accent border-accent text-accent-foreground hover:bg-accent-hover`}
+                >
+                  Tampilkan semua
+                </button>
+              </>
+            )}
           </div>
         )}
       </div>
 
+      {/* Panel detail */}
       <AnimatePresence>
         {selectedLomba && (
-          <div className="fixed inset-0 z-[99] flex items-center justify-center p-4 sm:p-6">
+          <div className="fixed inset-0 z-[99]">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               onClick={() => setSelectedLomba(null)}
-              className="absolute inset-0 bg-[#010e1a]/80 backdrop-blur-md cursor-pointer"
-            ></motion.div>
+              className="absolute inset-0 bg-[#010e1a]/80"
+            />
 
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ duration: 0.3, type: "spring", damping: 25 }}
-              className="relative w-full max-w-3xl bg-[#043761]/95 backdrop-blur-2xl border border-white/10 rounded-[2rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.7)] overflow-hidden z-10 flex flex-col max-h-[90vh]"
+              role="dialog"
+              aria-modal="true"
+              aria-label={selectedLomba.title}
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ duration: 0.28, ease: "easeOut" }}
+              className="absolute right-0 top-0 h-full w-full sm:max-w-xl bg-deep border-l border-border flex flex-col"
             >
-              <button
-                onClick={() => setSelectedLomba(null)}
-                className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/5 hover:bg-white/20 backdrop-blur-md border border-white/10 text-white/70 hover:text-white flex items-center justify-center transition-all cursor-pointer z-50 group"
-              >
-                <X className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
-              </button>
+              {/* Kepala panel */}
+              <div className="flex items-start justify-between gap-4 p-5 sm:p-6 border-b border-border shrink-0">
+                <div className="min-w-0">
+                  <p className="text-xs font-bold uppercase tracking-widest text-white/50">
+                    Detail
+                  </p>
+                  <h2 className="mt-1 text-lg sm:text-xl font-bold text-white leading-snug">
+                    {selectedLomba.title}
+                  </h2>
+                  <p className="mt-1 text-sm text-white/60">
+                    {selectedLomba.organizer}
+                  </p>
+                </div>
+                <button
+                  ref={closeRef}
+                  type="button"
+                  onClick={() => setSelectedLomba(null)}
+                  className="shrink-0 min-h-[44px] px-4 rounded-lg border border-border text-sm font-semibold text-white/80 hover:text-white hover:border-white/30 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  Tutup
+                </button>
+              </div>
 
-              <div className="flex-1 overflow-y-auto relative z-10">
-                <div className="p-6 sm:p-8 pt-10">
-                  <div className="flex flex-wrap gap-2 mb-4">
+              {/* Isi panel */}
+              <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-8">
+                {parseCategories(selectedLomba.categories).length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
                     {parseCategories(selectedLomba.categories).map((c) => (
                       <span
                         key={c}
-                        className="text-[10px] font-black uppercase tracking-widest bg-accent text-[#043761] px-3.5 py-1.5 rounded-full shadow-[0_0_15px_rgba(255,195,0,0.3)]"
+                        className="rounded-md border border-border px-2 py-0.5 text-[11px] font-semibold text-white/60"
                       >
                         {c}
                       </span>
                     ))}
                   </div>
+                )}
 
-                  <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2 leading-tight pr-10">
-                    {selectedLomba.title}
-                  </h2>
-                  <p className="text-sm text-white/60 mb-8">
-                    {selectedLomba.organizer}
-                  </p>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-3.5 flex items-center gap-3.5 group hover:bg-white/10 hover:border-accent/30 transition-colors">
-                      <div className="w-9 h-9 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                        <Calendar className="w-4 h-4 text-accent" />
-                      </div>
-                      <div className="flex flex-col overflow-hidden">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 mb-0.5">
-                          Pendaftaran
-                        </span>
-                        <span className="text-sm font-bold text-white truncate">
-                          {selectedLomba.deadline_pendaftaran}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-3.5 flex items-center gap-3.5 group hover:bg-white/10 hover:border-emerald-400/30 transition-colors">
-                      <div className="w-9 h-9 rounded-full bg-emerald-400/10 border border-emerald-400/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                        <Clock className="w-4 h-4 text-emerald-400" />
-                      </div>
-                      <div className="flex flex-col overflow-hidden">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 mb-0.5">
-                          Pengumpulan
-                        </span>
-                        <span className="text-sm font-bold text-white truncate">
-                          {selectedLomba.deadline_pengumpulan}
-                        </span>
-                      </div>
-                    </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="border border-border rounded-lg p-4">
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-white/40">
+                      Pendaftaran
+                    </p>
+                    <p className="mt-1 text-sm font-bold text-white">
+                      {selectedLomba.deadline_pendaftaran || "-"}
+                    </p>
                   </div>
-
-                  <div className="space-y-8">
-                    <div>
-                      <h4 className="text-xs font-bold uppercase tracking-widest text-accent mb-4 flex items-center gap-2">
-                        <BookOpen className="w-4 h-4" /> DESKRIPSI & INFORMASI
-                        LENGKAP
-                      </h4>
-                      <div className="bg-white/5 rounded-2xl p-5 sm:p-6 border border-white/10">
-                        <div className="text-sm text-white/80 leading-relaxed whitespace-pre-line">
-                          {selectedLomba.description
-                            ? selectedLomba.description
-                                .replace(/\\n/g, "\n")
-                                .trim()
-                            : ""}
-                        </div>
-                      </div>
-                    </div>
-
-                    {selectedLomba.contacts &&
-                      selectedLomba.contacts.length > 0 && (
-                        <div>
-                          <h4 className="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-4 flex items-center gap-2">
-                            <MessageCircle className="w-4 h-4" /> NARAHUBUNG /
-                            CONTACT PERSON
-                          </h4>
-                          <div className="space-y-3">
-                            {selectedLomba.contacts.map((contact, idx) => (
-                              <div
-                                key={idx}
-                                className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:border-white/20 transition-colors"
-                              >
-                                <div className="flex items-center gap-2">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-white/40 shrink-0"></div>
-                                  <span className="text-sm font-semibold text-white/90">
-                                    {contact.name} : {contact.phone}
-                                  </span>
-                                </div>
-                                <a
-                                  href={formatWhatsAppLink(contact.phone)}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="bg-transparent border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-white px-5 py-2.5 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-2 shrink-0 self-start sm:self-auto"
-                                >
-                                  Chat WhatsApp{" "}
-                                  <ExternalLink className="w-3.5 h-3.5" />
-                                </a>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                  <div className="border border-border rounded-lg p-4">
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-white/40">
+                      Pengumpulan
+                    </p>
+                    <p className="mt-1 text-sm font-bold text-white">
+                      {selectedLomba.deadline_pengumpulan || "-"}
+                    </p>
                   </div>
                 </div>
+
+                {selectedLomba.benefit && (
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-accent mb-3">
+                      Benefit
+                    </h3>
+                    <p className="text-sm text-white/80 leading-relaxed">
+                      {selectedLomba.benefit}
+                    </p>
+                  </div>
+                )}
+
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-accent mb-3">
+                    Deskripsi &amp; informasi lengkap
+                  </h3>
+                  <div className="text-sm text-white/80 leading-relaxed whitespace-pre-line">
+                    {selectedLomba.description
+                      ? selectedLomba.description.replace(/\\n/g, "\n").trim()
+                      : ""}
+                  </div>
+                </div>
+
+                {selectedLomba.contacts && selectedLomba.contacts.length > 0 && (
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-accent mb-3">
+                      Narahubung
+                    </h3>
+                    <ul className="space-y-3">
+                      {selectedLomba.contacts.map((contact, idx) => (
+                        <li
+                          key={idx}
+                          className="border border-border rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                        >
+                          <span className="text-sm font-semibold text-white/90">
+                            {contact.phone
+                              ? `${contact.name}: ${contact.phone}`
+                              : contact.name}
+                          </span>
+                          {contact.phone && (
+                            <a
+                              href={formatWhatsAppLink(contact.phone)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={`${TOMBOL} border-success/40 text-success hover:bg-success hover:text-white self-start sm:self-auto`}
+                            >
+                              Chat WhatsApp
+                            </a>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
 
-              <div className="p-4 sm:p-6 bg-white/5 backdrop-blur-lg border-t border-white/10 flex flex-row w-full gap-2.5 sm:gap-4 shrink-0 relative z-20">
-                {selectedLomba.registration_url && (
-                  <a
-                    href={selectedLomba.registration_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-[2] bg-accent hover:bg-[#ffcf33] text-[#043761] font-black text-xs sm:text-base py-3 sm:py-4 px-3 sm:px-6 rounded-full flex items-center justify-center gap-1.5 sm:gap-2.5 transition-all shadow-[0_0_15px_rgba(255,195,0,0.3)] hover:-translate-y-0.5 overflow-hidden"
-                  >
-                    <span className="truncate">Daftar Sekarang</span>
-                    <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-                  </a>
-                )}
-                {selectedLomba.guidebook_url && (
-                  <a
-                    href={selectedLomba.guidebook_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs sm:text-sm py-3 sm:py-4 px-2 sm:px-4 rounded-full flex items-center justify-center gap-1.5 sm:gap-2.5 transition-all hover:-translate-y-0.5 overflow-hidden"
-                  >
-                    <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-white/50 shrink-0" />
-                    <span className="truncate hidden sm:inline">Guidebook</span>
-                    <span className="sm:hidden truncate">Panduan</span>
-                  </a>
-                )}
-                {selectedLomba.instagram_url && (
-                  <a
-                    href={selectedLomba.instagram_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 bg-gradient-to-tr from-pink-600 to-purple-600 hover:opacity-90 text-white font-bold text-xs sm:text-sm py-3 sm:py-4 px-2 sm:px-4 rounded-full flex items-center justify-center gap-1.5 sm:gap-2.5 transition-all shadow-lg hover:shadow-pink-500/25 hover:-translate-y-0.5 overflow-hidden"
-                  >
-                    <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-                    <span>Instagram</span>
-                  </a>
-                )}
+              {/* Kaki panel: aksi */}
+              <div className="p-5 sm:p-6 border-t border-border shrink-0 space-y-3">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  {selectedLomba.registration_url && (
+                    <a
+                      href={selectedLomba.registration_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${TOMBOL} flex-1 bg-accent border-accent text-accent-foreground hover:bg-accent-hover`}
+                    >
+                      Daftar sekarang
+                    </a>
+                  )}
+                  {selectedLomba.guidebook_url && (
+                    <a
+                      href={selectedLomba.guidebook_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${TOMBOL} flex-1 border-border text-white/80 hover:text-white hover:border-white/30`}
+                    >
+                      Guidebook
+                    </a>
+                  )}
+                  {selectedLomba.instagram_url && (
+                    <a
+                      href={selectedLomba.instagram_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${TOMBOL} flex-1 border-border text-white/80 hover:text-white hover:border-white/30`}
+                    >
+                      Instagram
+                    </a>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleShare(selectedLomba)}
+                  className={`${TOMBOL} w-full border-border text-white/80 hover:text-white hover:border-white/30`}
+                >
+                  {copiedId === selectedLomba.id
+                    ? "Link tersalin"
+                    : copiedId === "kosong"
+                      ? "Link belum tersedia"
+                      : "Salin link penyelenggara"}
+                </button>
               </div>
             </motion.div>
           </div>

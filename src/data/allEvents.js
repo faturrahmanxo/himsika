@@ -17,28 +17,28 @@ const allEvents = [
     date: "10-11 Oktober 2026",
     title: "Isgath 2026",
     desc: "Study Club merupakan komunitas yang berfungsi sebagai wadah bagi Mahasiswa  Sistem Informasi untuk memperluas wawasan dan meningkatkan keterampilan di bidang  IT, contohnya seperti Web Programming, UI/UX Design, Data Analyst, dan sebagainya  yang sesuai dengan kebutuhan mahasiswa Sistem Informasi.",
-    link: "/kegiatan/study-club",
+    link: "/study-club",
   },
   {
     id: 2,
     image: Lkmmpd,
     title: "LKMMPD 2026",
     desc: "LKMM Pra-Dasar (Latihan Keterampilan Manajemen Mahasiswa Pra-Dasar)  adalah kegiatan pelatihan manajemen mahasiswa tingkat awal. Sebelum menuju ke tahap  kaderisasi selanjutnya yaitu LKMM Dasar para peserta kegiatan diharuskan mengikuti  kegiatan LKMM Pra-Dasar terlebih dahulu.",
-    link: "/kegiatan/lkmmpd",
+    link: "/lkmmpd",
   },
   {
     id: 3,
     image: StudyClub,
     title: "Study Club",
     desc: "Education Fair merupakan ajang multi event yang berisi kegiatan untuk menunjang  minat dan bakat mahasiswa terkhusus Mahasiswa Program Studi Sistem Informasi dan  masyarakat umum yang di dalamnya berisi event seperti seminar, workshop, pameran, dan  juga perlombaan yang semuanya berlandaskan keilmuan di dalam ruang lingkup yang  selaras dengan Program Studi Sistem Informasi. ",
-    link: "/kegiatan/make-connection",
+    link: "/make-connection",
   },
   {
     id: 4,
     image: Revoist,
     title: "Revoist",
     desc: "Dies Natalis Himsika adalah kegiatan untuk merayakan hari jadi Himsika, dan  sebagai sarana untuk menguatkan solidaritas antara mahasiswa Sistem Informasi dalam  perubahan demi kemajuan serta sebagai inspirasi dalam mengembangkan segala potensi  berupa non akademik.",
-    link: "/kegiatan/revoist",
+    link: "/revoist",
   },
   {
     id: 5,
@@ -52,7 +52,7 @@ const allEvents = [
     image: ISCTnobg,
     title: "ISCT 2026",
     desc: "Information System Company Tour merupakan program kerja Divisi Relasi  berupa kunjungan ke perusahaan-perusahaan yang bergerak di bidang sistem informasi. ",
-    link: "/kegiatan/revoist",
+    link: "/revoist",
   },
   {
     id: 7,
@@ -66,7 +66,7 @@ const allEvents = [
     image: AAS,
     title: "AAS",
     desc: "Academic Achievement Support merupakan sistem akademik yang mewadahi  seluruh kebutuhan Mahasiswa Sistem Informasi dalam rangka meningkatkan  pemahaman terhadap akademiknya melalui pengadaan komunitas interaktif, forum  diskusi, dukungan belajar, penyaluran lomba, dan pengarsipan materi.",
-    link: "/kegiatan/revoist",
+    link: "/revoist",
   },
 ];
 

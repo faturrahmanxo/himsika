@@ -10,6 +10,12 @@
 
   /* Layer Background */
   --color-dark: #0a1128;
+
+  /* Latar halaman & bagian terdalam. Sebelumnya #043761 di-hardcode 104x.
+     Dinamai "page", bukan "base", karena "base" bentrok dengan ukuran huruf
+     bawaan Tailwind (text-base). */
+  --color-page: #043761;
+  --color-deep: #02182b;
   --color-gradient: linear-gradient(
     135deg,
     #0a1128 0%,

@@ -69,7 +69,9 @@ import Image3 from "../assets/images/3.webp";
 import artikelData from "../data/artikel";
 import allEvents from "../data/allEvents";
 import divisi from "../data/divisi";
-import kalenderTahunan from "../data/kalenderTahunan";
+
+// Komponen Kalender HIMSIKA 2026
+import KalenderHimsika from "../components/KalenderHimsika";
 
 // Komponen Counter Statistik (Fix: Mengikuti aturan "Hanya saat scroll ke bawah")
 const AnimatedCounter = ({ end, duration = 2000 }) => {
@@ -429,10 +431,11 @@ export default function Beranda() {
                 variants={fadeUpItem}
                 className="text-base sm:text-lg max-w-2xl leading-relaxed text-foreground/90 drop-shadow-md"
               >
-                Himpunan Mahasiswa Informatika adalah sebuah Organisasi
-                Kemahasiswaan khusus Jurusan Teknik Informatika yang bergerak
-                dalam bidang Akademik maupun Non-Akademik di Universitas
-                Sriwijaya.
+                Himpunan Mahasiswa Sistem Informasi (HIMSIKA) adalah organisasi
+                kemahasiswaan tingkat program studi yang menaungi mahasiswa
+                Sistem Informasi Fakultas Ilmu Komputer Universitas
+                Singaperbangsa Karawang, bergerak di bidang akademik maupun
+                non-akademik.
               </motion.p>
             </motion.div>
 
@@ -907,13 +910,17 @@ export default function Beranda() {
         </motion.div>
       </section>
 
-      {/* 9. KALENDER TAHUNAN */}
+      {/* 9. KALENDER HIMSIKA 2026 */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-full mx-auto bg-[#043761] relative overflow-hidden pb-32">
         <div className="absolute inset-0 pointer-events-none z-0">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:3rem_3rem]"></div>
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
           <div
-            className="absolute w-[20rem] h-[20rem] rounded-full blur-[100px] bg-info/15 bottom-0 left-1/2 -translate-x-1/2 animate-pulse"
-            style={{ animationDuration: "8s" }}
+            className="absolute w-[28rem] h-[28rem] rounded-full blur-[120px] bg-accent/10 top-10 -left-24 animate-pulse"
+            style={{ animationDuration: "9s" }}
+          ></div>
+          <div
+            className="absolute w-[24rem] h-[24rem] rounded-full blur-[110px] bg-info/15 bottom-0 right-0 animate-pulse"
+            style={{ animationDuration: "7s", animationDelay: "1.5s" }}
           ></div>
         </div>
 
@@ -922,40 +929,39 @@ export default function Beranda() {
           initial="hidden"
           whileInView="show"
           viewport={scrollSettings}
-          className="max-w-3xl mx-auto relative z-10"
+          className="max-w-6xl mx-auto relative z-10"
         >
-          <div className="text-center mb-16 relative">
+          {/* Header */}
+          <div className="text-center mb-12 relative">
+            <motion.div
+              variants={fadeUpItem}
+              className="flex items-center justify-center gap-4 mb-4"
+            >
+              <span className="w-8 sm:w-12 h-0.5 bg-accent rounded-full"></span>
+              <span className="text-accent font-bold text-sm uppercase tracking-widest">
+                Kalender Kegiatan
+              </span>
+              <span className="w-8 sm:w-12 h-0.5 bg-accent rounded-full"></span>
+            </motion.div>
             <motion.h2
               variants={fadeUpItem}
-              className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4 inline-block relative"
+              className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-4"
             >
-              Timeline <span className="text-accent">Akademik</span>
+              Kalender <span className="text-accent">HIMSIKA</span> 2026
             </motion.h2>
-            <motion.p variants={fadeUpItem} className="text-white/80">
-              Jadwal pelaksanaan program tahunan Himpunan Mahasiswa.
+            <motion.p
+              variants={fadeUpItem}
+              className="text-base sm:text-lg max-w-2xl mx-auto leading-relaxed text-white/80"
+            >
+              Seluruh agenda program kerja, event, kaderisasi, dan kegiatan
+              akademik HIMSIKA sepanjang satu periode kepengurusan 2026.
             </motion.p>
           </div>
 
-          <div className="relative border-l-2 border-white/10 ml-4 sm:ml-0">
-            {kalenderTahunan.map((item, index) => (
-              <motion.div
-                variants={fadeUpItem}
-                key={index}
-                className="mb-12 ml-8 sm:ml-12 relative group"
-              >
-                <span className="absolute -left-[39px] sm:-left-[55px] top-1.5 w-4 h-4 bg-[#043761] border-2 border-accent rounded-full group-hover:bg-accent group-hover:shadow-[0_0_15px_rgba(255,195,0,0.6)] group-hover:scale-125 transition-all duration-300"></span>
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 group-hover:border-accent/50 group-hover:bg-white/10 transition-all duration-300 shadow-lg relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-1 h-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <span className="text-accent font-bold text-xs uppercase tracking-[0.15em] block mb-2">
-                    {item.month}
-                  </span>
-                  <h3 className="text-xl sm:text-2xl font-bold text-white group-hover:text-accent transition-colors">
-                    {item.events}
-                  </h3>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+          {/* Komponen Kalender */}
+          <motion.div variants={fadeUpItem}>
+            <KalenderHimsika />
+          </motion.div>
         </motion.div>
       </section>
     </div>
