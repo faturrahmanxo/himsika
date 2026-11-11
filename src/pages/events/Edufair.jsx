@@ -31,18 +31,18 @@ import {
 import Imelvi from "../../assets/images/pengurus/divisiEdukasi/Imelvi.webp";
 
 // Import Foto Galeri Kegiatan (Baris 1)
-import FotoKegiatan1 from "../../assets/images/events/Edufair/galeri1.webp";
-import FotoKegiatan2 from "../../assets/images/events/Edufair/galeri2.webp";
-import FotoKegiatan3 from "../../assets/images/events/Edufair/galeri3.webp";
-import FotoKegiatan4 from "../../assets/images/events/Edufair/galeri4.webp";
-import FotoKegiatan5 from "../../assets/images/events/Edufair/galeri5.webp";
+import FotoKegiatan1 from "../../assets/images/events/edufair/galeri1.webp";
+import FotoKegiatan2 from "../../assets/images/events/edufair/galeri2.webp";
+import FotoKegiatan3 from "../../assets/images/events/edufair/galeri3.webp";
+import FotoKegiatan4 from "../../assets/images/events/edufair/galeri4.webp";
+import FotoKegiatan5 from "../../assets/images/events/edufair/galeri5.webp";
 
 // Import Foto Galeri Kegiatan (Baris 2)
-import FotoKegiatan6 from "../../assets/images/events/Edufair/galeri6.webp";
-import FotoKegiatan7 from "../../assets/images/events/Edufair/galeri7.webp";
-import FotoKegiatan8 from "../../assets/images/events/Edufair/galeri8.webp";
-import FotoKegiatan9 from "../../assets/images/events/Edufair/galeri9.webp";
-import FotoKegiatan10 from "../../assets/images/events/Edufair/galeri10.webp";
+import FotoKegiatan6 from "../../assets/images/events/edufair/galeri6.webp";
+import FotoKegiatan7 from "../../assets/images/events/edufair/galeri7.webp";
+import FotoKegiatan8 from "../../assets/images/events/edufair/galeri8.webp";
+import FotoKegiatan9 from "../../assets/images/events/edufair/galeri9.webp";
+import FotoKegiatan10 from "../../assets/images/events/edufair/galeri10.webp";
 
 // Array Data Foto untuk Baris 1 & Baris 2
 const galeriBaris1 = [
