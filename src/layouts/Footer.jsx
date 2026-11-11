@@ -33,10 +33,19 @@ const Footer = () => {
               </div>
             </Link>
 
-            <p className="text-primary-foreground/70 leading-relaxed max-w-md mb-8 text-sm sm:text-base">
-              Kembangkan potensi, ciptakan prestasi. Wadah sinergi dan inovasi
-              untuk menciptakan karya nyata yang berdampak pada teknologi.
-            </p>
+            <div className="space-y-3 mb-6 max-w-md">
+              <p className="text-primary-foreground/75 leading-relaxed text-sm sm:text-base">
+                Program Studi Sistem Informasi, Fakultas Ilmu Komputer, Universitas Singaperbangsa Karawang.
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold bg-accent/15 border border-accent/30 text-accent">
+                  Kabinet Aksara Cakra
+                </span>
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-medium bg-white/5 border border-white/10 text-white/70">
+                  Periode 2025–2026
+                </span>
+              </div>
+            </div>
 
             {/* Social Media Icons */}
             <div className="flex space-x-4">

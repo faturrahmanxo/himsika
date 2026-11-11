@@ -64,9 +64,61 @@
   --radius: 1rem;
 }
 
+/* Custom Scrollbar - Palet HIMSIKA (Track: #02182b, Thumb: #073969, Hover: #045091, Active: #ffc300) */
 html {
-  scroll-behavior: smooth;
-  /* cursor: none; */
+  scrollbar-width: thin;
+  scrollbar-color: #073969 #02182b;
+  overflow-x: clip;
+}
+
+body {
+  overflow-x: clip;
+}
+
+/* Optimasi Performa Scroll Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #02182b;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #073969;
+  border-radius: 9999px;
+  border: 2px solid #02182b;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #045091;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background-color: #ffc300;
 }
 
 .custom-shape-divider-bottom-1786246288 {

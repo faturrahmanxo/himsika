@@ -317,19 +317,7 @@ export default function Beranda() {
             viewport={scrollSettings}
             className="w-full"
           >
-            <motion.div variants={item} className="mb-6 relative z-10">
-              <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-primary/50 border border-white/20 backdrop-blur-md shadow-[0_0_20px_rgba(255,195,0,0.15)]">
-                <div className="relative flex items-center justify-center">
-                  <span className="w-2.5 h-2.5 rounded-full bg-accent animate-ping absolute"></span>
-                  <span className="w-2 h-2 rounded-full bg-accent relative"></span>
-                </div>
-                <span className="text-[10px] sm:text-xs font-bold tracking-[0.25em] text-accent uppercase">
-                  Welcome To HIMSIKA
-                </span>
-              </div>
-            </motion.div>
-
-            <div className="flex flex-col items-start relative z-10">
+            <div className="flex flex-col items-start relative z-10 pt-4">
               <motion.h1
                 variants={item}
                 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white leading-tight"

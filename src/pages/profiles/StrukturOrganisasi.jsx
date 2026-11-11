@@ -1,5 +1,1 @@
-import { Link } from "react-router-dom";
-
-export default function StrukturOrganisasi() {
-  <div></div>;
-}
+export { default } from "../profils/StrukturOrganisasi.jsx";

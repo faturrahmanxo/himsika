@@ -1,12 +1,39 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-// IMPORT DATA UTAMA (Sesuaikan path)
+// IMPORT DATA UTAMA & SUPABASE
 import artikelData from "../data/artikel";
+import supabase from "../supabase-client";
 
 export default function Artikel() {
   const [activeCategory, setActiveCategory] = useState("Semua");
   const [visibleCount, setVisibleCount] = useState(3);
+  const [articles, setArticles] = useState(artikelData);
+  const [isLoading, setIsLoading] = useState(false);
   const categories = ["Semua", "Berita", "Kegiatan", "Opini", "Prestasi"];
+
+  useEffect(() => {
+    async function fetchArticles() {
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase
+          .from("artikel")
+          .select("*")
+          .order("id", { ascending: false });
+
+        if (!error && data && data.length > 0) {
+          const dbIds = new Set(data.map((d) => d.id));
+          const remainingFallback = artikelData.filter((a) => !dbIds.has(a.id));
+          setArticles([...data, ...remainingFallback]);
+        }
+      } catch (err) {
+        console.warn("Menggunakan data artikel lokal:", err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchArticles();
+  }, []);
 
   const handleCategoryChange = (cat) => {
     setActiveCategory(cat);
@@ -18,7 +45,7 @@ export default function Artikel() {
   };
 
   // Filter Data Berdasarkan Kategori
-  const filteredArticles = artikelData.filter(
+  const filteredArticles = articles.filter(
     (article) =>
       activeCategory === "Semua" || article.category === activeCategory,
   );

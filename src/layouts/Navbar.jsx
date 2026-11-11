@@ -2,28 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logoHimsika from "../assets/logo/HIMSIKA.png";
 
-// Data Announcement diubah menjadi Array agar bisa menampung banyak event
-export const announcementData = [
-  {
-    id: 1,
-    text: "Pendaftaran Event ISCT 2026 telah dibuka, kuota terbatas!",
-    linkText: "Daftar sekarang",
-    linkTo: "/isct",
-  },
-  {
-    id: 2,
-    text: "Ikuti Education Fair dan persiapkan karier masa depanmu!",
-    linkText: "Cek detailnya",
-    linkTo: "/education-fair",
-  },
-  {
-    id: 3,
-    text: "Jangan lewatkan LKMMPD untuk mahasiswa baru.",
-    linkText: "Info lengkap",
-    linkTo: "/lkmmpd",
-  },
-];
-
 export const navMenu = [
   { id: 1, label: "Beranda", to: "/", children: [] },
   {
@@ -64,10 +42,6 @@ const Navbar = () => {
   const [activeMobileDropdown, setActiveMobileDropdown] = useState(null);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // State untuk Announcement Bar Carousel
-  const [currentAnnouncementIndex, setCurrentAnnouncementIndex] = useState(0);
-  const [fadeAnim, setFadeAnim] = useState(true);
-
   const location = useLocation();
 
   // Effect untuk mendeteksi scroll
@@ -81,24 +55,6 @@ const Navbar = () => {
     };
   }, []);
 
-  // Effect untuk Carousel Announcement (Ganti otomatis setiap 4 detik)
-  useEffect(() => {
-    if (announcementData.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setFadeAnim(false);
-
-      setTimeout(() => {
-        setCurrentAnnouncementIndex(
-          (prevIndex) => (prevIndex + 1) % announcementData.length,
-        );
-        setFadeAnim(true);
-      }, 300);
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
     setActiveMobileDropdown(null);
@@ -108,31 +64,8 @@ const Navbar = () => {
     setActiveMobileDropdown(activeMobileDropdown === id ? null : id);
   };
 
-  const currentAnnouncement = announcementData[currentAnnouncementIndex];
-
   return (
     <header className="fixed top-0 w-full z-50 font-primary flex flex-col">
-      {/* Announcement Bar - Permanen, Tidak bisa di-close */}
-      {announcementData.length > 0 && (
-        <div className="bg-yellow-400 relative h-9 sm:h-10 flex items-center justify-center overflow-hidden z-50">
-          <div
-            className={`w-full max-w-7xl px-4 text-center text-xs sm:text-sm text-gray-900 font-semibold tracking-wide transition-all duration-300 ease-in-out ${
-              fadeAnim
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 -translate-y-2"
-            }`}
-          >
-            {currentAnnouncement.text}{" "}
-            <Link
-              to={currentAnnouncement.linkTo}
-              className="text-blue-700 hover:text-blue-900 underline decoration-blue-700/50 hover:decoration-blue-900 ml-1 transition-colors"
-            >
-              {currentAnnouncement.linkText}
-            </Link>
-          </div>
-        </div>
-      )}
-
       {/* Main Navbar */}
       <nav
         className={`w-full relative transition-all duration-400 ease-in-out border-b ${

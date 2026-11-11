@@ -1,13 +1,48 @@
 import { useParams, Link } from "react-router-dom";
-import { useState } from "react";
-// IMPORT DATA (Sesuaikan path)
+import { useState, useEffect } from "react";
+// IMPORT DATA & SUPABASE
 import artikelData from "../../data/artikel";
+import supabase from "../../supabase-client";
 
 export default function DetailArtikel() {
   const { id } = useParams();
 
-  // Cari artikel berdasarkan ID
-  const article = artikelData.find((item) => item.id === Number(id));
+  const [article, setArticle] = useState(() =>
+    artikelData.find((item) => String(item.id) === String(id)),
+  );
+  const [loading, setLoading] = useState(!article);
+
+  useEffect(() => {
+    async function loadArticle() {
+      try {
+        const { data, error } = await supabase
+          .from("artikel")
+          .select("*")
+          .eq("id", id)
+          .single();
+
+        if (!error && data) {
+          setArticle(data);
+        }
+      } catch (e) {
+        console.warn("Gagal fetch artikel dari DB:", e.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (!article) {
+      loadArticle();
+    }
+  }, [id, article]);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-linear-to-b from-[#043761] via-primary to-[#043761] flex items-center justify-center p-4">
+        <div className="text-white/70 font-bold text-base">Memuat artikel...</div>
+      </main>
+    );
+  }
 
   // 1. STATE JIKA ARTIKEL TIDAK DITEMUKAN (Dibikin lebih elegan)
   if (!article) {
@@ -28,6 +63,20 @@ export default function DetailArtikel() {
       </main>
     );
   }
+
+  const contentBlocks = Array.isArray(article.content)
+    ? article.content
+    : typeof article.content === "string"
+    ? article.content.trim().startsWith("[")
+      ? (() => {
+          try {
+            return JSON.parse(article.content);
+          } catch {
+            return [{ type: "paragraph", text: article.content }];
+          }
+        })()
+      : [{ type: "paragraph", text: article.content }]
+    : [];
 
   // 2. TAMPILAN UTAMA ARTIKEL
   return (
@@ -103,7 +152,7 @@ export default function DetailArtikel() {
             prose-strong:text-white prose-strong:font-bold"
         >
           {/* Looping Konten Artikel */}
-          {article.content.map((block, index) => {
+          {contentBlocks.map((block, index) => {
             if (block.type === "paragraph") {
               return (
                 <p

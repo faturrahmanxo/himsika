@@ -243,7 +243,7 @@ export default function LombaBeasiswa() {
         {/* Perkakas: cari, urutkan, saring */}
         <section
           aria-label="Cari dan saring"
-          className="border-y border-border py-5 sm:py-6"
+          className="border-y border-[#1b4e80] py-5 sm:py-6"
         >
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <label className="relative flex-1">
@@ -254,8 +254,8 @@ export default function LombaBeasiswa() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Cari lomba, penyelenggara, atau kategori"
-                className="w-full bg-deep border border-border rounded-lg pl-4 pr-11 py-3 text-sm sm:text-base text-white placeholder:text-white/40 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                placeholder="Cari lomba, penyelenggara, atau kategori..."
+                className="w-full bg-[#021c35] border border-[#1b4e80] rounded-xl pl-4 pr-11 py-3 text-sm sm:text-base text-white placeholder:text-white/40 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
               />
               {searchQuery && (
                 <button
@@ -275,7 +275,7 @@ export default function LombaBeasiswa() {
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 style={{ colorScheme: "dark" }}
-                className="w-full bg-deep border border-border rounded-lg px-4 py-3 text-sm font-semibold text-white focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors cursor-pointer"
+                className="w-full bg-[#021c35] border border-[#1b4e80] rounded-xl px-4 py-3 text-sm font-semibold text-white focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors cursor-pointer"
               >
                 {SORT_OPTIONS.map((option) => (
                   <option key={option.id} value={option.id}>
@@ -302,8 +302,8 @@ export default function LombaBeasiswa() {
                   onClick={() => setSelectedCategory(cat)}
                   className={`${TOMBOL} ${
                     aktif
-                      ? "bg-accent border-accent text-accent-foreground"
-                      : "bg-transparent border-border text-white/70 hover:text-white hover:border-white/30"
+                      ? "bg-accent border-accent text-[#02182b] font-bold shadow-[0_0_15px_rgba(255,195,0,0.3)]"
+                      : "bg-[#021c35] border-[#1b4e80] text-white/80 hover:text-white hover:border-accent/50"
                   }`}
                 >
                   {cat}
@@ -315,9 +315,9 @@ export default function LombaBeasiswa() {
 
         {/* Jumlah hasil */}
         {!isLoading && (
-          <p className="mt-6 text-sm text-white/60">
+          <p className="mt-6 text-sm text-white/70">
             Menampilkan{" "}
-            <span className="font-bold text-white">
+            <span className="font-bold text-accent">
               {processedData.length}
             </span>{" "}
             dari {lombaData.length} info lomba
@@ -326,8 +326,8 @@ export default function LombaBeasiswa() {
 
         {/* Keadaan memuat */}
         {isLoading && (
-          <div className="mt-6 border border-border rounded-2xl bg-card p-10 text-center">
-            <p className="text-sm font-semibold text-white/70">
+          <div className="mt-6 border border-[#1b4e80] rounded-2xl bg-[#02203d] p-10 text-center shadow-lg">
+            <p className="text-sm font-semibold text-white/80">
               Memuat data lomba...
             </p>
           </div>
@@ -335,13 +335,13 @@ export default function LombaBeasiswa() {
 
         {/* Keterangan sumber data saat daftar online tidak terjangkau */}
         {!isLoading && sumberCadangan && lombaData.length > 0 && (
-          <p className="mt-3 text-xs text-white/50">
+          <p className="mt-3 text-xs text-white/60">
             Daftar ini tersimpan di dalam website, bukan dari database online.
             Hubungi divisi AAS kalau ada info yang perlu diperbarui.
           </p>
         )}
 
-        {/* Daftar entri */}
+        {/* Daftar entri dengan kontras warna yang tegas dan tidak nyaru */}
         {!isLoading && processedData.length > 0 && (
           <ul className="mt-6 grid gap-4">
             {processedData.map((item, idx) => {
@@ -353,13 +353,13 @@ export default function LombaBeasiswa() {
                     type="button"
                     onClick={() => setSelectedLomba(item)}
                     aria-label={`Lihat detail ${item.title}`}
-                    className={`group w-full text-left flex gap-4 sm:gap-6 p-5 sm:p-6 rounded-2xl bg-card border transition duration-200 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
+                    className={`group w-full text-left flex gap-4 sm:gap-6 p-5 sm:p-6 rounded-2xl transition-all duration-200 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent shadow-lg shadow-black/25 ${
                       terdekat
-                        ? "border-accent/60"
-                        : "border-white/12 hover:border-white/25"
+                        ? "bg-[#022447] border-2 border-accent shadow-[0_0_20px_rgba(255,195,0,0.18)]"
+                        : "bg-[#021f3f] border border-[#1b4e80] hover:border-accent/60 hover:bg-[#03264b]"
                     }`}
                   >
-                    <span className="w-7 sm:w-9 shrink-0 pt-1 text-sm font-black text-white/20 tabular-nums">
+                    <span className="w-8 h-8 rounded-xl bg-accent/10 border border-accent/25 shrink-0 flex items-center justify-center text-xs font-black text-accent tabular-nums mt-0.5">
                       {String(idx + 1).padStart(2, "0")}
                     </span>
 
@@ -369,13 +369,13 @@ export default function LombaBeasiswa() {
                           {item.title}
                         </h2>
                         {terdekat && (
-                          <span className="shrink-0 pt-1 text-[11px] font-bold uppercase tracking-wide text-accent">
+                          <span className="shrink-0 px-2.5 py-0.5 rounded-full bg-accent/15 border border-accent/40 text-[10px] font-extrabold uppercase tracking-wide text-accent">
                             Terdekat
                           </span>
                         )}
                       </div>
 
-                      <p className="mt-1.5 text-sm text-white/65">
+                      <p className="mt-1 text-sm text-white/75 font-medium">
                         {item.organizer}
                       </p>
 
@@ -384,7 +384,7 @@ export default function LombaBeasiswa() {
                           {itemCategories.map((c) => (
                             <span
                               key={c}
-                              className="rounded-md bg-surface/50 border border-border/50 px-2.5 py-1 text-[11px] font-semibold text-white/70"
+                              className="rounded-md bg-accent/10 border border-accent/25 px-2.5 py-0.5 text-[11px] font-semibold text-accent"
                             >
                               {c}
                             </span>
@@ -392,43 +392,50 @@ export default function LombaBeasiswa() {
                         </div>
                       )}
 
-                      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs">
-                        <div className="flex gap-2">
-                          <span className="text-white/40">Pendaftaran</span>
-                          <span className="font-semibold text-white/90">
+                      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div className="p-3 rounded-xl bg-[#032a50] border border-[#184877] flex items-center justify-between">
+                          <span className="text-[11px] font-medium text-white/60 uppercase tracking-wider">
+                            Pendaftaran
+                          </span>
+                          <span className="font-bold text-white">
                             {item.deadline_pendaftaran || "-"}
                           </span>
                         </div>
-                        <div className="flex gap-2">
-                          <span className="text-white/40">Pengumpulan</span>
-                          <span className="font-semibold text-white/90">
+                        <div className="p-3 rounded-xl bg-[#032a50] border border-[#184877] flex items-center justify-between">
+                          <span className="text-[11px] font-medium text-white/60 uppercase tracking-wider">
+                            Pengumpulan
+                          </span>
+                          <span className="font-bold text-white">
                             {item.deadline_pengumpulan || "-"}
                           </span>
                         </div>
                       </div>
 
                       {item.benefit && (
-                        <p className="mt-3 text-xs text-white/65 line-clamp-2 leading-relaxed">
+                        <div className="mt-3 p-3 rounded-xl bg-accent/[0.07] border-l-3 border-accent text-xs text-white/85 leading-relaxed">
+                          <span className="font-bold text-accent mr-1">Hadiah/Benefit:</span>
                           {item.benefit}
-                        </p>
+                        </div>
                       )}
 
-                      <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-white/70 group-hover:text-white transition-colors">
-                        Lihat detail
-                        <svg
-                          className="w-4 h-4 transition-transform group-hover:translate-x-0.5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5l7 7-7 7"
-                          />
-                        </svg>
-                      </span>
+                      <div className="mt-4 flex items-center justify-between pt-2">
+                        <span className="inline-flex items-center gap-1.5 text-xs font-bold text-accent group-hover:underline">
+                          Lihat detail lomba
+                          <svg
+                            className="w-4 h-4 transition-transform group-hover:translate-x-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                        </span>
+                      </div>
                     </div>
                   </button>
                 </li>
@@ -491,18 +498,18 @@ export default function LombaBeasiswa() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ duration: 0.28, ease: "easeOut" }}
-              className="absolute right-0 top-0 h-full w-full sm:max-w-xl bg-deep border-l border-border flex flex-col"
+              className="absolute right-0 top-0 h-full w-full sm:max-w-xl bg-[#02182b] border-l border-[#1b4e80] shadow-2xl flex flex-col"
             >
               {/* Kepala panel */}
-              <div className="flex items-start justify-between gap-4 p-5 sm:p-6 border-b border-border shrink-0">
+              <div className="flex items-start justify-between gap-4 p-5 sm:p-6 border-b border-[#1b4e80] bg-[#021f3a] shrink-0">
                 <div className="min-w-0">
-                  <p className="text-xs font-bold uppercase tracking-widest text-white/50">
-                    Detail
+                  <p className="text-xs font-bold uppercase tracking-widest text-accent">
+                    Detail Info Lomba
                   </p>
                   <h2 className="mt-1 text-lg sm:text-xl font-bold text-white leading-snug">
                     {selectedLomba.title}
                   </h2>
-                  <p className="mt-1 text-sm text-white/60">
+                  <p className="mt-1 text-sm text-white/75 font-medium">
                     {selectedLomba.organizer}
                   </p>
                 </div>
@@ -510,20 +517,20 @@ export default function LombaBeasiswa() {
                   ref={closeRef}
                   type="button"
                   onClick={() => setSelectedLomba(null)}
-                  className="shrink-0 min-h-[44px] px-4 rounded-lg border border-border text-sm font-semibold text-white/80 hover:text-white hover:border-white/30 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  className="shrink-0 min-h-[44px] px-4 rounded-xl border border-[#1b4e80] bg-white/5 text-sm font-semibold text-white/80 hover:text-white hover:border-accent hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 >
                   Tutup
                 </button>
               </div>
 
               {/* Isi panel */}
-              <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-8">
+              <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-8 custom-scrollbar">
                 {parseCategories(selectedLomba.categories).length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
                     {parseCategories(selectedLomba.categories).map((c) => (
                       <span
                         key={c}
-                        className="rounded-md border border-border px-2 py-0.5 text-[11px] font-semibold text-white/60"
+                        className="rounded-md border border-accent/30 bg-accent/10 px-2.5 py-1 text-[11px] font-semibold text-accent"
                       >
                         {c}
                       </span>
@@ -532,16 +539,16 @@ export default function LombaBeasiswa() {
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="border border-border rounded-lg p-4">
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-white/40">
+                  <div className="border border-[#1b4e80] bg-[#032446] rounded-xl p-4">
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-accent/80">
                       Pendaftaran
                     </p>
                     <p className="mt-1 text-sm font-bold text-white">
                       {selectedLomba.deadline_pendaftaran || "-"}
                     </p>
                   </div>
-                  <div className="border border-border rounded-lg p-4">
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-white/40">
+                  <div className="border border-[#1b4e80] bg-[#032446] rounded-xl p-4">
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-accent/80">
                       Pengumpulan
                     </p>
                     <p className="mt-1 text-sm font-bold text-white">
@@ -551,11 +558,11 @@ export default function LombaBeasiswa() {
                 </div>
 
                 {selectedLomba.benefit && (
-                  <div>
-                    <h3 className="text-xs font-bold uppercase tracking-widest text-accent mb-3">
-                      Benefit
+                  <div className="p-4 rounded-xl bg-accent/[0.08] border-l-4 border-accent">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-accent mb-1.5">
+                      Hadiah & Benefit
                     </h3>
-                    <p className="text-sm text-white/80 leading-relaxed">
+                    <p className="text-sm text-white/90 leading-relaxed font-medium">
                       {selectedLomba.benefit}
                     </p>
                   </div>
@@ -581,9 +588,9 @@ export default function LombaBeasiswa() {
                       {selectedLomba.contacts.map((contact, idx) => (
                         <li
                           key={idx}
-                          className="border border-border rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                          className="border border-[#1b4e80] bg-[#032446] rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm"
                         >
-                          <span className="text-sm font-semibold text-white/90">
+                          <span className="text-sm font-semibold text-white">
                             {contact.phone
                               ? `${contact.name}: ${contact.phone}`
                               : contact.name}
@@ -593,7 +600,7 @@ export default function LombaBeasiswa() {
                               href={formatWhatsAppLink(contact.phone)}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className={`${TOMBOL} border-success/40 text-success hover:bg-success hover:text-white self-start sm:self-auto`}
+                              className={`${TOMBOL} border-success/40 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white self-start sm:self-auto`}
                             >
                               Chat WhatsApp
                             </a>
@@ -606,14 +613,14 @@ export default function LombaBeasiswa() {
               </div>
 
               {/* Kaki panel: aksi */}
-              <div className="p-5 sm:p-6 border-t border-border shrink-0 space-y-3">
+              <div className="p-5 sm:p-6 border-t border-[#1b4e80] bg-[#021f3a] shrink-0 space-y-3">
                 <div className="flex flex-col sm:flex-row gap-3">
                   {selectedLomba.registration_url && (
                     <a
                       href={selectedLomba.registration_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`${TOMBOL} flex-1 bg-accent border-accent text-accent-foreground hover:bg-accent-hover`}
+                      className={`${TOMBOL} flex-1 bg-accent border-accent text-[#02182b] font-bold hover:bg-accent-hover shadow-[0_0_15px_rgba(255,195,0,0.3)]`}
                     >
                       Daftar sekarang
                     </a>
@@ -623,7 +630,7 @@ export default function LombaBeasiswa() {
                       href={selectedLomba.guidebook_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`${TOMBOL} flex-1 border-border text-white/80 hover:text-white hover:border-white/30`}
+                      className={`${TOMBOL} flex-1 border-[#1b4e80] bg-[#032446] text-white hover:border-accent`}
                     >
                       Guidebook
                     </a>
@@ -633,7 +640,7 @@ export default function LombaBeasiswa() {
                       href={selectedLomba.instagram_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`${TOMBOL} flex-1 border-border text-white/80 hover:text-white hover:border-white/30`}
+                      className={`${TOMBOL} flex-1 border-[#1b4e80] bg-[#032446] text-white hover:border-accent`}
                     >
                       Instagram
                     </a>

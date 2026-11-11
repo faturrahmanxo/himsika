@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUp } from "lucide-react";
+import { useLenis } from "lenis/react";
 
 export default function ArrowToTop() {
   const [isVisible, setIsVisible] = useState(false);
+  const lenis = useLenis();
 
   // Fungsi untuk mengecek posisi scroll
   useEffect(() => {
@@ -23,10 +25,14 @@ export default function ArrowToTop() {
 
   // Fungsi untuk scroll mulus ke atas
   const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    if (lenis) {
+      lenis.scrollTo(0, { duration: 1.2 });
+    } else {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
   };
 
   return (
