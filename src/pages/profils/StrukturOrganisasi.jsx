@@ -247,6 +247,16 @@ export default function StrukturOrganisasi() {
                   {selectedMember.nama}
                 </h3>
 
+                {/* Info Angkatan & Program Studi */}
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-accent/15 border border-accent/30 text-accent text-[11px] font-bold">
+                    Angkatan {selectedMember.angkatan || (selectedMember.jabatan?.includes("ANGGOTA") ? "2024" : "2023")}
+                  </span>
+                  <span className="text-[11px] text-white/50">
+                    S1 Sistem Informasi
+                  </span>
+                </div>
+
                 <div className="mt-4 pt-4 border-t border-border">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-accent mb-3 flex items-center justify-between">
                     <span>Tautan Media Sosial</span>
@@ -257,30 +267,56 @@ export default function StrukturOrganisasi() {
 
                   <div className="grid grid-cols-2 gap-2.5">
                     {/* Instagram */}
-                    <a
-                      href={getInstagramUrl(selectedMember)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Buka Instagram ${selectedMember.nama}`}
-                      className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-surface/80 hover:bg-surface border border-border hover:border-pink-500/50 text-white text-xs font-semibold transition-all group"
-                    >
-                      <InstagramIcon className="w-4 h-4 text-pink-400 group-hover:scale-110 transition-transform" />
-                      <span>Instagram</span>
-                      <ExternalLink className="w-3 h-3 text-white/40 group-hover:text-white" />
-                    </a>
+                    {selectedMember.instagram ? (
+                      <a
+                        href={getInstagramUrl(selectedMember)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`Buka Instagram ${selectedMember.nama}`}
+                        className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-surface/80 hover:bg-surface border border-border hover:border-pink-500/50 text-white text-xs font-semibold transition-all group"
+                      >
+                        <InstagramIcon className="w-4 h-4 text-pink-400 group-hover:scale-110 transition-transform" />
+                        <span>Instagram</span>
+                        <ExternalLink className="w-3 h-3 text-white/40 group-hover:text-white" />
+                      </a>
+                    ) : (
+                      <div
+                        className="relative group/tooltip flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-surface/30 border border-white/5 text-white/35 text-xs font-medium cursor-not-allowed select-none"
+                        title="Belum dicantumkan"
+                      >
+                        <InstagramIcon className="w-4 h-4 text-white/25" />
+                        <span>Instagram</span>
+                        <span className="absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-black/90 border border-white/20 text-[10px] text-white/90 whitespace-nowrap opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none shadow-lg z-40">
+                          Belum dicantumkan
+                        </span>
+                      </div>
+                    )}
 
                     {/* LinkedIn */}
-                    <a
-                      href={getLinkedinUrl(selectedMember)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Buka LinkedIn ${selectedMember.nama}`}
-                      className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-surface/80 hover:bg-surface border border-border hover:border-blue-500/50 text-white text-xs font-semibold transition-all group"
-                    >
-                      <LinkedinIcon className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" />
-                      <span>LinkedIn</span>
-                      <ExternalLink className="w-3 h-3 text-white/40 group-hover:text-white" />
-                    </a>
+                    {selectedMember.linkedin ? (
+                      <a
+                        href={getLinkedinUrl(selectedMember)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`Buka LinkedIn ${selectedMember.nama}`}
+                        className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-surface/80 hover:bg-surface border border-border hover:border-blue-500/50 text-white text-xs font-semibold transition-all group"
+                      >
+                        <LinkedinIcon className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" />
+                        <span>LinkedIn</span>
+                        <ExternalLink className="w-3 h-3 text-white/40 group-hover:text-white" />
+                      </a>
+                    ) : (
+                      <div
+                        className="relative group/tooltip flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-surface/30 border border-white/5 text-white/35 text-xs font-medium cursor-not-allowed select-none"
+                        title="Belum dicantumkan"
+                      >
+                        <LinkedinIcon className="w-4 h-4 text-white/25" />
+                        <span>LinkedIn</span>
+                        <span className="absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-black/90 border border-white/20 text-[10px] text-white/90 whitespace-nowrap opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none shadow-lg z-40">
+                          Belum dicantumkan
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

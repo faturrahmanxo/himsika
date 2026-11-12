@@ -69,6 +69,7 @@ import Image3 from "../assets/images/3.webp";
 import artikelData from "../data/artikel";
 import allEvents from "../data/allEvents";
 import divisi from "../data/divisi";
+import supabase from "../supabase-client";
 
 // Komponen Kalender HIMSIKA 2026
 import KalenderHimsika from "../components/KalenderHimsika";
@@ -108,7 +109,31 @@ const AnimatedCounter = ({ end, duration = 2000 }) => {
 };
 
 export default function Beranda() {
-  const artikelBerita = artikelData.slice(0, 3);
+  const [articles, setArticles] = useState(artikelData);
+
+  useEffect(() => {
+    async function fetchLatestArticles() {
+      try {
+        const { data, error } = await supabase
+          .from("artikel")
+          .select("*")
+          .order("id", { ascending: false })
+          .limit(5);
+
+        if (!error && data && data.length > 0) {
+          const dbIds = new Set(data.map((d) => d.id));
+          const remainingFallback = artikelData.filter((a) => !dbIds.has(a.id));
+          setArticles([...data, ...remainingFallback]);
+        }
+      } catch (err) {
+        console.warn("Menggunakan data artikel lokal di Beranda:", err.message);
+      }
+    }
+
+    fetchLatestArticles();
+  }, []);
+
+  const artikelBerita = articles.slice(0, 3);
   const featuredBerita = artikelBerita[0];
   const listBerita = artikelBerita.slice(1);
 

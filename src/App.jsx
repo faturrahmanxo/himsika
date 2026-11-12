@@ -83,9 +83,10 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Optimasi durasi preloader: 1.2 detik (cepat, responsif, dan animasi tetap mulus)
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 3000);
+    }, 1200);
 
     return () => clearTimeout(timer);
   }, []);
