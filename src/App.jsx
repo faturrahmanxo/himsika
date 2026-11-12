@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import { AnimatePresence } from "motion/react";
 import supabase from "./supabase-client";
 
@@ -103,8 +103,9 @@ function App() {
           ) : (
             <div key="main-content">
               <Routes>
-                {/* Halaman Admin (Terpisah & Tanpa Navbar/Footer Publik) */}
-                <Route path="/admin" element={<AdminDashboard />} />
+                {/* Rute Rahasia Admin & Pengalihan /admin ke Beranda */}
+                <Route path="/portal-himsika-auth" element={<AdminDashboard />} />
+                <Route path="/admin" element={<Navigate to="/" replace />} />
 
                 {/* Halaman Pengunjung Website */}
                 <Route path="/*" element={<PublicLayout />} />
