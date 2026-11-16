@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import supabase from "../../supabase-client";
 import pengurusData from "../../data/pengurusData";
 
@@ -27,7 +28,60 @@ import {
   ExternalLink,
   Calendar,
   Flame,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Check,
 } from "lucide-react";
+
+// Modal Popup Kustom (Sesuai Permintaan: Bersih, Tanpa Emoji dan Tanpa SVG)
+function CustomModal({
+  isOpen,
+  type = "alert", // "alert" | "confirm"
+  title,
+  message,
+  confirmText = "Mengerti",
+  cancelText = "Batal",
+  onConfirm,
+  onCancel,
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#02182b]/80 backdrop-blur-sm">
+      <div className="w-full max-w-md bg-[#073969] border border-[#164a78] rounded-2xl p-6 sm:p-7 shadow-2xl text-white">
+        <h3 className="text-base sm:text-lg font-bold tracking-tight mb-2 text-white">
+          {title || (type === "confirm" ? "Konfirmasi Tindakan" : "Pemberitahuan Sistem")}
+        </h3>
+        <p className="text-xs sm:text-sm text-white/80 leading-relaxed mb-6 whitespace-pre-line">
+          {message}
+        </p>
+        <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
+          {type === "confirm" && (
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white/80 text-xs font-semibold transition-all cursor-pointer"
+            >
+              {cancelText || "Batal"}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onConfirm}
+            className={`px-5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              type === "confirm"
+                ? "bg-red-500 hover:bg-red-600 text-white shadow-sm"
+                : "bg-accent hover:bg-[#ffcf33] text-[#043761] font-extrabold shadow-sm"
+            }`}
+          >
+            {confirmText || "Mengerti"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const AVAILABLE_CATEGORIES = [
   "IT & Software",
@@ -59,16 +113,21 @@ const ALBUM_OPTIONS = [
   "Kegiatan Akbar",
 ];
 
-function ImageUploadField({ label, value, onChange, placeholder = "https://... atau klik Upload Foto" }) {
+function ImageUploadField({ label, value, onChange, placeholder = "https://... atau klik Upload Foto", onAlert }) {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = React.useRef(null);
+
+  const notify = (msg, title) => {
+    if (onAlert) onAlert(msg, title);
+    else alert(msg);
+  };
 
   const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      alert("Ukuran gambar maksimal 5 MB!");
+      notify("Ukuran gambar maksimal adalah 5 MB. Silakan pilih berkas yang lebih kecil.", "Validasi Ukuran");
       return;
     }
 
@@ -101,9 +160,12 @@ function ImageUploadField({ label, value, onChange, placeholder = "https://... a
               }
             }
           } catch (_) {}
-          alert("Bucket 'himsika-assets' belum aktif di Supabase Storage. Silakan buka menu Storage di Supabase dan buat bucket bernama 'himsika-assets' (centang Public), atau masukkan URL foto langsung!");
+          notify(
+            "Bucket 'himsika-assets' belum dibuat di menu Storage Supabase. Anda masih bisa memasukkan URL foto secara langsung di kolom teks!",
+            "Pemberitahuan Penyimpanan"
+          );
         } else {
-          alert("Gagal mengunggah foto: " + error.message);
+          notify("Gagal mengunggah foto: " + error.message, "Gagal Unggah");
         }
         return;
       }
@@ -116,7 +178,7 @@ function ImageUploadField({ label, value, onChange, placeholder = "https://... a
         onChange(urlData.publicUrl);
       }
     } catch (err) {
-      alert("Terjadi kesalahan saat upload: " + err.message);
+      notify("Terjadi kesalahan saat upload: " + err.message, "Kesalahan Sistem");
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -213,6 +275,44 @@ export default function AdminDashboard() {
   const [activeMenu, setActiveMenu] = useState("lomba");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Modal State & Handlers (Tanpa Emoji & Tanpa SVG)
+  const [modalConfig, setModalConfig] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "alert",
+    confirmText: "Mengerti",
+    cancelText: "Batal",
+    onConfirm: null,
+  });
+
+  const showAlert = (message, title = "Pemberitahuan Sistem") => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      type: "alert",
+      confirmText: "Mengerti",
+      cancelText: "",
+      onConfirm: () => setModalConfig((prev) => ({ ...prev, isOpen: false })),
+    });
+  };
+
+  const showConfirm = (message, onConfirmAction, title = "Konfirmasi Tindakan") => {
+    setModalConfig({
+      isOpen: true,
+      title,
+      message,
+      type: "confirm",
+      confirmText: "Lanjutkan",
+      cancelText: "Batal",
+      onConfirm: () => {
+        setModalConfig((prev) => ({ ...prev, isOpen: false }));
+        if (onConfirmAction) onConfirmAction();
+      },
+    });
+  };
+
   // States Lomba
   const [lombaList, setLombaList] = useState([]);
   const [loadingLomba, setLoadingLomba] = useState(false);
@@ -232,10 +332,15 @@ export default function AdminDashboard() {
     contacts: [],
   });
 
-  // States Artikel
+  // States Artikel (Pencarian, Filter, Pagination, & Hot Article)
   const [artikelList, setArtikelList] = useState([]);
   const [loadingArtikel, setLoadingArtikel] = useState(false);
   const [editingArtikelId, setEditingArtikelId] = useState(null);
+  const [artikelSearch, setArtikelSearch] = useState("");
+  const [artikelCategoryFilter, setArtikelCategoryFilter] = useState("Semua");
+  const [artikelPage, setArtikelPage] = useState(1);
+  const ARTIKEL_PER_PAGE = 8;
+
   const [formDataArtikel, setFormDataArtikel] = useState({
     title: "",
     category: "Berita",
@@ -330,7 +435,7 @@ export default function AdminDashboard() {
       email,
       password,
     });
-    if (error) alert("Gagal Login: " + error.message);
+    if (error) showAlert("Gagal masuk: " + error.message, "Autentikasi Gagal");
     else {
       setEmail("");
       setPassword("");
@@ -375,28 +480,32 @@ export default function AdminDashboard() {
         .from("lomba")
         .update(payload)
         .eq("id", editingLombaId);
-      if (error) alert("Gagal update lomba: " + error.message);
+      if (error) showAlert("Gagal memperbarui info lomba: " + error.message, "Kendala Sistem");
       else {
-        alert("Data lomba berhasil diperbarui!");
+        showAlert("Data info lomba berhasil diperbarui.", "Berhasil");
         resetLombaForm();
         fetchLomba();
       }
     } else {
       const { error } = await supabase.from("lomba").insert([payload]);
-      if (error) alert("Gagal tambah lomba: " + error.message);
+      if (error) showAlert("Gagal menambahkan info lomba: " + error.message, "Kendala Sistem");
       else {
-        alert("Data lomba berhasil ditambahkan!");
+        showAlert("Data info lomba baru berhasil ditambahkan ke database.", "Berhasil");
         resetLombaForm();
         fetchLomba();
       }
     }
   };
 
-  const handleLombaDelete = async (id) => {
-    if (!window.confirm("Hapus data lomba ini?")) return;
-    const { error } = await supabase.from("lomba").delete().eq("id", id);
-    if (error) alert("Gagal: " + error.message);
-    else fetchLomba();
+  const handleLombaDelete = (id) => {
+    showConfirm(
+      "Apakah Anda yakin ingin menghapus data info lomba ini secara permanen dari database?",
+      async () => {
+        const { error } = await supabase.from("lomba").delete().eq("id", id);
+        if (error) showAlert("Gagal menghapus data lomba: " + error.message, "Kendala Sistem");
+        else fetchLomba();
+      }
+    );
   };
 
   const resetLombaForm = () => {
@@ -435,26 +544,54 @@ export default function AdminDashboard() {
     setLoadingArtikel(false);
   };
 
-  const handleToggleHot = async (item) => {
-    const newHot = !item.is_hot;
+  // ATURAN BERITA HOT: Tepat 1 Berita Hot (tidak boleh > 1, tidak boleh 0), tanpa reload flicker!
+  const handleSetSingleHot = async (targetItem) => {
+    // 1. Jika artikel ini sudah berstatus Hot, tidak boleh dihapus menjadi 0
+    if (targetItem.is_hot) {
+      showAlert(
+        "Artikel ini sudah aktif sebagai Berita Hot Utama di Beranda.\n\nSistem memerlukan tepat 1 Berita Hot untuk ditampilkan di halaman Beranda. Untuk mengganti Berita Hot, silakan pilih tombol 'Set Hot' pada artikel lain yang Anda inginkan.",
+        "Status Berita Hot"
+      );
+      return;
+    }
+
+    // 2. Pembaruan optimistik instan pada state React (Tanpa kedip loading / flicker unmount)
     setArtikelList((prev) =>
-      prev.map((a) => (a.id === item.id ? { ...a, is_hot: newHot } : a))
+      prev.map((a) => ({
+        ...a,
+        is_hot: a.id === targetItem.id,
+      }))
     );
+
+    // 3. Sinkronisasi di latar belakang ke Supabase
     try {
+      // Nonaktifkan hot di semua artikel selain yang dipilih
+      await supabase
+        .from("artikel")
+        .update({ is_hot: false })
+        .neq("id", targetItem.id);
+
+      // Aktifkan hot pada artikel target
       let { error } = await supabase
         .from("artikel")
-        .update({ is_hot: newHot })
-        .eq("id", item.id);
+        .update({ is_hot: true })
+        .eq("id", targetItem.id);
+
       if (error && error.message?.includes("is_hot")) {
+        // Fallback untuk kolom category
         await supabase
           .from("artikel")
-          .update({ category: newHot ? "Berita Utama" : "Berita" })
-          .eq("id", item.id);
+          .update({ category: "Berita" })
+          .eq("category", "Berita Utama")
+          .neq("id", targetItem.id);
+
+        await supabase
+          .from("artikel")
+          .update({ category: "Berita Utama" })
+          .eq("id", targetItem.id);
       }
-      fetchArtikel();
     } catch (err) {
-      console.warn("Gagal ubah status hot:", err);
-      fetchArtikel();
+      console.warn("Gagal sinkronisasi Berita Hot ke Supabase:", err);
     }
   };
 
@@ -473,6 +610,9 @@ export default function AdminDashboard() {
     };
 
     if (editingArtikelId) {
+      if (formDataArtikel.is_hot) {
+        await supabase.from("artikel").update({ is_hot: false }).neq("id", editingArtikelId);
+      }
       let { error } = await supabase
         .from("artikel")
         .update(payload)
@@ -483,34 +623,53 @@ export default function AdminDashboard() {
         const retry = await supabase.from("artikel").update(payload).eq("id", editingArtikelId);
         error = retry.error;
       }
-      if (error) alert("Gagal update artikel: " + error.message);
+      if (error) showAlert("Gagal memperbarui artikel: " + error.message, "Kendala Sistem");
       else {
-        alert("Artikel berhasil diperbarui!");
+        showAlert("Artikel berita berhasil diperbarui ke database.", "Berhasil");
         resetArtikelForm();
         fetchArtikel();
       }
     } else {
-      let { error } = await supabase.from("artikel").insert([payload]);
+      let { error, data } = await supabase.from("artikel").insert([payload]).select();
       if (error && error.message?.includes("is_hot")) {
         delete payload.is_hot;
         if (formDataArtikel.is_hot) payload.category = "Berita Utama";
-        const retry = await supabase.from("artikel").insert([payload]);
+        const retry = await supabase.from("artikel").insert([payload]).select();
         error = retry.error;
+        data = retry.data;
       }
-      if (error) alert("Gagal tambah artikel: " + error.message);
+      if (error) showAlert("Gagal menambahkan artikel baru: " + error.message, "Kendala Sistem");
       else {
-        alert("Artikel berhasil ditambahkan!");
+        if (formDataArtikel.is_hot && data?.[0]?.id) {
+          await supabase.from("artikel").update({ is_hot: false }).neq("id", data[0].id);
+        }
+        showAlert("Artikel berita baru berhasil diterbitkan ke database.", "Berhasil");
         resetArtikelForm();
         fetchArtikel();
       }
     }
   };
 
-  const handleArtikelDelete = async (id) => {
-    if (!window.confirm("Hapus artikel ini?")) return;
-    const { error } = await supabase.from("artikel").delete().eq("id", id);
-    if (error) alert("Gagal: " + error.message);
-    else fetchArtikel();
+  const handleArtikelDelete = (id) => {
+    showConfirm(
+      "Apakah Anda yakin ingin menghapus artikel berita ini dari database secara permanen?",
+      async () => {
+        const itemToDelete = artikelList.find((a) => a.id === id);
+        const { error } = await supabase.from("artikel").delete().eq("id", id);
+        if (error) {
+          showAlert("Gagal menghapus artikel: " + error.message, "Kendala Sistem");
+        } else {
+          // Jika artikel yang dihapus adalah Berita Hot, otomatis jadikan artikel berikutnya sebagai Hot
+          if (itemToDelete?.is_hot && artikelList.length > 1) {
+            const nextCandidate = artikelList.find((a) => a.id !== id);
+            if (nextCandidate) {
+              await supabase.from("artikel").update({ is_hot: true }).eq("id", nextCandidate.id);
+            }
+          }
+          fetchArtikel();
+        }
+      }
+    );
   };
 
   const resetArtikelForm = () => {
@@ -558,28 +717,32 @@ export default function AdminDashboard() {
         .from("prestasi")
         .update(payload)
         .eq("id", editingPrestasiId);
-      if (error) alert("Gagal update prestasi: " + error.message);
+      if (error) showAlert("Gagal memperbarui prestasi: " + error.message, "Kendala Sistem");
       else {
-        alert("Data prestasi berhasil diperbarui!");
+        showAlert("Data prestasi mahasiswa berhasil diperbarui.", "Berhasil");
         resetPrestasiForm();
         fetchPrestasi();
       }
     } else {
       const { error } = await supabase.from("prestasi").insert([payload]);
-      if (error) alert("Gagal tambah prestasi: " + error.message);
+      if (error) showAlert("Gagal menambahkan prestasi: " + error.message, "Kendala Sistem");
       else {
-        alert("Prestasi berhasil ditambahkan!");
+        showAlert("Data prestasi baru berhasil ditambahkan.", "Berhasil");
         resetPrestasiForm();
         fetchPrestasi();
       }
     }
   };
 
-  const handlePrestasiDelete = async (id) => {
-    if (!window.confirm("Hapus entri prestasi ini?")) return;
-    const { error } = await supabase.from("prestasi").delete().eq("id", id);
-    if (error) alert("Gagal: " + error.message);
-    else fetchPrestasi();
+  const handlePrestasiDelete = (id) => {
+    showConfirm(
+      "Apakah Anda yakin ingin menghapus data prestasi mahasiswa ini secara permanen?",
+      async () => {
+        const { error } = await supabase.from("prestasi").delete().eq("id", id);
+        if (error) showAlert("Gagal menghapus prestasi: " + error.message, "Kendala Sistem");
+        else fetchPrestasi();
+      }
+    );
   };
 
   const resetPrestasiForm = () => {
@@ -618,28 +781,32 @@ export default function AdminDashboard() {
         .from("galeri")
         .update(payload)
         .eq("id", editingGaleriId);
-      if (error) alert("Gagal update foto: " + error.message);
+      if (error) showAlert("Gagal memperbarui foto galeri: " + error.message, "Kendala Sistem");
       else {
-        alert("Foto galeri berhasil diperbarui!");
+        showAlert("Foto galeri kegiatan berhasil diperbarui.", "Berhasil");
         resetGaleriForm();
         fetchGaleri();
       }
     } else {
       const { error } = await supabase.from("galeri").insert([payload]);
-      if (error) alert("Gagal tambah foto: " + error.message);
+      if (error) showAlert("Gagal menambahkan foto galeri: " + error.message, "Kendala Sistem");
       else {
-        alert("Foto galeri berhasil ditambahkan!");
+        showAlert("Foto galeri kegiatan baru berhasil ditambahkan.", "Berhasil");
         resetGaleriForm();
         fetchGaleri();
       }
     }
   };
 
-  const handleGaleriDelete = async (id) => {
-    if (!window.confirm("Hapus foto galeri ini?")) return;
-    const { error } = await supabase.from("galeri").delete().eq("id", id);
-    if (error) alert("Gagal: " + error.message);
-    else fetchGaleri();
+  const handleGaleriDelete = (id) => {
+    showConfirm(
+      "Apakah Anda yakin ingin menghapus foto kegiatan ini dari galeri?",
+      async () => {
+        const { error } = await supabase.from("galeri").delete().eq("id", id);
+        if (error) showAlert("Gagal menghapus foto galeri: " + error.message, "Kendala Sistem");
+        else fetchGaleri();
+      }
+    );
   };
 
   const resetGaleriForm = () => {
@@ -694,28 +861,32 @@ export default function AdminDashboard() {
         .from("pengurus")
         .update(payload)
         .eq("id", editingPengurusId);
-      if (error) alert("Gagal update pengurus: " + error.message);
+      if (error) showAlert("Gagal memperbarui data pengurus: " + error.message, "Kendala Sistem");
       else {
-        alert("Data pengurus berhasil diperbarui!");
+        showAlert("Data profil pengurus berhasil diperbarui.", "Berhasil");
         resetPengurusForm();
         fetchPengurus();
       }
     } else {
       const { error } = await supabase.from("pengurus").insert([payload]);
-      if (error) alert("Gagal tambah pengurus: " + error.message);
+      if (error) showAlert("Gagal menambahkan pengurus baru: " + error.message, "Kendala Sistem");
       else {
-        alert("Pengurus baru berhasil ditambahkan!");
+        showAlert("Data pengurus baru berhasil ditambahkan ke database.", "Berhasil");
         resetPengurusForm();
         fetchPengurus();
       }
     }
   };
 
-  const handlePengurusDelete = async (id) => {
-    if (!window.confirm("Hapus pengurus ini?")) return;
-    const { error } = await supabase.from("pengurus").delete().eq("id", id);
-    if (error) alert("Gagal: " + error.message);
-    else fetchPengurus();
+  const handlePengurusDelete = (id) => {
+    showConfirm(
+      "Apakah Anda yakin ingin menghapus data profil pengurus ini secara permanen?",
+      async () => {
+        const { error } = await supabase.from("pengurus").delete().eq("id", id);
+        if (error) showAlert("Gagal menghapus pengurus: " + error.message, "Kendala Sistem");
+        else fetchPengurus();
+      }
+    );
   };
 
   const resetPengurusForm = () => {
@@ -812,7 +983,12 @@ export default function AdminDashboard() {
 
   // DASHBOARD UTAMA
   return (
-    <div className="min-h-screen bg-linear-to-b from-[#043761] via-[#032d52] to-[#02182b] font-primary relative text-white">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="min-h-screen bg-linear-to-b from-[#043761] via-[#032d52] to-[#02182b] font-primary relative text-white"
+    >
       <AmbientBackground />
 
       {/* TOP HEADER BAR */}
@@ -835,30 +1011,19 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3 sm:gap-4">
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#04284d] border border-[#164a78] text-xs">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span className="text-white/60 text-[11px]">Database:</span>
-            <span className="font-semibold text-emerald-400 text-[11px]">Supabase Live</span>
-          </div>
-          <div className="hidden md:flex items-center gap-2 text-xs text-white/70 bg-[#04284d] border border-[#164a78] px-3 py-1.5 rounded-xl">
-            <Users className="w-3.5 h-3.5 text-accent shrink-0" />
-            <span className="text-[11px] truncate max-w-[180px]" title={session?.user?.email}>
-              {session?.user?.email}
-            </span>
-          </div>
+        <div className="flex items-center gap-3">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500/15 border border-red-500/30 text-red-300 hover:bg-red-600 hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-red-500/15 border border-red-500/30 text-red-300 hover:bg-red-600 hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm"
           >
             <LogOut className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Keluar</span>
+            <span>Keluar</span>
           </button>
         </div>
       </header>
 
       {/* MAIN CONTENT AREA */}
-      <main className="relative z-10 flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl w-full mx-auto pb-32">
+      <main className="relative z-10 flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl w-full mx-auto pb-36">
         {/* Header Section */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-1.5">
@@ -872,51 +1037,56 @@ export default function AdminDashboard() {
           </h1>
         </div>
 
-        {/* Quick Stats Bar (Lega, Bersih, Tanpa Bulet Menyala) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          <div className="bg-[#073969]/80 border border-[#164a78] rounded-2xl p-4 sm:p-5 flex items-center gap-3.5 backdrop-blur-sm shadow-md min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-accent/15 border border-accent/25 flex items-center justify-center text-accent shrink-0">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div className="min-w-0">
-              <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block">Total Data Aktif</span>
-              <span className="text-xl sm:text-2xl font-extrabold text-white truncate block">
-                {activeMenu === "lomba" && `${lombaList.length} Lomba`}
-                {activeMenu === "artikel" && `${artikelList.length} Artikel`}
-                {activeMenu === "prestasi" && `${prestasiList.length} Prestasi`}
-                {activeMenu === "galeri" && `${galeriList.length} Foto`}
-                {activeMenu === "pengurus" && `${pengurusList.length} Pengurus`}
-              </span>
-            </div>
-          </div>
-
-          <div className="bg-[#073969]/80 border border-[#164a78] rounded-2xl p-4 sm:p-5 flex items-center gap-3.5 backdrop-blur-sm shadow-md min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-            <div className="min-w-0">
-              <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block">Status Koneksi</span>
-              <span className="text-xs sm:text-sm font-extrabold text-emerald-400 flex items-center gap-1.5 whitespace-nowrap">
-                Supabase Live DB
-              </span>
-            </div>
-          </div>
-
-          <div className="col-span-1 sm:col-span-2 lg:col-span-1 bg-[#073969]/80 border border-[#164a78] rounded-2xl p-4 sm:p-5 flex items-center gap-3.5 backdrop-blur-sm shadow-md min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 shrink-0">
-              <Users className="w-5 h-5" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block">Akses Administrator</span>
-              <span className="text-xs sm:text-sm font-bold text-white/90 truncate block" title={session?.user?.email}>
-                {session?.user?.email || "Admin Terautentikasi"}
-              </span>
-            </div>
-          </div>
+        {/* Quick Database Overview (Bersih, Rapi, Tanpa Status Koneksi / Akses) */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
+          {[
+            { id: "lomba", label: "Lomba", count: lombaList.length, icon: Trophy },
+            { id: "artikel", label: "Artikel", count: artikelList.length, icon: FileText },
+            { id: "prestasi", label: "Prestasi", count: prestasiList.length, icon: Award },
+            { id: "galeri", label: "Galeri", count: galeriList.length, icon: ImageIcon },
+            { id: "pengurus", label: "Pengurus", count: pengurusList.length, icon: Users },
+          ].map((item) => {
+            const Icon = item.icon;
+            const isCurrent = activeMenu === item.id;
+            return (
+              <div
+                key={item.id}
+                onClick={() => setActiveMenu(item.id)}
+                className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center gap-3 ${
+                  isCurrent
+                    ? "bg-[#0c4a85] border-accent/50 shadow-md scale-[1.02]"
+                    : "bg-[#073969]/80 border-[#164a78] hover:border-white/20"
+                }`}
+              >
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                  isCurrent ? "bg-accent text-[#02182b]" : "bg-white/5 text-accent"
+                }`}>
+                  <Icon className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-[10px] uppercase font-bold text-white/50 block truncate">
+                    {item.label}
+                  </span>
+                  <span className="text-base sm:text-lg font-extrabold text-white">
+                    {item.count}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-          {/* ================= 1. MENU LOMBA ================= */}
-          {activeMenu === "lomba" && (
+        {/* Animated Transition antar Modul CRUD */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeMenu}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+          >
+            {/* ================= 1. MENU LOMBA ================= */}
+            {activeMenu === "lomba" && (
             <div className="space-y-10">
               <section className="bg-[#073969] border border-[#164a78] rounded-3xl p-6 sm:p-8 shadow-2xl">
                 <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
@@ -1217,6 +1387,7 @@ export default function AdminDashboard() {
                         value={formDataArtikel.image}
                         onChange={(val) => setFormDataArtikel({ ...formDataArtikel, image: val })}
                         placeholder="https://... atau klik tombol Upload Foto"
+                        onAlert={showAlert}
                       />
                     </div>
 
@@ -1234,7 +1405,7 @@ export default function AdminDashboard() {
                             🔥 Jadikan Berita Hot / Sorotan Utama di Beranda
                           </span>
                           <span className="text-[11px] text-white/50 block">
-                            Artikel ini akan diprioritaskan tampil di kartu besar sebelah kiri pada halaman Beranda
+                            Tepat 1 artikel akan diprioritaskan tampil di kartu besar sebelah kiri pada halaman Beranda
                           </span>
                         </div>
                       </label>
@@ -1324,91 +1495,282 @@ export default function AdminDashboard() {
                 </div>
               </section>
 
-              {/* Tabel Artikel */}
-              <section className="bg-[#073969] border border-[#164a78] rounded-3xl overflow-hidden shadow-2xl">
-                <div className="p-5 border-b border-[#164a78] flex justify-between items-center">
-                  <h3 className="font-bold text-white">Daftar Artikel di Database</h3>
-                  <span className="text-xs text-accent font-bold px-3 py-1 bg-accent/10 border border-accent/20 rounded-full">
-                    {artikelList.length} Artikel
-                  </span>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="border-b border-white/10 text-white/50 text-xs">
-                        <th className="p-4">Judul & Kategori</th>
-                        <th className="p-4">Penulis & Tanggal</th>
-                        <th className="p-4 text-right">Aksi & Status Hot</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                      {loadingArtikel ? (
-                        <tr><td colSpan="3" className="p-8 text-center text-white/40">Memuat artikel...</td></tr>
-                      ) : artikelList.length === 0 ? (
-                        <tr><td colSpan="3" className="p-8 text-center text-white/40">Belum ada artikel tersimpan di database.</td></tr>
-                      ) : (
-                        artikelList.map((item) => (
-                          <tr key={item.id} className="hover:bg-white/[0.03]">
-                            <td className="p-4">
-                              <div className="flex items-center gap-2">
-                                <p className="font-bold text-white line-clamp-1">{item.title}</p>
-                                {item.is_hot && (
-                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-red-500/20 text-red-300 border border-red-500/30 shrink-0 flex items-center gap-1">
-                                    <Flame className="w-3 h-3 text-red-400 fill-red-400" /> HOT
-                                  </span>
-                                )}
+              {/* Tabel Artikel (Rapi, Spotlight Berita Hot, Filter & Pagination) */}
+              <section className="bg-[#073969] border border-[#164a78] rounded-3xl p-5 sm:p-7 shadow-2xl">
+                {/* 1. Spotlight Card Berita Hot Aktif */}
+                {(() => {
+                  const currentHot = artikelList.find((a) => a.is_hot) || artikelList.find((a) => a.category === "Berita Utama");
+                  if (!currentHot) return null;
+                  return (
+                    <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-linear-to-r from-[#0d3b66] via-[#073969] to-[#04284d] border border-accent/40 shadow-xl relative overflow-hidden">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-4 min-w-0">
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden shrink-0 bg-[#03233f] border border-white/10">
+                            {currentHot.image ? (
+                              <img
+                                src={currentHot.image}
+                                alt={currentHot.title}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-white/30">
+                                <FileText className="w-6 h-6" />
                               </div>
-                              <span className="text-[10px] font-bold text-accent uppercase">{item.category}</span>
-                            </td>
-                            <td className="p-4 text-xs text-white/70">
-                              <p>{item.author}</p>
-                              <p className="text-white/40">{item.date}</p>
-                            </td>
-                            <td className="p-4 text-right whitespace-nowrap">
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-red-500 text-white uppercase tracking-wider flex items-center gap-1 shadow-sm">
+                                <Flame className="w-3 h-3 fill-white" /> Berita Hot Aktif
+                              </span>
+                              <span className="text-[10px] text-accent font-bold uppercase tracking-wider">
+                                {currentHot.category} • Sedang Tayang di Headline Beranda Utama
+                              </span>
+                            </div>
+                            <h4 className="text-sm sm:text-base font-extrabold text-white truncate" title={currentHot.title}>
+                              {currentHot.title}
+                            </h4>
+                            <p className="text-xs text-white/60 line-clamp-1 mt-0.5">
+                              {currentHot.date} • Ditulis oleh {currentHot.author}
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingArtikelId(currentHot.id);
+                            setFormDataArtikel({
+                              title: currentHot.title || "",
+                              category: currentHot.category || "Berita",
+                              date: currentHot.date || "",
+                              author: currentHot.author || "Divisi Kominfo",
+                              image: currentHot.image || "",
+                              excerpt: currentHot.excerpt || "",
+                              content: typeof currentHot.content === "string" ? currentHot.content : JSON.stringify(currentHot.content),
+                              is_hot: true,
+                            });
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          className="px-4 py-2 rounded-xl bg-accent/20 hover:bg-accent text-accent hover:text-[#043761] border border-accent/40 text-xs font-bold transition-all shrink-0 cursor-pointer"
+                        >
+                          Edit Berita Hot
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* 2. Controls: Search Input & Category Pills */}
+                <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-5">
+                  <div className="relative flex-1">
+                    <Search className="w-4 h-4 text-white/40 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Cari judul atau ringkasan berita..."
+                      value={artikelSearch}
+                      onChange={(e) => {
+                        setArtikelSearch(e.target.value);
+                        setArtikelPage(1);
+                      }}
+                      className="w-full pl-10 pr-9 py-2.5 bg-[#04284d] border border-[#164a78] rounded-xl text-xs sm:text-sm text-white placeholder:text-white/40 focus:border-accent focus:outline-none"
+                    />
+                    {artikelSearch && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setArtikelSearch("");
+                          setArtikelPage(1);
+                        }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+                    {["Semua", "Berita", "Kegiatan", "Opini", "Prestasi"].map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => {
+                          setArtikelCategoryFilter(cat);
+                          setArtikelPage(1);
+                        }}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                          artikelCategoryFilter === cat
+                            ? "bg-accent text-[#043761]"
+                            : "bg-[#04284d] text-white/70 hover:text-white border border-[#164a78]"
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. Paginated Articles Table */}
+                {(() => {
+                  const searchLower = artikelSearch.toLowerCase();
+                  const filtered = artikelList.filter((item) => {
+                    const matchSearch =
+                      !artikelSearch ||
+                      item.title?.toLowerCase().includes(searchLower) ||
+                      item.excerpt?.toLowerCase().includes(searchLower) ||
+                      item.author?.toLowerCase().includes(searchLower);
+                    const matchCat =
+                      artikelCategoryFilter === "Semua" || item.category === artikelCategoryFilter;
+                    return matchSearch && matchCat;
+                  });
+
+                  const totalPages = Math.ceil(filtered.length / ARTIKEL_PER_PAGE) || 1;
+                  const currentPage = Math.min(artikelPage, totalPages);
+                  const startIndex = (currentPage - 1) * ARTIKEL_PER_PAGE;
+                  const currentItems = filtered.slice(startIndex, startIndex + ARTIKEL_PER_PAGE);
+
+                  return (
+                    <div>
+                      <div className="overflow-x-auto rounded-2xl border border-[#164a78]">
+                        <table className="w-full text-left text-sm">
+                          <thead>
+                            <tr className="border-b border-white/10 bg-[#04284d]/60 text-white/50 text-xs">
+                              <th className="p-3.5 sm:p-4">Judul & Kategori</th>
+                              <th className="p-3.5 sm:p-4">Penulis & Tanggal</th>
+                              <th className="p-3.5 sm:p-4 text-right">Aksi & Berita Hot</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/5 bg-[#073969]/50">
+                            {loadingArtikel ? (
+                              <tr>
+                                <td colSpan="3" className="p-8 text-center text-white/40">
+                                  Memuat daftar artikel...
+                                </td>
+                              </tr>
+                            ) : currentItems.length === 0 ? (
+                              <tr>
+                                <td colSpan="3" className="p-8 text-center text-white/40">
+                                  {artikelSearch || artikelCategoryFilter !== "Semua"
+                                    ? "Tidak ada artikel yang cocok dengan pencarian atau filter."
+                                    : "Belum ada artikel tersimpan di database."}
+                                </td>
+                              </tr>
+                            ) : (
+                              currentItems.map((item) => (
+                                <tr key={item.id} className="hover:bg-white/[0.04] transition-colors">
+                                  <td className="p-3.5 sm:p-4 max-w-xs sm:max-w-md">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <p className="font-bold text-white line-clamp-1">{item.title}</p>
+                                      {item.is_hot && (
+                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-red-500/20 text-red-300 border border-red-500/30 shrink-0 flex items-center gap-1">
+                                          <Flame className="w-3 h-3 text-red-400 fill-red-400" /> HOT
+                                        </span>
+                                      )}
+                                    </div>
+                                    <span className="text-[10px] font-bold text-accent uppercase tracking-wider">
+                                      {item.category}
+                                    </span>
+                                  </td>
+                                  <td className="p-3.5 sm:p-4 text-xs text-white/70 whitespace-nowrap">
+                                    <p className="font-medium text-white/90">{item.author}</p>
+                                    <p className="text-white/40">{item.date}</p>
+                                  </td>
+                                  <td className="p-3.5 sm:p-4 text-right whitespace-nowrap">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSetSingleHot(item)}
+                                      title={item.is_hot ? "Artikel ini sudah berstatus Hot Utama" : "Jadikan satu-satunya Berita Hot di Beranda"}
+                                      className={`text-xs px-3 py-1.5 rounded-xl font-bold mr-2 transition-all cursor-pointer ${
+                                        item.is_hot
+                                          ? "bg-red-500/25 text-red-300 border border-red-500/50 hover:bg-red-500/35 shadow-sm"
+                                          : "bg-white/5 text-white/70 border border-white/10 hover:border-accent hover:text-accent"
+                                      }`}
+                                    >
+                                      {item.is_hot ? "🔥 Hot Aktif" : "Set Hot"}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setEditingArtikelId(item.id);
+                                        setFormDataArtikel({
+                                          title: item.title || "",
+                                          category: item.category || "Berita",
+                                          date: item.date || "",
+                                          author: item.author || "Divisi Kominfo",
+                                          image: item.image || "",
+                                          excerpt: item.excerpt || "",
+                                          content: typeof item.content === "string" ? item.content : JSON.stringify(item.content),
+                                          is_hot: Boolean(item.is_hot || item.category === "Berita Utama"),
+                                        });
+                                        window.scrollTo({ top: 0, behavior: "smooth" });
+                                      }}
+                                      className="text-xs text-accent hover:underline mr-3 font-semibold cursor-pointer"
+                                    >
+                                      Edit
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleArtikelDelete(item.id)}
+                                      className="text-xs text-red-400 hover:underline font-semibold cursor-pointer"
+                                    >
+                                      Hapus
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* 4. Pagination Navigation Bar */}
+                      {filtered.length > ARTIKEL_PER_PAGE && (
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 pt-4 border-t border-white/10 text-xs">
+                          <span className="text-white/60 text-[11px]">
+                            Menampilkan {startIndex + 1} - {Math.min(startIndex + ARTIKEL_PER_PAGE, filtered.length)} dari {filtered.length} artikel
+                          </span>
+
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              disabled={currentPage <= 1}
+                              onClick={() => setArtikelPage((p) => Math.max(1, p - 1))}
+                              className="px-2.5 py-1.5 rounded-lg bg-[#04284d] border border-[#164a78] text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white/10 flex items-center gap-1 cursor-pointer"
+                            >
+                              <ChevronLeft className="w-3.5 h-3.5" />
+                              <span className="hidden sm:inline">Sebelumnya</span>
+                            </button>
+
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
                               <button
+                                key={num}
                                 type="button"
-                                onClick={() => handleToggleHot(item)}
-                                title="Klik untuk ubah status Berita Hot di Beranda"
-                                className={`text-xs px-2.5 py-1 rounded-lg font-bold mr-3 transition-all cursor-pointer ${
-                                  item.is_hot
-                                    ? "bg-red-500/20 text-red-300 border border-red-500/40 hover:bg-red-500/30"
-                                    : "bg-white/5 text-white/70 border border-white/10 hover:border-accent hover:text-accent"
+                                onClick={() => setArtikelPage(num)}
+                                className={`w-7 h-7 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                                  currentPage === num
+                                    ? "bg-accent text-[#043761]"
+                                    : "bg-[#04284d] text-white/70 hover:text-white border border-[#164a78]"
                                 }`}
                               >
-                                {item.is_hot ? "🔥 Hot Aktif" : "Set Hot"}
+                                {num}
                               </button>
-                              <button
-                                onClick={() => {
-                                  setEditingArtikelId(item.id);
-                                  setFormDataArtikel({
-                                    title: item.title || "",
-                                    category: item.category || "Berita",
-                                    date: item.date || "",
-                                    author: item.author || "Divisi Kominfo",
-                                    image: item.image || "",
-                                    excerpt: item.excerpt || "",
-                                    content: typeof item.content === "string" ? item.content : JSON.stringify(item.content),
-                                    is_hot: Boolean(item.is_hot || item.category === "Berita Utama"),
-                                  });
-                                  window.scrollTo({ top: 0, behavior: "smooth" });
-                                }}
-                                className="text-xs text-accent hover:underline mr-3 font-semibold cursor-pointer"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => handleArtikelDelete(item.id)}
-                                className="text-xs text-red-400 hover:underline font-semibold cursor-pointer"
-                              >
-                                Hapus
-                              </button>
-                            </td>
-                          </tr>
-                        ))
+                            ))}
+
+                            <button
+                              type="button"
+                              disabled={currentPage >= totalPages}
+                              onClick={() => setArtikelPage((p) => Math.min(totalPages, p + 1))}
+                              className="px-2.5 py-1.5 rounded-lg bg-[#04284d] border border-[#164a78] text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white/10 flex items-center gap-1 cursor-pointer"
+                            >
+                              <span className="hidden sm:inline">Selanjutnya</span>
+                              <ChevronRight className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
                       )}
-                    </tbody>
-                  </table>
-                </div>
+                    </div>
+                  );
+                })()}
               </section>
             </div>
           )}
@@ -1464,6 +1826,7 @@ export default function AdminDashboard() {
                         value={formDataPrestasi.gambar}
                         onChange={(val) => setFormDataPrestasi({ ...formDataPrestasi, gambar: val })}
                         placeholder="https://... atau klik tombol Upload Foto"
+                        onAlert={showAlert}
                       />
                     </div>
                     <div className="md:col-span-2">
@@ -1669,6 +2032,7 @@ export default function AdminDashboard() {
                         value={formDataGaleri.foto}
                         onChange={(val) => setFormDataGaleri({ ...formDataGaleri, foto: val })}
                         placeholder="https://... atau klik tombol Upload Foto"
+                        onAlert={showAlert}
                       />
                     </div>
                     <div className="md:col-span-2">
@@ -1843,6 +2207,7 @@ export default function AdminDashboard() {
                         value={formDataPengurus.foto}
                         onChange={(val) => setFormDataPengurus({ ...formDataPengurus, foto: val })}
                         placeholder="https://... atau klik tombol Upload Foto"
+                        onAlert={showAlert}
                       />
                     </div>
                     <div>
@@ -2240,49 +2605,125 @@ export default function AdminDashboard() {
               )}
             </div>
           )}
-        </main>
+        </motion.div>
+      </AnimatePresence>
+    </main>
 
-        {/* FLOATING BOTTOM DOCK NAVIGATION (Simpel, Kecil, dan Bagus) */}
-        <nav className="fixed bottom-3 sm:bottom-5 inset-x-0 z-50 flex justify-center px-3 pointer-events-none">
-          <div className="pointer-events-auto bg-[#073969]/95 backdrop-blur-xl border border-[#164a78] shadow-[0_12px_40px_rgba(0,0,0,0.6)] rounded-2xl p-1.5 flex items-center gap-1 sm:gap-2 max-w-full overflow-x-auto">
-            {[
-              { id: "lomba", label: "Lomba", icon: Trophy, count: lombaList.length },
-              { id: "artikel", label: "Artikel", icon: FileText, count: artikelList.length },
-              { id: "prestasi", label: "Prestasi", icon: Award, count: prestasiList.length },
-              { id: "galeri", label: "Galeri", icon: ImageIcon, count: galeriList.length },
-              { id: "pengurus", label: "Pengurus", icon: Users, count: pengurusList.length },
-            ].map((item) => {
-              const Icon = item.icon;
-              const isSelected = activeMenu === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveMenu(item.id);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                  className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl font-bold transition-all text-xs cursor-pointer select-none whitespace-nowrap ${
-                    isSelected
-                      ? "bg-accent text-[#02182b] font-extrabold shadow-md scale-[1.02]"
-                      : "text-white/70 hover:text-white hover:bg-white/5"
+    {/* FLOATING BOTTOM DOCK NAVIGATION (Sesuai Referensi Gambar 1: White Pill Dock & Elevated Center Button) */}
+    <nav className="fixed bottom-3 sm:bottom-5 inset-x-0 z-50 flex justify-center px-3 sm:px-4 pointer-events-none select-none">
+      <div className="pointer-events-auto bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_16px_40px_rgba(0,0,0,0.38)] rounded-[32px] sm:rounded-full py-2 px-3 sm:px-6 flex items-center justify-between gap-1 sm:gap-4 max-w-full">
+        {/* Kiri: 2 Menu (Lomba & Artikel) */}
+        <div className="flex items-center gap-1 sm:gap-2">
+          {[
+            { id: "lomba", label: "Lomba", icon: Trophy, count: lombaList.length },
+            { id: "artikel", label: "Artikel", icon: FileText, count: artikelList.length },
+          ].map((item) => {
+            const Icon = item.icon;
+            const isSelected = activeMenu === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => {
+                  setActiveMenu(item.id);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl font-bold transition-all text-xs cursor-pointer whitespace-nowrap ${
+                  isSelected
+                    ? "bg-blue-50 text-blue-600 font-extrabold shadow-xs"
+                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-100/70"
+                }`}
+              >
+                <Icon className={`w-4 h-4 shrink-0 ${isSelected ? "text-blue-600" : "text-slate-400"}`} />
+                <span className="text-[11px] sm:text-xs">{item.label}</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                    isSelected ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"
                   }`}
                 >
-                  <Icon className={`w-4 h-4 shrink-0 ${isSelected ? "text-[#02182b]" : "text-white/70"}`} />
-                  <span className="text-xs">{item.label}</span>
-                  <span
-                    className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
-                      isSelected
-                        ? "bg-[#043761] text-accent"
-                        : "bg-white/10 text-white/60"
-                    }`}
-                  >
-                    {item.count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </nav>
+                  {item.count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Tengah: Elevated Floating Button (Prestasi) */}
+        <div className="relative -mt-6 sm:-mt-8 px-1 sm:px-2 flex flex-col items-center">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveMenu("prestasi");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-linear-to-tr from-blue-600 via-blue-500 to-indigo-600 text-white shadow-[0_10px_24px_rgba(37,99,235,0.48)] flex items-center justify-center border-4 border-[#032d52] sm:border-white transition-all transform hover:scale-105 active:scale-95 cursor-pointer relative ${
+              activeMenu === "prestasi"
+                ? "ring-4 ring-blue-400/50 scale-105"
+                : ""
+            }`}
+            title={`Prestasi Mahasiswa (${prestasiList.length})`}
+          >
+            <Award className="w-5 h-5 sm:w-6 sm:h-6" />
+            <span className="absolute -top-1 -right-1 bg-amber-400 text-[#02182b] text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-md border-2 border-white">
+              {prestasiList.length}
+            </span>
+          </button>
+          <span className={`text-[10px] font-extrabold mt-1 tracking-tight ${
+            activeMenu === "prestasi" ? "text-blue-600" : "text-slate-500"
+          }`}>
+            Prestasi
+          </span>
+        </div>
+
+        {/* Kanan: 2 Menu (Galeri & Pengurus) */}
+        <div className="flex items-center gap-1 sm:gap-2">
+          {[
+            { id: "galeri", label: "Galeri", icon: ImageIcon, count: galeriList.length },
+            { id: "pengurus", label: "Pengurus", icon: Users, count: pengurusList.length },
+          ].map((item) => {
+            const Icon = item.icon;
+            const isSelected = activeMenu === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => {
+                  setActiveMenu(item.id);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl font-bold transition-all text-xs cursor-pointer whitespace-nowrap ${
+                  isSelected
+                    ? "bg-blue-50 text-blue-600 font-extrabold shadow-xs"
+                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-100/70"
+                }`}
+              >
+                <Icon className={`w-4 h-4 shrink-0 ${isSelected ? "text-blue-600" : "text-slate-400"}`} />
+                <span className="text-[11px] sm:text-xs">{item.label}</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                    isSelected ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"
+                  }`}
+                >
+                  {item.count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
-    );
-  }
+    </nav>
+
+    {/* Custom Modal Popup (Validasi & Konfirmasi Semua CRUD - Tanpa Emoji dan Tanpa SVG) */}
+    <CustomModal
+      isOpen={modalConfig.isOpen}
+      type={modalConfig.type}
+      title={modalConfig.title}
+      message={modalConfig.message}
+      confirmText={modalConfig.confirmText}
+      cancelText={modalConfig.cancelText}
+      onConfirm={modalConfig.onConfirm}
+      onCancel={() => setModalConfig((prev) => ({ ...prev, isOpen: false }))}
+    />
+  </motion.div>
+  );
+}
