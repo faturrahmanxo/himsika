@@ -94,21 +94,21 @@ export default function StrukturOrganisasi() {
   };
 
   const getInstagramUrl = (member) => {
-    if (member?.instagram) {
-      if (member.instagram.startsWith("http")) return member.instagram;
-      return `https://instagram.com/${member.instagram.replace(/^@/, "")}`;
+    if (member?.instagram && member.instagram.trim()) {
+      const ig = member.instagram.trim();
+      if (ig.startsWith("http")) return ig;
+      return `https://instagram.com/${ig.replace(/^@/, "")}`;
     }
-    return "https://instagram.com/himsika.unsika";
+    return "#";
   };
 
   const getLinkedinUrl = (member) => {
-    if (member?.linkedin) {
-      if (member.linkedin.startsWith("http")) return member.linkedin;
-      return `https://linkedin.com/in/${member.linkedin}`;
+    if (member?.linkedin && member.linkedin.trim()) {
+      const li = member.linkedin.trim();
+      if (li.startsWith("http")) return li;
+      return `https://linkedin.com/in/${li}`;
     }
-    return `https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(
-      member?.nama ? member.nama + " HIMSIKA" : "HIMSIKA UNSIKA"
-    )}`;
+    return "#";
   };
 
   return (
@@ -292,7 +292,7 @@ export default function StrukturOrganisasi() {
                 {/* Tombol Media Sosial Langsung (Tanpa Teks Header Redundan) */}
                 <div className="grid grid-cols-2 gap-2 mt-4 pt-3.5 border-t border-white/10">
                   {/* Instagram */}
-                  {selectedMember.instagram ? (
+                  {selectedMember.instagram && selectedMember.instagram.trim() !== "" ? (
                     <a
                       href={getInstagramUrl(selectedMember)}
                       target="_blank"
@@ -306,9 +306,9 @@ export default function StrukturOrganisasi() {
                     </a>
                   ) : (
                     <div
-                      className="relative group/tooltip flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-surface/30 border border-white/5 text-white/35 text-xs font-medium cursor-not-allowed select-none"
+                      className="relative group/tooltip flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-surface/30 border border-white/10 text-white/40 text-xs font-medium cursor-not-allowed select-none"
                     >
-                      <InstagramIcon className="w-3.5 h-3.5 text-white/25" />
+                      <InstagramIcon className="w-3.5 h-3.5 text-white/30" />
                       <span>Instagram</span>
                       <span className="absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-black/90 border border-white/20 text-[10px] text-white/90 whitespace-nowrap opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none shadow-lg z-40">
                         Belum dicantumkan
@@ -317,7 +317,7 @@ export default function StrukturOrganisasi() {
                   )}
 
                   {/* LinkedIn */}
-                  {selectedMember.linkedin ? (
+                  {selectedMember.linkedin && selectedMember.linkedin.trim() !== "" ? (
                     <a
                       href={getLinkedinUrl(selectedMember)}
                       target="_blank"
@@ -331,9 +331,9 @@ export default function StrukturOrganisasi() {
                     </a>
                   ) : (
                     <div
-                      className="relative group/tooltip flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-surface/30 border border-white/5 text-white/35 text-xs font-medium cursor-not-allowed select-none"
+                      className="relative group/tooltip flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-surface/30 border border-white/10 text-white/40 text-xs font-medium cursor-not-allowed select-none"
                     >
-                      <LinkedinIcon className="w-3.5 h-3.5 text-white/25" />
+                      <LinkedinIcon className="w-3.5 h-3.5 text-white/30" />
                       <span>LinkedIn</span>
                       <span className="absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded bg-black/90 border border-white/20 text-[10px] text-white/90 whitespace-nowrap opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none shadow-lg z-40">
                         Belum dicantumkan

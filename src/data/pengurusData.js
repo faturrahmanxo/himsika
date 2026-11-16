@@ -39,247 +39,301 @@ import ImelviKarniaZalukhu from "../assets/images/pengurus/Imelvi-Karnia-Zalukhu
 import NadiaHerawati from "../assets/images/pengurus/Nadia-Herawati.webp";
 
 const pengurus = [
-  {
+    {
     nama: "Juneo Caesar Azis Wibowo",
     jabatan: "Ketua Himpunan",
     kelompok: "bph",
     foto: JuneoCaesarAzisWibowo,
-    instagram: "juneocaesar",
-    linkedin: "juneo-caesar-azis-wibowo",
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Aditya Nugraha",
     jabatan: "Wakil Ketua Himpunan",
     kelompok: "bph",
     foto: AdityaNugraha,
-    instagram: "adityanugraha",
-    linkedin: "aditya-nugraha",
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Mufti Alifia Maryamah",
     jabatan: "Sekretaris Umum",
     kelompok: "bph",
     foto: MuftiAlifiaMaryamah,
-    instagram: "muftialifia",
-    linkedin: "mufti-alifia-maryamah",
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Salwa Khalipa",
     jabatan: "Wakil Sekretaris Umum",
     kelompok: "bph",
     foto: SalwaKhalipa,
-    instagram: "salwakhalipa",
-    linkedin: "salwa-khalipa",
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Nabila Putri Kusuma Jaya",
     jabatan: "Bendahara Umum",
     kelompok: "bph",
     foto: NabilaPutriKusumaJaya,
-    instagram: "nabilaputri",
-    linkedin: "nabila-putri-kusuma-jaya",
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Salsabila Fadillah Putri",
     jabatan: "Wakil Bendahara Umum",
     kelompok: "bph",
     foto: SalsabilaFadillahPutri,
-    instagram: "salsabilafadillah",
-    linkedin: "salsabila-fadillah-putri",
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Rizki Lazuardi",
     jabatan: "KETUA DIVISI INTERNAL",
     kelompok: "kadiv",
     foto: RizkiLazuardi,
-    instagram: "rizkilazuardi",
-    linkedin: "rizki-lazuardi",
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Anatasya Puteri Taruk",
     jabatan: "KETUA DIVISI RELASI",
     kelompok: "kadiv",
     foto: AnatasyaPuteriTaruk,
-    instagram: "anatasyaputeri",
-    linkedin: "anatasya-puteri-taruk",
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Trinanda Iman Karandi",
     jabatan: "KETUA DIVISI KOMINFO",
     kelompok: "kadiv",
     foto: TrinandaImanKarandi,
-    instagram: "trinandaiman",
-    linkedin: "trinanda-iman-karandi",
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Maulana Rafi",
     jabatan: "KETUA DIVISI EDUKASI",
     kelompok: "kadiv",
     foto: MaulanaRafi,
-    instagram: "maulanarafi",
-    linkedin: "maulana-rafi",
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Muhammad Syifaaur Rahman",
     jabatan: "KETUA DEPARTEMEN PSDM",
     kelompok: "internal",
     foto: MuhammadSyifaaurRahman,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Asfa Zikry Al Fathir",
     jabatan: "ANGGOTA DEPARTEMEN PSDM",
     kelompok: "internal",
     foto: AsfaZikryAlFathir,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Belva Dhia Haqqina",
     jabatan: "ANGGOTA DEPARTEMEN PSDM",
     kelompok: "internal",
     foto: BelvaDhiaHaqqina,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Florencia Irena Nifili Gulo",
     jabatan: "ANGGOTA DEPARTEMEN PSDM",
     kelompok: "internal",
     foto: FlorenciaIrenaNifiliGulo,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Muhammad Rizqi Rakhmatulloh",
     jabatan: "KETUA DEPARTEMEN KADERISASI",
     kelompok: "internal",
     foto: MuhammadRizqiRakhmatulloh,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Refaya Nindya Secondita",
     jabatan: "ANGGOTA DEPARTEMEN KADERISASI",
     kelompok: "internal",
     foto: RefayaNindyaSecondita,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Velove Putri Adema",
     jabatan: "ANGGOTA DEPARTEMEN KADERISASI",
     kelompok: "internal",
     foto: VelovePutriAdema,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Nur Azhim Ramadhan",
     jabatan: "KETUA DEPARTEMEN HUMAS",
     kelompok: "relasi",
     foto: NurAzhimRamadhan,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Alfaridzh Maleo Prayuda",
     jabatan: "ANGGOTA DEPARTEMEN HUMAS",
     kelompok: "relasi",
     foto: AlfaridzhMaleoPrayuda,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Dillan Gustav Alfaro",
     jabatan: "ANGGOTA DEPARTEMEN HUMAS",
     kelompok: "relasi",
     foto: DillanGustavAlfaro,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Gathan Abramovic",
     jabatan: "ANGGOTA DEPARTEMEN HUMAS",
     kelompok: "relasi",
     foto: GathanAbramovic,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Siti Aliza Sulthania",
     jabatan: "KETUA DEPARTEMEN MITRA BISNIS",
     kelompok: "relasi",
     foto: SitiAlizaSulthania,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Auzila Chantika Ardiana",
     jabatan: "ANGGOTA DEPARTEMEN MITRA BISNIS",
     kelompok: "relasi",
     foto: AuzilaChantikaArdiana,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Nazwa Cindy Cantika",
     jabatan: "ANGGOTA DEPARTEMEN MITRA BISNIS",
     kelompok: "relasi",
     foto: NazwaCindyCantika,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Habib Iqbal Faturrahman",
     jabatan: "KETUA DEPARTEMEN MEDIA",
     kelompok: "kominfo",
     foto: HabibIqbalFaturrahman,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Muhammad Fauzi Akbar",
     jabatan: "ANGGOTA DEPARTEMEN MEDIA",
     kelompok: "kominfo",
     foto: MuhammadFauziAkbar,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Mu'taz Al Ghaniy",
     jabatan: "ANGGOTA DEPARTEMEN MEDIA",
     kelompok: "kominfo",
     foto: MutazAlGhaniy,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Fajar Raihan Hanafi",
     jabatan: "ANGGOTA DEPARTEMEN MEDIA",
     kelompok: "kominfo",
     foto: FajarRaihanHanafi,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Muhammad Dafa Anggara Putra",
     jabatan: "KETUA DEPARTEMEN DESAIN",
     kelompok: "kominfo",
     foto: MuhammadDafaAnggaraPutra,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Najwa Nathania",
     jabatan: "ANGGOTA DEPARTEMEN DESAIN",
     kelompok: "kominfo",
     foto: NajwaNathania,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Muhamad Fahri Ilham",
     jabatan: "KETUA DEPARTEMEN AKADEMIK",
     kelompok: "edukasi",
     foto: MuhamadFahriIlham,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Fathih Askar Mubina",
     jabatan: "ANGGOTA DEPARTEMEN AKADEMIK",
     kelompok: "edukasi",
     foto: FathihAskarMubina,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Meyla Sabrina",
     jabatan: "ANGGOTA DEPARTEMEN AKADEMIK",
     kelompok: "edukasi",
     foto: MeylaSabrina,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Rachmawati Satya Lestari",
     jabatan: "ANGGOTA DEPARTEMEN AKADEMIK",
     kelompok: "edukasi",
     foto: RachmawatiSatyaLestari,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Mustika Aliesta Pratiwii",
     jabatan: "KETUA DEPARTEMEN KEAHLIAN",
     kelompok: "edukasi",
     foto: MustikaAliestaPratiwii,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Imelvi Karnia Zalukhu",
     jabatan: "ANGGOTA DEPARTEMEN KEAHLIAN",
     kelompok: "edukasi",
     foto: ImelviKarniaZalukhu,
+    instagram: "",
+    linkedin: "",
   },
-  {
+    {
     nama: "Nadia Herawati",
     jabatan: "ANGGOTA DEPARTEMEN KEAHLIAN",
     kelompok: "edukasi",
     foto: NadiaHerawati,
+    instagram: "",
+    linkedin: "",
   },
 ];
 
