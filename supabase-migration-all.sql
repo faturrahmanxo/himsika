@@ -108,6 +108,23 @@ CREATE POLICY "Public can view pengurus" ON public.pengurus FOR SELECT USING (tr
 DROP POLICY IF EXISTS "Authenticated can modify pengurus" ON public.pengurus;
 CREATE POLICY "Authenticated can modify pengurus" ON public.pengurus FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
+-- 6. STORAGE BUCKET UNTUK ASSET GAMBAR (himsika-assets)
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('himsika-assets', 'himsika-assets', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+DROP POLICY IF EXISTS "Public can view himsika-assets" ON storage.objects;
+CREATE POLICY "Public can view himsika-assets" ON storage.objects FOR SELECT USING (bucket_id = 'himsika-assets');
+
+DROP POLICY IF EXISTS "Public can upload himsika-assets" ON storage.objects;
+CREATE POLICY "Public can upload himsika-assets" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'himsika-assets');
+
+DROP POLICY IF EXISTS "Public can update himsika-assets" ON storage.objects;
+CREATE POLICY "Public can update himsika-assets" ON storage.objects FOR UPDATE USING (bucket_id = 'himsika-assets');
+
+DROP POLICY IF EXISTS "Public can delete himsika-assets" ON storage.objects;
+CREATE POLICY "Public can delete himsika-assets" ON storage.objects FOR DELETE USING (bucket_id = 'himsika-assets');
+
 -- ------------------------------------------------------------
 -- BAGIAN 2: MIGRASI DATA LAMA (SEEDING)
 -- ------------------------------------------------------------

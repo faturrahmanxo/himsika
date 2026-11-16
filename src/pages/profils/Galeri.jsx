@@ -23,11 +23,22 @@ export default function Galeri() {
           .order("id", { ascending: false });
 
         if (!error && data && data.length > 0) {
+          const normalized = data.map((d) => {
+            const fallback =
+              galeriDefault.find((g) => String(g.id) === String(d.id)) ||
+              galeriDefault[Number(d.id) - 1];
+            return {
+              ...d,
+              foto: (d.foto && d.foto.trim()) ? d.foto.trim() : (fallback?.foto || ""),
+              album: d.album || fallback?.album || "Kegiatan",
+              albumSlug: d.album_slug || d.albumSlug || fallback?.albumSlug || "",
+            };
+          });
           const dbIds = new Set(data.map((d) => String(d.id)));
           const remainingFallback = galeriDefault.filter(
             (g) => !dbIds.has(String(g.id)),
           );
-          setGaleriList([...data, ...remainingFallback]);
+          setGaleriList([...normalized, ...remainingFallback]);
         }
       } catch (err) {
         console.warn("Menggunakan data galeri lokal:", err.message);

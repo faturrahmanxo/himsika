@@ -36,14 +36,17 @@ export default function Prestasi() {
 
         if (!error && data && data.length > 0) {
           // Normalisasi kolom gambar dan instagramUrl jika dari Supabase
-          const normalized = data.map((d) => ({
-            id: d.id,
-            peringkat: d.peringkat,
-            judul: d.judul,
-            pemenang: parsePemenang(d.pemenang),
-            gambar: d.gambar || d.image || "",
-            instagramUrl: d.instagram_url || d.instagramUrl || "https://www.instagram.com/himsika.unsika/",
-          }));
+          const normalized = data.map((d) => {
+            const fallback = PRESTASI_DATA.find((p) => p.id === d.id);
+            return {
+              id: d.id,
+              peringkat: d.peringkat,
+              judul: d.judul,
+              pemenang: parsePemenang(d.pemenang),
+              gambar: (d.gambar && d.gambar.trim()) ? d.gambar.trim() : (fallback?.gambar || ""),
+              instagramUrl: d.instagram_url || d.instagramUrl || fallback?.instagramUrl || "https://www.instagram.com/himsika.unsika/",
+            };
+          });
           setPrestasiList(normalized);
           setSumberCadangan(false);
         } else {

@@ -21,9 +21,16 @@ export default function Artikel() {
           .order("id", { ascending: false });
 
         if (!error && data && data.length > 0) {
+          const normalized = data.map((d) => {
+            const fallback = artikelData.find((a) => a.id === d.id);
+            return {
+              ...d,
+              image: (d.image && d.image.trim()) ? d.image.trim() : (fallback?.image || ""),
+            };
+          });
           const dbIds = new Set(data.map((d) => d.id));
           const remainingFallback = artikelData.filter((a) => !dbIds.has(a.id));
-          setArticles([...data, ...remainingFallback]);
+          setArticles([...normalized, ...remainingFallback]);
         }
       } catch (err) {
         console.warn("Menggunakan data artikel lokal:", err.message);

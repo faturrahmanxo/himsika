@@ -22,7 +22,33 @@ export default function DetailArtikel() {
           .single();
 
         if (!error && data) {
-          setArticle(data);
+          const fallback = artikelData.find((item) => String(item.id) === String(id));
+          const finalImage = (data.image && data.image.trim()) ? data.image.trim() : (fallback?.image || "");
+          
+          let finalContent = data.content;
+          if (Array.isArray(finalContent) && Array.isArray(fallback?.content)) {
+            finalContent = finalContent.map((block, bIdx) => {
+              if (block.type === "gallery" && Array.isArray(block.images)) {
+                const fallbackBlock = fallback.content[bIdx];
+                if (fallbackBlock && fallbackBlock.type === "gallery" && Array.isArray(fallbackBlock.images)) {
+                  return {
+                    ...block,
+                    images: block.images.map((imgItem, iIdx) => ({
+                      ...imgItem,
+                      src: (imgItem.src && imgItem.src.trim()) ? imgItem.src.trim() : (fallbackBlock.images[iIdx]?.src || ""),
+                    })),
+                  };
+                }
+              }
+              return block;
+            });
+          }
+
+          setArticle({
+            ...data,
+            image: finalImage,
+            content: finalContent,
+          });
         }
       } catch (e) {
         console.warn("Gagal fetch artikel dari DB:", e.message);

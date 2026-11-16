@@ -79,7 +79,22 @@ function ImageUploadField({ label, value, onChange, placeholder = "https://... a
 
       if (error) {
         if (error.message?.toLowerCase().includes("bucket not found")) {
-          alert("Bucket 'himsika-assets' belum dibuat di menu Storage Supabase. Anda masih bisa memasukkan URL foto secara langsung di kolom teks!");
+          try {
+            await supabase.storage.createBucket("himsika-assets", { public: true });
+            const retry = await supabase.storage
+              .from("himsika-assets")
+              .upload(filePath, file, { cacheControl: "3600", upsert: true });
+            if (!retry.error) {
+              const { data: retryUrl } = supabase.storage
+                .from("himsika-assets")
+                .getPublicUrl(filePath);
+              if (retryUrl?.publicUrl) {
+                onChange(retryUrl.publicUrl);
+                return;
+              }
+            }
+          } catch (_) {}
+          alert("Bucket 'himsika-assets' belum aktif di Supabase Storage. Silakan buka menu Storage di Supabase dan buat bucket bernama 'himsika-assets' (centang Public), atau masukkan URL foto langsung!");
         } else {
           alert("Gagal mengunggah foto: " + error.message);
         }
@@ -647,10 +662,56 @@ export default function AdminDashboard() {
 
   // Background
   const AmbientBackground = () => (
-    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
-      <div className="absolute w-[30rem] h-[30rem] rounded-full blur-[120px] bg-accent/20 top-0 left-0 -translate-x-1/2 -translate-y-1/2"></div>
-      <div className="absolute w-[24rem] h-[24rem] rounded-full blur-[130px] bg-emerald-400/10 bottom-0 right-0 translate-x-1/3 translate-y-1/3"></div>
+    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden select-none" aria-hidden="true">
+      {/* 1. Grid Motif Identitas */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,#000_50%,transparent_100%)]"></div>
+
+      {/* 2. Soft Ambient Glows */}
+      <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[36rem] h-[36rem] rounded-full bg-accent/10 blur-[150px]"></div>
+      <div className="absolute bottom-1/4 right-10 w-[30rem] h-[30rem] rounded-full bg-blue-500/10 blur-[160px]"></div>
+
+      {/* 3. Tech Ring Cyber Ornaments */}
+      <svg className="absolute -top-12 -right-12 w-80 h-80 text-accent/15" viewBox="0 0 200 200" fill="none">
+        <circle cx="100" cy="100" r="90" stroke="currentColor" strokeWidth="1" strokeDasharray="6 6" />
+        <circle cx="100" cy="100" r="70" stroke="currentColor" strokeWidth="0.5" />
+        <circle cx="100" cy="100" r="50" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" />
+        <path d="M100 0v200M0 100h200" stroke="currentColor" strokeWidth="0.5" strokeOpacity="0.4" />
+      </svg>
+
+      {/* 4. Circuit Lines with Nodes */}
+      <svg className="absolute top-1/3 left-6 w-56 h-72 text-white/10 hidden lg:block" viewBox="0 0 150 200" fill="none">
+        <path d="M10 20h60l30 40h40M30 100h40l25 -30h45M20 180h80l20 -20h20" stroke="currentColor" strokeWidth="1.5" />
+        <circle cx="10" cy="20" r="3.5" fill="currentColor" />
+        <circle cx="140" cy="60" r="3.5" fill="currentColor" />
+        <circle cx="30" cy="100" r="3.5" fill="currentColor" />
+        <circle cx="135" cy="70" r="3.5" fill="currentColor" />
+        <circle cx="20" cy="180" r="3.5" fill="currentColor" />
+        <circle cx="140" cy="160" r="3.5" fill="currentColor" />
+      </svg>
+
+      {/* 5. Cyber Hexagon Grid */}
+      <svg className="absolute bottom-16 left-12 w-48 h-48 text-accent/15 hidden md:block" viewBox="0 0 100 100" fill="none">
+        <polygon points="50,5 90,27.5 90,72.5 50,95 10,72.5 10,27.5" stroke="currentColor" strokeWidth="1" />
+        <polygon points="50,20 76,35 76,65 50,80 24,65 24,35" stroke="currentColor" strokeWidth="0.75" strokeDasharray="3 3" />
+        <circle cx="50" cy="50" r="4" fill="currentColor" />
+      </svg>
+
+      {/* 6. Dot Matrix 4x4 */}
+      <svg className="absolute top-24 right-1/4 w-32 h-32 text-white/15 hidden sm:block" viewBox="0 0 80 80" fill="currentColor">
+        {[0, 20, 40, 60].map((x) =>
+          [0, 20, 40, 60].map((y) => (
+            <circle key={`${x}-${y}`} cx={x + 10} cy={y + 10} r="1.5" />
+          ))
+        )}
+      </svg>
+
+      {/* 7. Star Sparkles */}
+      <svg className="absolute bottom-1/3 right-16 w-8 h-8 text-accent/30" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" />
+      </svg>
+      <svg className="absolute top-20 left-1/3 w-6 h-6 text-accent/25" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" />
+      </svg>
     </div>
   );
 
@@ -772,11 +833,11 @@ export default function AdminDashboard() {
         {/* Navigasi Menu CRUD */}
         <nav className="flex-1 p-4 space-y-2 relative z-10 overflow-y-auto">
           {[
-            { id: "lomba", label: "Kelola Lomba & Beasiswa", icon: Trophy },
-            { id: "artikel", label: "Kelola Artikel & Berita", icon: FileText },
-            { id: "prestasi", label: "Kelola Prestasi Mahasiswa", icon: Award },
-            { id: "galeri", label: "Kelola Galeri Kegiatan", icon: ImageIcon },
-            { id: "pengurus", label: "Kelola Profil & Pengurus", icon: Users },
+            { id: "lomba", label: "Kelola Lomba & Beasiswa", icon: Trophy, count: lombaList.length },
+            { id: "artikel", label: "Kelola Artikel & Berita", icon: FileText, count: artikelList.length },
+            { id: "prestasi", label: "Kelola Prestasi Mahasiswa", icon: Award, count: prestasiList.length },
+            { id: "galeri", label: "Kelola Galeri Kegiatan", icon: ImageIcon, count: galeriList.length },
+            { id: "pengurus", label: "Kelola Profil & Pengurus", icon: Users, count: pengurusList.length },
           ].map((item) => {
             const Icon = item.icon;
             const isSelected = activeMenu === item.id;
@@ -787,14 +848,21 @@ export default function AdminDashboard() {
                   setActiveMenu(item.id);
                   setSidebarOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all border cursor-pointer ${
+                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all border cursor-pointer ${
                   isSelected
                     ? "bg-accent border-accent text-[#02182b] shadow-[0_0_15px_rgba(255,195,0,0.4)]"
                     : "bg-white/5 border-white/10 text-white/70 hover:border-accent/50 hover:text-accent hover:bg-white/10"
                 }`}
               >
-                <Icon className="w-4 h-4 shrink-0" />
-                <span className="truncate">{item.label}</span>
+                <div className="flex items-center gap-3 truncate">
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span className="truncate">{item.label}</span>
+                </div>
+                <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold shrink-0 ${
+                  isSelected ? "bg-[#02182b] text-accent" : "bg-white/10 text-white/70"
+                }`}>
+                  {item.count}
+                </span>
               </button>
             );
           })}
@@ -841,6 +909,50 @@ export default function AdminDashboard() {
             <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight capitalize">
               Kelola <span className="text-accent">{activeMenu}</span>
             </h1>
+          </div>
+
+          {/* Quick Stats Bar */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+            <div className="bg-[#073969]/80 border border-[#163b70] rounded-2xl p-4 flex items-center gap-3.5 backdrop-blur-sm">
+              <div className="w-10 h-10 rounded-xl bg-accent/15 border border-accent/25 flex items-center justify-center text-accent shrink-0">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block">Total Data Aktif</span>
+                <span className="text-xl font-extrabold text-white">
+                  {activeMenu === "lomba" && `${lombaList.length} Lomba`}
+                  {activeMenu === "artikel" && `${artikelList.length} Artikel`}
+                  {activeMenu === "prestasi" && `${prestasiList.length} Prestasi`}
+                  {activeMenu === "galeri" && `${galeriList.length} Foto`}
+                  {activeMenu === "pengurus" && `${pengurusList.length} Pengurus`}
+                </span>
+              </div>
+            </div>
+
+            <div className="bg-[#073969]/80 border border-[#163b70] rounded-2xl p-4 flex items-center gap-3.5 backdrop-blur-sm">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block">Status Koneksi</span>
+                <span className="text-sm font-extrabold text-emerald-400 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  Supabase Live DB
+                </span>
+              </div>
+            </div>
+
+            <div className="bg-[#073969]/80 border border-[#163b70] rounded-2xl p-4 flex items-center gap-3.5 backdrop-blur-sm">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 shrink-0">
+                <Users className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block">Akses Administrator</span>
+                <span className="text-xs font-bold text-white/80 truncate block max-w-[150px] sm:max-w-[180px]">
+                  {session?.user?.email || "Admin Terautentikasi"}
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* ================= 1. MENU LOMBA ================= */}
