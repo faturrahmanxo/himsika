@@ -4,6 +4,7 @@ import { X, ExternalLink } from "lucide-react";
 import PageHeader from "../../components/PageHeader";
 import Reveal from "../../components/Reveal";
 import pengurus from "../../data/pengurusData";
+import supabase from "../../supabase-client";
 
 function InstagramIcon({ className = "w-4 h-4" }) {
   return (
@@ -45,6 +46,38 @@ const KELOMPOK = [
 export default function StrukturOrganisasi() {
   const [aktif, setAktif] = useState("semua");
   const [selectedMember, setSelectedMember] = useState(null);
+  const [pengurusList, setPengurusList] = useState(pengurus);
+
+  useEffect(() => {
+    async function fetchPengurus() {
+      try {
+        const { data, error } = await supabase
+          .from("pengurus")
+          .select("*")
+          .order("id", { ascending: true });
+
+        if (!error && data && data.length > 0) {
+          // Normalisasi: jika di Supabase foto kosong/URL luar, fallback ke foto lokal jika nama cocok
+          const normalized = data.map((d) => {
+            const localMatch = pengurus.find(
+              (p) => p.nama.trim().toLowerCase() === (d.nama || "").trim().toLowerCase()
+            );
+            return {
+              ...d,
+              foto: d.foto || localMatch?.foto || "",
+              instagram: d.instagram ?? localMatch?.instagram ?? "",
+              linkedin: d.linkedin ?? localMatch?.linkedin ?? "",
+              angkatan: d.angkatan || localMatch?.angkatan,
+            };
+          });
+          setPengurusList(normalized);
+        }
+      } catch (err) {
+        console.warn("Menggunakan data pengurus lokal:", err.message);
+      }
+    }
+    fetchPengurus();
+  }, []);
 
   // Keyboard shortcut ESC untuk menutup modal & cegah background scroll
   useEffect(() => {
@@ -64,7 +97,7 @@ export default function StrukturOrganisasi() {
   }, [selectedMember]);
 
   const tampil =
-    aktif === "semua" ? pengurus : pengurus.filter((p) => p.kelompok === aktif);
+    aktif === "semua" ? pengurusList : pengurusList.filter((p) => p.kelompok === aktif);
 
   const getNamaKelompok = (id) => {
     const found = KELOMPOK.find((k) => k.id === id);
@@ -136,8 +169,8 @@ export default function StrukturOrganisasi() {
             {KELOMPOK.map((k) => {
               const jumlah =
                 k.id === "semua"
-                  ? pengurus.length
-                  : pengurus.filter((p) => p.kelompok === k.id).length;
+                  ? pengurusList.length
+                  : pengurusList.filter((p) => p.kelompok === k.id).length;
               const dipilih = aktif === k.id;
               return (
                 <button
@@ -210,7 +243,7 @@ export default function StrukturOrganisasi() {
 
         <Reveal>
           <p className="mt-10 text-sm text-white/60">
-            Menampilkan {tampil.length} dari {pengurus.length} pengurus.
+            Menampilkan {tampil.length} dari {pengurusList.length} pengurus.
           </p>
         </Reveal>
       </div>
