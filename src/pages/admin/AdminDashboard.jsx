@@ -1,98 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import supabase from "../../supabase-client";
 import pengurusData from "../../data/pengurusData";
-
+import artikelData from "../../data/artikel";
+import galeriDefault from "../../data/galeriData";
+import { PRESTASI_DATA } from "../../data/prestasiData";
 import LogoHimsika from "../../assets/logo/HIMSIKA.png";
-import {
-  LogOut,
-  Plus,
-  Edit3,
-  X,
-  Trophy,
-  FileText,
-  Gift,
-  CheckCircle2,
-  MessageCircle,
-  Trash2,
-  Sparkles,
-  Award,
-  Image as ImageIcon,
-  Users,
-  Menu,
-  Upload,
-  Loader2,
-  Eye,
-  Grid,
-  List,
-  ExternalLink,
-  Calendar,
-  Flame,
-  Search,
-  ChevronLeft,
-  ChevronRight,
-  Check,
-} from "lucide-react";
+// Ikon hanya dipakai untuk bottom menu bar.
+import { Trophy, FileText, Award, Image as ImageIcon, Users } from "lucide-react";
 
-// Modal Popup Kustom (Sesuai Permintaan: Bersih, Tanpa Emoji dan Tanpa SVG)
-function CustomModal({
-  isOpen,
-  type = "alert", // "alert" | "confirm"
-  title,
-  message,
-  confirmText = "Mengerti",
-  cancelText = "Batal",
-  onConfirm,
-  onCancel,
-}) {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#02182b]/80 backdrop-blur-sm">
-      <div className="w-full max-w-md bg-[#073969] border border-[#164a78] rounded-2xl p-6 sm:p-7 shadow-2xl text-white">
-        <h3 className="text-base sm:text-lg font-bold tracking-tight mb-2 text-white">
-          {title || (type === "confirm" ? "Konfirmasi Tindakan" : "Pemberitahuan Sistem")}
-        </h3>
-        <p className="text-xs sm:text-sm text-white/80 leading-relaxed mb-6 whitespace-pre-line">
-          {message}
-        </p>
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
-          {type === "confirm" && (
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white/80 text-xs font-semibold transition-all cursor-pointer"
-            >
-              {cancelText || "Batal"}
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={onConfirm}
-            className={`px-5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              type === "confirm"
-                ? "bg-red-500 hover:bg-red-600 text-white shadow-sm"
-                : "bg-accent hover:bg-[#ffcf33] text-[#043761] font-extrabold shadow-sm"
-            }`}
-          >
-            {confirmText || "Mengerti"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-const AVAILABLE_CATEGORIES = [
-  "IT & Software",
-  "Beasiswa",
-  "UI/UX Design",
-  "Data Science",
-  "Web Dev",
-  "Data & AI",
-  "Business & Economics",
-  "Design & Poster",
-  "Riset & Karya Tulis",
+const MENU = [
+  { id: "lomba", label: "Lomba", title: "Lomba & Beasiswa", icon: Trophy },
+  { id: "artikel", label: "Artikel", title: "Artikel & Berita", icon: FileText },
+  { id: "prestasi", label: "Prestasi", title: "Prestasi Mahasiswa", icon: Award },
+  { id: "galeri", label: "Galeri", title: "Galeri Kegiatan", icon: ImageIcon },
+  { id: "pengurus", label: "Pengurus", title: "Profil & Pengurus", icon: Users },
 ];
 
 const KELOMPOK_OPTIONS = [
@@ -113,72 +35,170 @@ const ALBUM_OPTIONS = [
   "Kegiatan Akbar",
 ];
 
-function ImageUploadField({ label, value, onChange, placeholder = "https://... atau klik Upload Foto", onAlert }) {
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = React.useRef(null);
+const ARTIKEL_CATEGORIES = ["Berita", "Kegiatan", "Opini", "Prestasi"];
+const PAGE_SIZE = 8;
 
-  const notify = (msg, title) => {
-    if (onAlert) onAlert(msg, title);
-    else alert(msg);
-  };
+const inputCls =
+  "w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40 transition-colors";
+const labelCls = "block text-xs font-bold text-white/70 mb-1.5";
+
+// Urutan artikel: tanggal terbaru dulu. Pakai kolom datetime, kalau kosong baca teks "26 September 2026".
+const BULAN = {
+  januari: 1, februari: 2, maret: 3, april: 4, mei: 5, juni: 6,
+  juli: 7, agustus: 8, september: 9, oktober: 10, november: 11, desember: 12,
+};
+
+function parseTanggal(text) {
+  const m = String(text || "").toLowerCase().match(/(\d{1,2})\s+([a-z]+)\s+(\d{4})/);
+  if (!m || !BULAN[m[2]]) return "";
+  return `${m[3]}-${String(BULAN[m[2]]).padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+}
+
+function artikelSortKey(a) {
+  if (a.datetime) return String(a.datetime).slice(0, 10);
+  return parseTanggal(a.date);
+}
+
+function sortArtikel(list) {
+  return [...list].sort(
+    (a, b) =>
+      artikelSortKey(b).localeCompare(artikelSortKey(a)) ||
+      Number(b.id) - Number(a.id),
+  );
+}
+
+function parseCategories(cat) {
+  if (Array.isArray(cat)) {
+    return cat.map((c) => String(c).replace(/["'\\]/g, "").trim()).filter(Boolean);
+  }
+  if (typeof cat === "string") {
+    return cat
+      .replace(/[[\]{}]/g, "")
+      .split(",")
+      .map((c) => c.replace(/["'\\]/g, "").trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
+function parsePemenang(p) {
+  if (Array.isArray(p)) return p;
+  if (typeof p === "string") {
+    try {
+      const parsed = JSON.parse(p);
+      if (Array.isArray(parsed)) return parsed;
+    } catch {
+      return p.split("\n").map((s) => s.trim()).filter(Boolean);
+    }
+  }
+  return [];
+}
+
+// ---------- Komponen kecil ----------
+
+function CustomModal({ isOpen, type, title, message, confirmText, cancelText, onConfirm, onCancel }) {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          key="modal"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-[#02182b]/80 backdrop-blur-sm"
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 12, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.18 }}
+            role="dialog"
+            aria-modal="true"
+            className="w-full max-w-md bg-[#073969] border border-[#164a78] rounded-2xl p-6 shadow-2xl text-white"
+          >
+            <h3 className="text-base sm:text-lg font-bold mb-2">{title}</h3>
+            <p className="text-sm text-white/80 leading-relaxed mb-6 whitespace-pre-line">{message}</p>
+            <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+              {type === "confirm" && (
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white/80 text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  {cancelText}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={onConfirm}
+                className={`px-5 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                  type === "confirm"
+                    ? "bg-red-500 hover:bg-red-600 text-white"
+                    : "bg-accent hover:bg-accent-hover text-[#043761]"
+                }`}
+              >
+                {confirmText}
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function Thumb({ src, alt, className = "w-12 h-12", rounded = "rounded-lg" }) {
+  const [broken, setBroken] = useState(false);
+  useEffect(() => setBroken(false), [src]);
+  if (!src || broken) {
+    return (
+      <div className={`${className} ${rounded} shrink-0 bg-[#04284d] border border-[#164a78] flex items-center justify-center text-[9px] font-bold text-white/30 uppercase`}>
+        Foto
+      </div>
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      onError={() => setBroken(true)}
+      className={`${className} ${rounded} shrink-0 object-cover border border-[#164a78] bg-[#04284d]`}
+    />
+  );
+}
+
+function ImageUploadField({ label, value, onChange, onAlert }) {
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
   const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     if (file.size > 5 * 1024 * 1024) {
-      notify("Ukuran gambar maksimal adalah 5 MB. Silakan pilih berkas yang lebih kecil.", "Validasi Ukuran");
+      onAlert("Ukuran gambar maksimal 5 MB. Pilih berkas yang lebih kecil.", "Validasi Ukuran");
       return;
     }
-
     try {
       setUploading(true);
-      const cleanFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-      const filePath = `uploads/${Date.now()}-${cleanFileName}`;
-
-      const { data, error } = await supabase.storage
+      const filePath = `uploads/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+      const { error } = await supabase.storage
         .from("himsika-assets")
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: true,
-        });
-
+        .upload(filePath, file, { cacheControl: "3600", upsert: true });
       if (error) {
-        if (error.message?.toLowerCase().includes("bucket not found")) {
-          try {
-            await supabase.storage.createBucket("himsika-assets", { public: true });
-            const retry = await supabase.storage
-              .from("himsika-assets")
-              .upload(filePath, file, { cacheControl: "3600", upsert: true });
-            if (!retry.error) {
-              const { data: retryUrl } = supabase.storage
-                .from("himsika-assets")
-                .getPublicUrl(filePath);
-              if (retryUrl?.publicUrl) {
-                onChange(retryUrl.publicUrl);
-                return;
-              }
-            }
-          } catch (_) {}
-          notify(
-            "Bucket 'himsika-assets' belum dibuat di menu Storage Supabase. Anda masih bisa memasukkan URL foto secara langsung di kolom teks!",
-            "Pemberitahuan Penyimpanan"
-          );
-        } else {
-          notify("Gagal mengunggah foto: " + error.message, "Gagal Unggah");
-        }
+        onAlert(
+          error.message?.toLowerCase().includes("bucket not found")
+            ? "Bucket 'himsika-assets' belum dibuat di menu Storage Supabase. Untuk sementara, tempel URL foto langsung di kolom teks."
+            : "Gagal mengunggah foto: " + error.message,
+          "Gagal Unggah",
+        );
         return;
       }
-
-      const { data: urlData } = supabase.storage
-        .from("himsika-assets")
-        .getPublicUrl(filePath);
-
-      if (urlData?.publicUrl) {
-        onChange(urlData.publicUrl);
-      }
+      const { data } = supabase.storage.from("himsika-assets").getPublicUrl(filePath);
+      if (data?.publicUrl) onChange(data.publicUrl);
     } catch (err) {
-      notify("Terjadi kesalahan saat upload: " + err.message, "Kesalahan Sistem");
+      onAlert("Terjadi kesalahan saat upload: " + err.message, "Kesalahan Sistem");
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -186,79 +206,36 @@ function ImageUploadField({ label, value, onChange, placeholder = "https://... a
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <label className="block text-xs font-bold text-white/80 tracking-wide">
-          {label}
-        </label>
-        <span className="text-[10px] text-accent font-semibold tracking-wider">
-          Upload File atau Masukkan URL
-        </span>
-      </div>
-
+    <div>
+      <label className={labelCls}>{label}</label>
       <div className="flex flex-col sm:flex-row gap-2">
         <input
           type="text"
-          placeholder={placeholder}
+          placeholder="Tempel URL foto atau klik Upload"
           value={value || ""}
           onChange={(e) => onChange(e.target.value)}
-          className="flex-1 bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-xs sm:text-sm focus:border-accent focus:ring-1 focus:ring-accent/40 focus:outline-none transition-all placeholder:text-white/30"
+          className={`${inputCls} flex-1`}
         />
-
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileUpload}
-          accept="image/*"
-          className="hidden"
-        />
-
+        <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
         <button
           type="button"
           disabled={uploading}
           onClick={() => fileInputRef.current?.click()}
-          className="px-4 py-2.5 bg-[#163b70] hover:bg-[#1f4e8f] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 border border-white/10 transition-all cursor-pointer shrink-0 disabled:opacity-50"
+          className="px-4 py-2.5 bg-[#163b70] hover:bg-[#1f4e8f] text-white text-xs font-bold rounded-xl border border-white/10 transition-colors cursor-pointer shrink-0 disabled:opacity-50"
         >
-          {uploading ? (
-            <>
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-accent" />
-              <span>Mengunggah...</span>
-            </>
-          ) : (
-            <>
-              <Upload className="w-3.5 h-3.5 text-accent" />
-              <span>Upload Foto</span>
-            </>
-          )}
+          {uploading ? "Mengunggah..." : "Upload Foto"}
         </button>
       </div>
-
       {value && (
-        <div className="flex items-center gap-3 p-2.5 bg-[#04284d]/90 border border-[#164a78] rounded-xl max-w-full">
-          <img
-            src={value}
-            alt="Preview"
-            className="w-12 h-12 object-cover rounded-lg border border-white/10 shrink-0 bg-white/5"
-            onError={(e) => {
-              e.target.style.display = "none";
-            }}
-          />
-          <div className="min-w-0 flex-1">
-            <span className="text-[11px] font-bold text-accent flex items-center gap-1 truncate">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              Foto Terhubung
-            </span>
-            <span className="text-[10px] text-white/50 block truncate">
-              {value}
-            </span>
-          </div>
+        <div className="mt-2 flex items-center gap-3 p-2 bg-[#04284d] border border-[#164a78] rounded-xl">
+          <Thumb src={value} alt="Pratinjau" className="w-10 h-10" />
+          <span className="text-[11px] text-white/50 truncate flex-1">{value}</span>
           <button
             type="button"
             onClick={() => onChange("")}
-            className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 text-white/50 hover:text-red-400 transition-colors cursor-pointer shrink-0"
-            title="Hapus foto"
+            className="px-2.5 py-1 rounded-lg text-[11px] font-semibold text-red-300 hover:bg-red-500/15 cursor-pointer"
           >
-            <X className="w-3.5 h-3.5" />
+            Hapus
           </button>
         </div>
       )}
@@ -266,158 +243,280 @@ function ImageUploadField({ label, value, onChange, placeholder = "https://... a
   );
 }
 
+// Daftar data generik: pencarian, filter, tabel ringkas, dan pagination (dipakai semua menu).
+function ListSection({ title, items, loading, searchText, filters, filterOf, columns, emptyText }) {
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("Semua");
+  const [page, setPage] = useState(1);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return items.filter((item) => {
+      const okSearch = !q || searchText(item).toLowerCase().includes(q);
+      const okFilter = !filters || filter === "Semua" || filterOf(item) === filter;
+      return okSearch && okFilter;
+    });
+  }, [items, search, filter, searchText, filters, filterOf]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const current = Math.min(page, totalPages);
+  const start = (current - 1) * PAGE_SIZE;
+  const rows = filtered.slice(start, start + PAGE_SIZE);
+
+  return (
+    <section className="bg-[#073969] border border-[#164a78] rounded-3xl p-4 sm:p-6 shadow-xl">
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <h2 className="font-bold text-white text-base">{title}</h2>
+        <span className="text-xs text-accent font-bold px-3 py-1 bg-accent/10 border border-accent/20 rounded-full">
+          {items.length} data
+        </span>
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-3 mb-4">
+        <input
+          type="search"
+          placeholder="Cari..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+          className={`${inputCls} md:max-w-sm`}
+        />
+        {filters && (
+          <div className="flex gap-1.5 overflow-x-auto pb-1">
+            {["Semua", ...filters].map((f) => (
+              <button
+                key={f}
+                type="button"
+                onClick={() => {
+                  setFilter(f);
+                  setPage(1);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
+                  filter === f
+                    ? "bg-accent text-[#043761]"
+                    : "bg-[#04284d] text-white/70 hover:text-white border border-[#164a78]"
+                }`}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="overflow-x-auto rounded-2xl border border-[#164a78]">
+        <table className="w-full min-w-[640px] text-left text-sm">
+          <thead>
+            <tr className="bg-[#04284d]/70 text-white/50 text-xs">
+              {columns.map((c) => (
+                <th key={c.header} className={`p-3.5 font-semibold ${c.className || ""}`}>
+                  {c.header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-white/5">
+            {loading && items.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length} className="p-8 text-center text-white/40">
+                  Memuat data...
+                </td>
+              </tr>
+            ) : rows.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length} className="p-8 text-center text-white/40">
+                  {search || filter !== "Semua" ? "Tidak ada data yang cocok." : emptyText}
+                </td>
+              </tr>
+            ) : (
+              rows.map((item) => (
+                <tr key={item.id} className="hover:bg-white/[0.03] transition-colors">
+                  {columns.map((c) => (
+                    <td key={c.header} className={`p-3.5 align-middle ${c.className || ""}`}>
+                      {c.render(item)}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {filtered.length > PAGE_SIZE && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 text-xs">
+          <span className="text-white/50">
+            {start + 1} - {Math.min(start + PAGE_SIZE, filtered.length)} dari {filtered.length}
+          </span>
+          <div className="flex items-center gap-1.5 flex-wrap justify-center">
+            <button
+              type="button"
+              disabled={current <= 1}
+              onClick={() => setPage(current - 1)}
+              className="px-3 py-1.5 rounded-lg bg-[#04284d] border border-[#164a78] text-white disabled:opacity-40 hover:bg-white/10 cursor-pointer disabled:cursor-not-allowed"
+            >
+              Sebelumnya
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => setPage(n)}
+                className={`w-8 h-8 rounded-lg font-bold cursor-pointer ${
+                  current === n
+                    ? "bg-accent text-[#043761]"
+                    : "bg-[#04284d] text-white/70 hover:text-white border border-[#164a78]"
+                }`}
+              >
+                {n}
+              </button>
+            ))}
+            <button
+              type="button"
+              disabled={current >= totalPages}
+              onClick={() => setPage(current + 1)}
+              className="px-3 py-1.5 rounded-lg bg-[#04284d] border border-[#164a78] text-white disabled:opacity-40 hover:bg-white/10 cursor-pointer disabled:cursor-not-allowed"
+            >
+              Selanjutnya
+            </button>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function FormSection({ title, editing, onCancel, children, preview }) {
+  return (
+    <section className="bg-[#073969] border border-[#164a78] rounded-3xl p-5 sm:p-7 shadow-xl">
+      <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
+        <h2 className="text-base sm:text-lg font-bold text-white">{title}</h2>
+        {editing && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="text-xs font-bold text-white/70 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full cursor-pointer"
+          >
+            Batal Edit
+          </button>
+        )}
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="lg:col-span-7">{children}</div>
+        <div className="lg:col-span-5 lg:sticky lg:top-6 bg-[#04284d]/60 border border-[#164a78] rounded-2xl p-5">
+          <span className="block text-xs font-bold text-accent uppercase tracking-wider mb-3">Live Preview Card</span>
+          {preview}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const ActionBtn = ({ onClick, children, tone = "accent" }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`text-xs font-semibold px-2 py-1 rounded-lg cursor-pointer transition-colors ${
+      tone === "danger" ? "text-red-300 hover:bg-red-500/15" : tone === "muted" ? "text-white/70 hover:bg-white/10" : "text-accent hover:bg-accent/10"
+    }`}
+  >
+    {children}
+  </button>
+);
+
+const SubmitBtn = ({ children }) => (
+  <div className="md:col-span-2 flex justify-end pt-4 border-t border-white/10">
+    <button
+      type="submit"
+      className="px-6 py-2.5 bg-accent text-[#043761] font-bold rounded-full hover:bg-accent-hover text-sm shadow-md cursor-pointer transition-colors"
+    >
+      {children}
+    </button>
+  </div>
+);
+
+// ---------- Halaman utama ----------
+
 export default function AdminDashboard() {
   const [session, setSession] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [authLoading, setAuthLoading] = useState(false);
-
   const [activeMenu, setActiveMenu] = useState("lomba");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Modal State & Handlers (Tanpa Emoji & Tanpa SVG)
-  const [modalConfig, setModalConfig] = useState({
-    isOpen: false,
-    title: "",
-    message: "",
-    type: "alert",
-    confirmText: "Mengerti",
-    cancelText: "Batal",
-    onConfirm: null,
-  });
-
-  const showAlert = (message, title = "Pemberitahuan Sistem") => {
+  const [modalConfig, setModalConfig] = useState({ isOpen: false });
+  const closeModal = () => setModalConfig((p) => ({ ...p, isOpen: false }));
+  const showAlert = (message, title = "Pemberitahuan") =>
+    setModalConfig({ isOpen: true, type: "alert", title, message, confirmText: "Mengerti", onConfirm: closeModal });
+  const showConfirm = (message, action, title = "Konfirmasi") =>
     setModalConfig({
       isOpen: true,
-      title,
-      message,
-      type: "alert",
-      confirmText: "Mengerti",
-      cancelText: "",
-      onConfirm: () => setModalConfig((prev) => ({ ...prev, isOpen: false })),
-    });
-  };
-
-  const showConfirm = (message, onConfirmAction, title = "Konfirmasi Tindakan") => {
-    setModalConfig({
-      isOpen: true,
-      title,
-      message,
       type: "confirm",
-      confirmText: "Lanjutkan",
+      title,
+      message,
+      confirmText: "Ya, Hapus",
       cancelText: "Batal",
       onConfirm: () => {
-        setModalConfig((prev) => ({ ...prev, isOpen: false }));
-        if (onConfirmAction) onConfirmAction();
+        closeModal();
+        action();
       },
     });
-  };
 
-  // States Lomba
+  // Lomba
+  const emptyLomba = {
+    title: "", organizer: "", description: "", deadline_pendaftaran: "", deadline_pengumpulan: "",
+    benefit: "", categories: [], deadline_timestamp: "", registration_url: "", guidebook_url: "",
+    instagram_url: "", contacts: [],
+  };
   const [lombaList, setLombaList] = useState([]);
   const [loadingLomba, setLoadingLomba] = useState(false);
   const [editingLombaId, setEditingLombaId] = useState(null);
-  const [formDataLomba, setFormDataLomba] = useState({
-    title: "",
-    organizer: "",
-    description: "",
-    deadline_pendaftaran: "",
-    deadline_pengumpulan: "",
-    benefit: "",
-    categories: [],
-    deadline_timestamp: "",
-    registration_url: "",
-    guidebook_url: "",
-    instagram_url: "",
-    contacts: [],
-  });
+  const [formDataLomba, setFormDataLomba] = useState(emptyLomba);
 
-  // States Artikel (Pencarian, Filter, Pagination, & Hot Article)
+  // Artikel
+  const emptyArtikel = {
+    title: "", category: "Berita", date: "", author: "Divisi Kominfo", image: "", excerpt: "", content: "", is_hot: false,
+  };
   const [artikelList, setArtikelList] = useState([]);
   const [loadingArtikel, setLoadingArtikel] = useState(false);
   const [editingArtikelId, setEditingArtikelId] = useState(null);
-  const [artikelSearch, setArtikelSearch] = useState("");
-  const [artikelCategoryFilter, setArtikelCategoryFilter] = useState("Semua");
-  const [artikelPage, setArtikelPage] = useState(1);
-  const ARTIKEL_PER_PAGE = 8;
+  const [formDataArtikel, setFormDataArtikel] = useState(emptyArtikel);
 
-  const [formDataArtikel, setFormDataArtikel] = useState({
-    title: "",
-    category: "Berita",
-    date: "",
-    author: "Divisi Kominfo",
-    image: "",
-    excerpt: "",
-    content: "",
-    is_hot: false,
-  });
-
-  // States Prestasi
+  // Prestasi
+  const emptyPrestasi = { judul: "", peringkat: "Juara 1", pemenang: "", gambar: "", instagram_url: "" };
   const [prestasiList, setPrestasiList] = useState([]);
   const [loadingPrestasi, setLoadingPrestasi] = useState(false);
   const [editingPrestasiId, setEditingPrestasiId] = useState(null);
-  const [formDataPrestasi, setFormDataPrestasi] = useState({
-    judul: "",
-    peringkat: "Juara 1",
-    pemenang: "",
-    gambar: "",
-    instagram_url: "",
-  });
+  const [formDataPrestasi, setFormDataPrestasi] = useState(emptyPrestasi);
 
-  // States Galeri
+  // Galeri
+  const emptyGaleri = { album: "Divisi Kominfo", foto: "", caption: "" };
   const [galeriList, setGaleriList] = useState([]);
   const [loadingGaleri, setLoadingGaleri] = useState(false);
   const [editingGaleriId, setEditingGaleriId] = useState(null);
-  const [formDataGaleri, setFormDataGaleri] = useState({
-    album: "Divisi Kominfo",
-    foto: "",
-    caption: "",
-  });
+  const [formDataGaleri, setFormDataGaleri] = useState(emptyGaleri);
 
-  // States Pengurus
+  // Pengurus
+  const emptyPengurus = { nama: "", jabatan: "", kelompok: "bph", foto: "", instagram: "", linkedin: "" };
   const [pengurusList, setPengurusList] = useState([]);
   const [loadingPengurus, setLoadingPengurus] = useState(false);
   const [editingPengurusId, setEditingPengurusId] = useState(null);
-  const [pengurusViewMode, setPengurusViewMode] = useState("cards");
-  const [previewPengurusModal, setPreviewPengurusModal] = useState(null);
-  const [formDataPengurus, setFormDataPengurus] = useState({
-    nama: "",
-    jabatan: "",
-    kelompok: "bph",
-    foto: "",
-    instagram: "",
-    linkedin: "",
-  });
-
-  // Helpers
-  const parseCategories = (cat) => {
-    if (Array.isArray(cat)) {
-      return cat
-        .map((c) => String(c).replace(/["']/g, "").replace(/\\/g, "").trim())
-        .filter(Boolean);
-    }
-    if (typeof cat === "string") {
-      return cat
-        .replace(/[\[\]{}]/g, "")
-        .split(",")
-        .map((c) => c.replace(/["']/g, "").replace(/\\/g, "").trim())
-        .filter(Boolean);
-    }
-    return [];
-  };
+  const [formDataPengurus, setFormDataPengurus] = useState(emptyPengurus);
+  const [previewPengurus, setPreviewPengurus] = useState(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session) fetchAllData();
     });
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (session) fetchAllData();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
+      setSession(s);
+      if (s) fetchAllData();
     });
     return () => subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchAllData = () => {
@@ -431,10 +530,7 @@ export default function AdminDashboard() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setAuthLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) showAlert("Gagal masuk: " + error.message, "Autentikasi Gagal");
     else {
       setEmail("");
@@ -443,15 +539,26 @@ export default function AdminDashboard() {
     setAuthLoading(false);
   };
 
-  const handleLogout = async () => await supabase.auth.signOut();
+  const handleLogout = () =>
+    setModalConfig({
+      isOpen: true,
+      type: "confirm",
+      title: "Keluar dari Dashboard",
+      message: "Anda akan keluar dari sesi administrator.",
+      confirmText: "Keluar",
+      cancelText: "Batal",
+      onConfirm: async () => {
+        closeModal();
+        await supabase.auth.signOut();
+      },
+    });
 
-  // ==================== 1. CRUD LOMBA ====================
+  const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+  // ==================== LOMBA ====================
   const fetchLomba = async () => {
     setLoadingLomba(true);
-    const { data, error } = await supabase
-      .from("lomba")
-      .select("*")
-      .order("id", { ascending: false });
+    const { data, error } = await supabase.from("lomba").select("*").order("id", { ascending: false });
     if (!error && data) setLombaList(data);
     setLoadingLomba(false);
   };
@@ -459,149 +566,90 @@ export default function AdminDashboard() {
   const handleLombaSubmit = async (e) => {
     e.preventDefault();
     const payload = {
-      title: formDataLomba.title,
-      organizer: formDataLomba.organizer,
-      description: formDataLomba.description,
-      deadline_pendaftaran: formDataLomba.deadline_pendaftaran,
-      deadline_pengumpulan: formDataLomba.deadline_pengumpulan,
-      benefit: formDataLomba.benefit,
-      categories: formDataLomba.categories,
-      deadline_timestamp: formDataLomba.deadline_timestamp
-        ? Number(formDataLomba.deadline_timestamp)
-        : null,
-      registration_url: formDataLomba.registration_url,
-      guidebook_url: formDataLomba.guidebook_url,
-      instagram_url: formDataLomba.instagram_url,
-      contacts: formDataLomba.contacts,
+      ...formDataLomba,
+      deadline_timestamp: formDataLomba.deadline_timestamp ? Number(formDataLomba.deadline_timestamp) : null,
     };
-
-    if (editingLombaId) {
-      const { error } = await supabase
-        .from("lomba")
-        .update(payload)
-        .eq("id", editingLombaId);
-      if (error) showAlert("Gagal memperbarui info lomba: " + error.message, "Kendala Sistem");
-      else {
-        showAlert("Data info lomba berhasil diperbarui.", "Berhasil");
-        resetLombaForm();
-        fetchLomba();
-      }
-    } else {
-      const { error } = await supabase.from("lomba").insert([payload]);
-      if (error) showAlert("Gagal menambahkan info lomba: " + error.message, "Kendala Sistem");
-      else {
-        showAlert("Data info lomba baru berhasil ditambahkan ke database.", "Berhasil");
-        resetLombaForm();
-        fetchLomba();
-      }
-    }
+    const { error } = editingLombaId
+      ? await supabase.from("lomba").update(payload).eq("id", editingLombaId)
+      : await supabase.from("lomba").insert([payload]);
+    if (error) return showAlert("Gagal menyimpan info lomba: " + error.message, "Kendala Sistem");
+    showAlert(editingLombaId ? "Info lomba berhasil diperbarui." : "Info lomba baru berhasil ditambahkan.", "Berhasil");
+    resetLombaForm();
+    fetchLomba();
   };
 
-  const handleLombaDelete = (id) => {
-    showConfirm(
-      "Apakah Anda yakin ingin menghapus data info lomba ini secara permanen dari database?",
-      async () => {
-        const { error } = await supabase.from("lomba").delete().eq("id", id);
-        if (error) showAlert("Gagal menghapus data lomba: " + error.message, "Kendala Sistem");
-        else fetchLomba();
-      }
-    );
-  };
+  const handleLombaDelete = (id) =>
+    showConfirm("Hapus info lomba ini secara permanen?", async () => {
+      const { error } = await supabase.from("lomba").delete().eq("id", id);
+      if (error) showAlert("Gagal menghapus: " + error.message, "Kendala Sistem");
+      else setLombaList((p) => p.filter((x) => x.id !== id));
+    });
 
   const resetLombaForm = () => {
     setEditingLombaId(null);
-    setFormDataLomba({
-      title: "",
-      organizer: "",
-      description: "",
-      deadline_pendaftaran: "",
-      deadline_pengumpulan: "",
-      benefit: "",
-      categories: [],
-      deadline_timestamp: "",
-      registration_url: "",
-      guidebook_url: "",
-      instagram_url: "",
-      contacts: [],
-    });
+    setFormDataLomba(emptyLomba);
   };
 
-  // ==================== 2. CRUD ARTIKEL ====================
+  // ==================== ARTIKEL ====================
   const fetchArtikel = async () => {
     setLoadingArtikel(true);
-    const { data, error } = await supabase
-      .from("artikel")
-      .select("*")
-      .order("id", { ascending: false });
+    const { data, error } = await supabase.from("artikel").select("*");
     if (!error && data) {
-      setArtikelList(
-        data.map((d) => ({
-          ...d,
-          is_hot: Boolean(d.is_hot || d.category === "Berita Utama"),
-        }))
+      const normalized = sortArtikel(
+        data.map((d) => {
+          const fb =
+            artikelData.find((a) => String(a.id) === String(d.id)) ||
+            artikelData.find((a) => a.title === d.title);
+          return { ...d, is_hot: d.is_hot === true, thumb: (d.image && d.image.trim()) || fb?.image || "" };
+        }),
       );
+
+      // Aturan: selalu tepat 1 berita hot. Kalau 0 atau lebih dari 1, rapikan otomatis.
+      const hots = normalized.filter((a) => a.is_hot);
+      if (normalized.length > 0 && hots.length !== 1) {
+        const keep = hots[0] || normalized[0];
+        normalized.forEach((a) => (a.is_hot = a.id === keep.id));
+        await syncHot(keep.id);
+      }
+      setArtikelList(normalized);
     }
     setLoadingArtikel(false);
   };
 
-  // ATURAN BERITA HOT: Tepat 1 Berita Hot (tidak boleh > 1, tidak boleh 0), tanpa reload flicker!
-  const handleSetSingleHot = async (targetItem) => {
-    // 1. Jika artikel ini sudah berstatus Hot, tidak boleh dihapus menjadi 0
-    if (targetItem.is_hot) {
+  const syncHot = async (hotId) => {
+    await supabase.from("artikel").update({ is_hot: false }).neq("id", hotId);
+    await supabase.from("artikel").update({ is_hot: true }).eq("id", hotId);
+  };
+
+  const handleSetHot = async (item) => {
+    if (item.is_hot) {
       showAlert(
-        "Artikel ini sudah aktif sebagai Berita Hot Utama di Beranda.\n\nSistem memerlukan tepat 1 Berita Hot untuk ditampilkan di halaman Beranda. Untuk mengganti Berita Hot, silakan pilih tombol 'Set Hot' pada artikel lain yang Anda inginkan.",
-        "Status Berita Hot"
+        "Artikel ini sudah menjadi Berita Hot di Beranda.\n\nBerita Hot selalu ada tepat 1. Untuk menggantinya, klik Set Hot pada artikel lain.",
+        "Berita Hot",
       );
       return;
     }
-
-    // 2. Pembaruan optimistik instan pada state React (Tanpa kedip loading / flicker unmount)
-    setArtikelList((prev) =>
-      prev.map((a) => ({
-        ...a,
-        is_hot: a.id === targetItem.id,
-      }))
-    );
-
-    // 3. Sinkronisasi di latar belakang ke Supabase
+    setArtikelList((prev) => prev.map((a) => ({ ...a, is_hot: a.id === item.id })));
     try {
-      // Nonaktifkan hot di semua artikel selain yang dipilih
-      await supabase
-        .from("artikel")
-        .update({ is_hot: false })
-        .neq("id", targetItem.id);
-
-      // Aktifkan hot pada artikel target
-      let { error } = await supabase
-        .from("artikel")
-        .update({ is_hot: true })
-        .eq("id", targetItem.id);
-
-      if (error && error.message?.includes("is_hot")) {
-        // Fallback untuk kolom category
-        await supabase
-          .from("artikel")
-          .update({ category: "Berita" })
-          .eq("category", "Berita Utama")
-          .neq("id", targetItem.id);
-
-        await supabase
-          .from("artikel")
-          .update({ category: "Berita Utama" })
-          .eq("id", targetItem.id);
-      }
+      await syncHot(item.id);
     } catch (err) {
-      console.warn("Gagal sinkronisasi Berita Hot ke Supabase:", err);
+      showAlert("Gagal menyimpan Berita Hot: " + err.message, "Kendala Sistem");
+      fetchArtikel();
     }
   };
 
   const handleArtikelSubmit = async (e) => {
     e.preventDefault();
-    let payload = {
+    const editingItem = artikelList.find((a) => a.id === editingArtikelId);
+    const tanggal =
+      formDataArtikel.date ||
+      new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+    const payload = {
       title: formDataArtikel.title,
       category: formDataArtikel.category,
-      date: formDataArtikel.date || new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }),
-      datetime: new Date().toISOString().split("T")[0],
+      date: tanggal,
+      // datetime mengikuti tanggal tampil supaya urutan terbaru tetap benar saat artikel lama diedit.
+      datetime: parseTanggal(tanggal) || editingItem?.datetime || new Date().toISOString().slice(0, 10),
       author: formDataArtikel.author,
       image: formDataArtikel.image,
       excerpt: formDataArtikel.excerpt,
@@ -609,2111 +657,191 @@ export default function AdminDashboard() {
       is_hot: Boolean(formDataArtikel.is_hot),
     };
 
+    let savedId = editingArtikelId;
     if (editingArtikelId) {
-      if (formDataArtikel.is_hot) {
-        await supabase.from("artikel").update({ is_hot: false }).neq("id", editingArtikelId);
-      }
-      let { error } = await supabase
-        .from("artikel")
-        .update(payload)
-        .eq("id", editingArtikelId);
-      if (error && error.message?.includes("is_hot")) {
-        delete payload.is_hot;
-        if (formDataArtikel.is_hot) payload.category = "Berita Utama";
-        const retry = await supabase.from("artikel").update(payload).eq("id", editingArtikelId);
-        error = retry.error;
-      }
-      if (error) showAlert("Gagal memperbarui artikel: " + error.message, "Kendala Sistem");
-      else {
-        showAlert("Artikel berita berhasil diperbarui ke database.", "Berhasil");
-        resetArtikelForm();
-        fetchArtikel();
-      }
+      const { error } = await supabase.from("artikel").update(payload).eq("id", editingArtikelId);
+      if (error) return showAlert("Gagal memperbarui artikel: " + error.message, "Kendala Sistem");
     } else {
-      let { error, data } = await supabase.from("artikel").insert([payload]).select();
-      if (error && error.message?.includes("is_hot")) {
-        delete payload.is_hot;
-        if (formDataArtikel.is_hot) payload.category = "Berita Utama";
-        const retry = await supabase.from("artikel").insert([payload]).select();
-        error = retry.error;
-        data = retry.data;
-      }
-      if (error) showAlert("Gagal menambahkan artikel baru: " + error.message, "Kendala Sistem");
-      else {
-        if (formDataArtikel.is_hot && data?.[0]?.id) {
-          await supabase.from("artikel").update({ is_hot: false }).neq("id", data[0].id);
-        }
-        showAlert("Artikel berita baru berhasil diterbitkan ke database.", "Berhasil");
-        resetArtikelForm();
-        fetchArtikel();
-      }
+      const { data, error } = await supabase.from("artikel").insert([payload]).select();
+      if (error) return showAlert("Gagal menambahkan artikel: " + error.message, "Kendala Sistem");
+      savedId = data?.[0]?.id;
     }
+    if (payload.is_hot && savedId) await syncHot(savedId);
+
+    showAlert(editingArtikelId ? "Artikel berhasil diperbarui." : "Artikel baru berhasil diterbitkan.", "Berhasil");
+    resetArtikelForm();
+    fetchArtikel();
   };
 
-  const handleArtikelDelete = (id) => {
+  const handleArtikelDelete = (item) =>
     showConfirm(
-      "Apakah Anda yakin ingin menghapus artikel berita ini dari database secara permanen?",
+      item.is_hot
+        ? "Artikel ini sedang menjadi Berita Hot. Setelah dihapus, status Hot otomatis pindah ke artikel terbaru berikutnya.\n\nLanjutkan hapus?"
+        : "Hapus artikel ini secara permanen?",
       async () => {
-        const itemToDelete = artikelList.find((a) => a.id === id);
-        const { error } = await supabase.from("artikel").delete().eq("id", id);
-        if (error) {
-          showAlert("Gagal menghapus artikel: " + error.message, "Kendala Sistem");
+        const { error } = await supabase.from("artikel").delete().eq("id", item.id);
+        if (error) return showAlert("Gagal menghapus artikel: " + error.message, "Kendala Sistem");
+        const remaining = sortArtikel(artikelList.filter((a) => a.id !== item.id));
+        if (item.is_hot && remaining.length > 0) {
+          const next = remaining[0];
+          setArtikelList(remaining.map((a) => ({ ...a, is_hot: a.id === next.id })));
+          await syncHot(next.id);
+          showAlert(`Artikel dihapus. Berita Hot sekarang:\n${next.title}`, "Berita Hot Dipindahkan");
         } else {
-          // Jika artikel yang dihapus adalah Berita Hot, otomatis jadikan artikel berikutnya sebagai Hot
-          if (itemToDelete?.is_hot && artikelList.length > 1) {
-            const nextCandidate = artikelList.find((a) => a.id !== id);
-            if (nextCandidate) {
-              await supabase.from("artikel").update({ is_hot: true }).eq("id", nextCandidate.id);
-            }
-          }
-          fetchArtikel();
+          setArtikelList(remaining);
         }
-      }
+        if (editingArtikelId === item.id) resetArtikelForm();
+      },
     );
-  };
 
   const resetArtikelForm = () => {
     setEditingArtikelId(null);
-    setFormDataArtikel({
-      title: "",
-      category: "Berita",
-      date: "",
-      author: "Divisi Kominfo",
-      image: "",
-      excerpt: "",
-      content: "",
-      is_hot: false,
-    });
+    setFormDataArtikel(emptyArtikel);
   };
 
-  // ==================== 3. CRUD PRESTASI ====================
+  const editingArtikelIsHot = artikelList.find((a) => a.id === editingArtikelId)?.is_hot;
+
+  // ==================== PRESTASI ====================
   const fetchPrestasi = async () => {
     setLoadingPrestasi(true);
-    const { data, error } = await supabase
-      .from("prestasi")
-      .select("*")
-      .order("id", { ascending: false });
-    if (!error && data) setPrestasiList(data);
+    const { data, error } = await supabase.from("prestasi").select("*").order("id", { ascending: false });
+    if (!error && data) {
+      setPrestasiList(
+        data.map((d) => {
+          const fb = PRESTASI_DATA.find((p) => String(p.id) === String(d.id));
+          return { ...d, pemenang: parsePemenang(d.pemenang), thumb: (d.gambar && d.gambar.trim()) || fb?.gambar || "" };
+        }),
+      );
+    }
     setLoadingPrestasi(false);
   };
 
   const handlePrestasiSubmit = async (e) => {
     e.preventDefault();
-    const pemenangArray = formDataPrestasi.pemenang
-      .split("\n")
-      .map((s) => s.trim())
-      .filter(Boolean);
-
     const payload = {
       judul: formDataPrestasi.judul,
       peringkat: formDataPrestasi.peringkat,
-      pemenang: pemenangArray,
+      pemenang: formDataPrestasi.pemenang.split("\n").map((s) => s.trim()).filter(Boolean),
       gambar: formDataPrestasi.gambar,
       instagram_url: formDataPrestasi.instagram_url,
     };
-
-    if (editingPrestasiId) {
-      const { error } = await supabase
-        .from("prestasi")
-        .update(payload)
-        .eq("id", editingPrestasiId);
-      if (error) showAlert("Gagal memperbarui prestasi: " + error.message, "Kendala Sistem");
-      else {
-        showAlert("Data prestasi mahasiswa berhasil diperbarui.", "Berhasil");
-        resetPrestasiForm();
-        fetchPrestasi();
-      }
-    } else {
-      const { error } = await supabase.from("prestasi").insert([payload]);
-      if (error) showAlert("Gagal menambahkan prestasi: " + error.message, "Kendala Sistem");
-      else {
-        showAlert("Data prestasi baru berhasil ditambahkan.", "Berhasil");
-        resetPrestasiForm();
-        fetchPrestasi();
-      }
-    }
+    const { error } = editingPrestasiId
+      ? await supabase.from("prestasi").update(payload).eq("id", editingPrestasiId)
+      : await supabase.from("prestasi").insert([payload]);
+    if (error) return showAlert("Gagal menyimpan prestasi: " + error.message, "Kendala Sistem");
+    showAlert(editingPrestasiId ? "Data prestasi berhasil diperbarui." : "Prestasi baru berhasil ditambahkan.", "Berhasil");
+    resetPrestasiForm();
+    fetchPrestasi();
   };
 
-  const handlePrestasiDelete = (id) => {
-    showConfirm(
-      "Apakah Anda yakin ingin menghapus data prestasi mahasiswa ini secara permanen?",
-      async () => {
-        const { error } = await supabase.from("prestasi").delete().eq("id", id);
-        if (error) showAlert("Gagal menghapus prestasi: " + error.message, "Kendala Sistem");
-        else fetchPrestasi();
-      }
-    );
-  };
+  const handlePrestasiDelete = (id) =>
+    showConfirm("Hapus data prestasi ini secara permanen?", async () => {
+      const { error } = await supabase.from("prestasi").delete().eq("id", id);
+      if (error) showAlert("Gagal menghapus: " + error.message, "Kendala Sistem");
+      else setPrestasiList((p) => p.filter((x) => x.id !== id));
+    });
 
   const resetPrestasiForm = () => {
     setEditingPrestasiId(null);
-    setFormDataPrestasi({
-      judul: "",
-      peringkat: "Juara 1",
-      pemenang: "",
-      gambar: "",
-      instagram_url: "",
-    });
+    setFormDataPrestasi(emptyPrestasi);
   };
 
-  // ==================== 4. CRUD GALERI ====================
+  // ==================== GALERI ====================
   const fetchGaleri = async () => {
     setLoadingGaleri(true);
-    const { data, error } = await supabase
-      .from("galeri")
-      .select("*")
-      .order("id", { ascending: false });
-    if (!error && data) setGaleriList(data);
+    const { data, error } = await supabase.from("galeri").select("*").order("id", { ascending: false });
+    if (!error && data) {
+      setGaleriList(
+        data.map((d) => {
+          const fb = galeriDefault.find((g) => String(g.id) === String(d.id)) || galeriDefault[Number(d.id) - 1];
+          return { ...d, thumb: (d.foto && d.foto.trim()) || fb?.foto || "" };
+        }),
+      );
+    }
     setLoadingGaleri(false);
   };
 
   const handleGaleriSubmit = async (e) => {
     e.preventDefault();
+    if (!formDataGaleri.foto && !editingGaleriId) {
+      return showAlert("Foto dokumentasi wajib diisi (upload atau URL).", "Validasi Form");
+    }
     const payload = {
       album: formDataGaleri.album,
       album_slug: formDataGaleri.album.toLowerCase().replace(/\s+/g, "-"),
       foto: formDataGaleri.foto,
       caption: formDataGaleri.caption,
     };
-
-    if (editingGaleriId) {
-      const { error } = await supabase
-        .from("galeri")
-        .update(payload)
-        .eq("id", editingGaleriId);
-      if (error) showAlert("Gagal memperbarui foto galeri: " + error.message, "Kendala Sistem");
-      else {
-        showAlert("Foto galeri kegiatan berhasil diperbarui.", "Berhasil");
-        resetGaleriForm();
-        fetchGaleri();
-      }
-    } else {
-      const { error } = await supabase.from("galeri").insert([payload]);
-      if (error) showAlert("Gagal menambahkan foto galeri: " + error.message, "Kendala Sistem");
-      else {
-        showAlert("Foto galeri kegiatan baru berhasil ditambahkan.", "Berhasil");
-        resetGaleriForm();
-        fetchGaleri();
-      }
-    }
+    const { error } = editingGaleriId
+      ? await supabase.from("galeri").update(payload).eq("id", editingGaleriId)
+      : await supabase.from("galeri").insert([payload]);
+    if (error) return showAlert("Gagal menyimpan foto: " + error.message, "Kendala Sistem");
+    showAlert(editingGaleriId ? "Foto galeri berhasil diperbarui." : "Foto galeri baru berhasil ditambahkan.", "Berhasil");
+    resetGaleriForm();
+    fetchGaleri();
   };
 
-  const handleGaleriDelete = (id) => {
-    showConfirm(
-      "Apakah Anda yakin ingin menghapus foto kegiatan ini dari galeri?",
-      async () => {
-        const { error } = await supabase.from("galeri").delete().eq("id", id);
-        if (error) showAlert("Gagal menghapus foto galeri: " + error.message, "Kendala Sistem");
-        else fetchGaleri();
-      }
-    );
-  };
+  const handleGaleriDelete = (id) =>
+    showConfirm("Hapus foto ini dari galeri?", async () => {
+      const { error } = await supabase.from("galeri").delete().eq("id", id);
+      if (error) showAlert("Gagal menghapus: " + error.message, "Kendala Sistem");
+      else setGaleriList((p) => p.filter((x) => x.id !== id));
+    });
 
   const resetGaleriForm = () => {
     setEditingGaleriId(null);
-    setFormDataGaleri({
-      album: "Divisi Kominfo",
-      foto: "",
-      caption: "",
-    });
+    setFormDataGaleri(emptyGaleri);
   };
 
-  // ==================== 5. CRUD PENGURUS ====================
+  // ==================== PENGURUS ====================
   const fetchPengurus = async () => {
     setLoadingPengurus(true);
-    const { data, error } = await supabase
-      .from("pengurus")
-      .select("*")
-      .order("id", { ascending: true });
+    const { data, error } = await supabase.from("pengurus").select("*").order("id", { ascending: true });
     if (!error && data) {
-      const normalized = data.map((d) => {
-        const fallback =
-          pengurusData.find((p) => String(p.id) === String(d.id)) ||
-          pengurusData.find(
-            (p) => p.nama.toLowerCase() === d.nama.toLowerCase(),
-          );
-        return {
-          ...d,
-          foto: d.foto && d.foto.trim() ? d.foto.trim() : fallback?.foto || "",
-          instagram: d.instagram || fallback?.instagram || "",
-          linkedin: d.linkedin || fallback?.linkedin || "",
-          angkatan: d.angkatan || fallback?.angkatan || "2023",
-        };
-      });
-      setPengurusList(normalized);
+      setPengurusList(
+        data.map((d) => {
+          const fb =
+            pengurusData.find((p) => String(p.id) === String(d.id)) ||
+            pengurusData.find((p) => p.nama.toLowerCase() === String(d.nama).toLowerCase());
+          return {
+            ...d,
+            thumb: (d.foto && d.foto.trim()) || fb?.foto || "",
+            instagram: d.instagram || fb?.instagram || "",
+            linkedin: d.linkedin || fb?.linkedin || "",
+          };
+        }),
+      );
     }
     setLoadingPengurus(false);
   };
 
   const handlePengurusSubmit = async (e) => {
     e.preventDefault();
-    const payload = {
-      nama: formDataPengurus.nama,
-      jabatan: formDataPengurus.jabatan,
-      kelompok: formDataPengurus.kelompok,
-      foto: formDataPengurus.foto,
-      instagram: formDataPengurus.instagram,
-      linkedin: formDataPengurus.linkedin,
-    };
-
-    if (editingPengurusId) {
-      const { error } = await supabase
-        .from("pengurus")
-        .update(payload)
-        .eq("id", editingPengurusId);
-      if (error) showAlert("Gagal memperbarui data pengurus: " + error.message, "Kendala Sistem");
-      else {
-        showAlert("Data profil pengurus berhasil diperbarui.", "Berhasil");
-        resetPengurusForm();
-        fetchPengurus();
-      }
-    } else {
-      const { error } = await supabase.from("pengurus").insert([payload]);
-      if (error) showAlert("Gagal menambahkan pengurus baru: " + error.message, "Kendala Sistem");
-      else {
-        showAlert("Data pengurus baru berhasil ditambahkan ke database.", "Berhasil");
-        resetPengurusForm();
-        fetchPengurus();
-      }
-    }
+    const payload = { ...formDataPengurus };
+    const { error } = editingPengurusId
+      ? await supabase.from("pengurus").update(payload).eq("id", editingPengurusId)
+      : await supabase.from("pengurus").insert([payload]);
+    if (error) return showAlert("Gagal menyimpan pengurus: " + error.message, "Kendala Sistem");
+    showAlert(editingPengurusId ? "Data pengurus berhasil diperbarui." : "Pengurus baru berhasil ditambahkan.", "Berhasil");
+    resetPengurusForm();
+    fetchPengurus();
   };
 
-  const handlePengurusDelete = (id) => {
-    showConfirm(
-      "Apakah Anda yakin ingin menghapus data profil pengurus ini secara permanen?",
-      async () => {
-        const { error } = await supabase.from("pengurus").delete().eq("id", id);
-        if (error) showAlert("Gagal menghapus pengurus: " + error.message, "Kendala Sistem");
-        else fetchPengurus();
-      }
-    );
-  };
+  const handlePengurusDelete = (id) =>
+    showConfirm("Hapus data pengurus ini secara permanen?", async () => {
+      const { error } = await supabase.from("pengurus").delete().eq("id", id);
+      if (error) showAlert("Gagal menghapus: " + error.message, "Kendala Sistem");
+      else setPengurusList((p) => p.filter((x) => x.id !== id));
+    });
 
   const resetPengurusForm = () => {
     setEditingPengurusId(null);
-    setFormDataPengurus({
-      nama: "",
-      jabatan: "",
-      kelompok: "bph",
-      foto: "",
-      instagram: "",
-      linkedin: "",
-    });
+    setFormDataPengurus(emptyPengurus);
   };
 
-  // Background
-  const AmbientBackground = () => (
-    <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden select-none" aria-hidden="true">
-      {/* Background polos elegan tanpa bulatan menyala */}
-      <div className="absolute inset-0 bg-linear-to-b from-[#043761] via-[#032d52] to-[#02182b] opacity-90"></div>
-    </div>
-  );
+  const socialUrl = (val, base) => (val.startsWith("http") ? val : `${base}${val.replace(/^@/, "")}`);
 
-  // LOGIN SCREEN
-  if (!session) {
-    return (
-      <div className="min-h-screen bg-[#043761] flex items-center justify-center p-4 font-primary text-white relative overflow-hidden">
-        <AmbientBackground />
-
-        <div className="w-full max-w-md bg-[#073969] border border-[#164a78] p-8 sm:p-10 rounded-3xl shadow-2xl relative z-10">
-          <div className="text-center mb-8">
-            <div className="w-20 h-20 mx-auto mb-4 flex items-center justify-center transition-transform hover:scale-105 duration-300 drop-shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
-              <img
-                src={LogoHimsika}
-                alt="Logo HIMSIKA"
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/25 text-accent font-bold text-[11px] uppercase tracking-widest mb-3">
-              Portal Resmi Administrator
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              HIMSIKA <span className="text-accent">Auth</span>
-            </h1>
-            <p className="text-xs text-white/60 mt-1.5">
-              Masuk dengan akun email resmi pengurus HIMSIKA
-            </p>
-          </div>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-2">
-                Email Administrator
-              </label>
-              <input
-                type="email"
-                required
-                placeholder="admin@himsika.unsika.ac.id"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40 text-sm transition-all placeholder:text-white/30"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-2">
-                Kata Sandi
-              </label>
-              <input
-                type="password"
-                required
-                placeholder="••••••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-3 text-white focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40 text-sm transition-all placeholder:text-white/30"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={authLoading}
-              className="w-full py-3.5 bg-accent text-[#043761] font-bold rounded-xl hover:bg-[#ffcf33] transition-all mt-3 text-sm shadow-[0_0_20px_rgba(255,195,0,0.25)] cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {authLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Memverifikasi Akun...</span>
-                </>
-              ) : (
-                "Masuk ke Dashboard"
-              )}
-            </button>
-          </form>
-        </div>
-      </div>
-    );
-  }
-
-  // DASHBOARD UTAMA
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="min-h-screen bg-linear-to-b from-[#043761] via-[#032d52] to-[#02182b] font-primary relative text-white"
-    >
-      <AmbientBackground />
-
-      {/* TOP HEADER BAR */}
-      <header className="sticky top-0 z-40 bg-[#073969]/90 backdrop-blur-md border-b border-[#164a78] px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-md">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 flex items-center justify-center">
-            <img
-              src={LogoHimsika}
-              alt="Logo HIMSIKA"
-              className="w-full h-full object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
-            />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-base font-black text-white tracking-tight">HIMSIKA</span>
-              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-accent/15 text-accent border border-accent/25">
-                Admin Control
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-red-500/15 border border-red-500/30 text-red-300 hover:bg-red-600 hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>Keluar</span>
-          </button>
-        </div>
-      </header>
-
-      {/* MAIN CONTENT AREA */}
-      <main className="relative z-10 flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl w-full mx-auto pb-36">
-        {/* Header Section */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="w-6 h-[2px] bg-accent rounded-full"></span>
-            <span className="text-accent font-bold text-xs uppercase tracking-widest flex items-center gap-1.5">
-              Database Management <Sparkles className="w-3.5 h-3.5" />
-            </span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight capitalize">
-            Kelola <span className="text-accent">{activeMenu}</span>
-          </h1>
-        </div>
-
-        {/* Quick Database Overview (Bersih, Rapi, Tanpa Status Koneksi / Akses) */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
-          {[
-            { id: "lomba", label: "Lomba", count: lombaList.length, icon: Trophy },
-            { id: "artikel", label: "Artikel", count: artikelList.length, icon: FileText },
-            { id: "prestasi", label: "Prestasi", count: prestasiList.length, icon: Award },
-            { id: "galeri", label: "Galeri", count: galeriList.length, icon: ImageIcon },
-            { id: "pengurus", label: "Pengurus", count: pengurusList.length, icon: Users },
-          ].map((item) => {
-            const Icon = item.icon;
-            const isCurrent = activeMenu === item.id;
-            return (
-              <div
-                key={item.id}
-                onClick={() => setActiveMenu(item.id)}
-                className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center gap-3 ${
-                  isCurrent
-                    ? "bg-[#0c4a85] border-accent/50 shadow-md scale-[1.02]"
-                    : "bg-[#073969]/80 border-[#164a78] hover:border-white/20"
-                }`}
-              >
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                  isCurrent ? "bg-accent text-[#02182b]" : "bg-white/5 text-accent"
-                }`}>
-                  <Icon className="w-4 h-4" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-[10px] uppercase font-bold text-white/50 block truncate">
-                    {item.label}
-                  </span>
-                  <span className="text-base sm:text-lg font-extrabold text-white">
-                    {item.count}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Animated Transition antar Modul CRUD */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeMenu}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
-          >
-            {/* ================= 1. MENU LOMBA ================= */}
-            {activeMenu === "lomba" && (
-            <div className="space-y-10">
-              <section className="bg-[#073969] border border-[#164a78] rounded-3xl p-6 sm:p-8 shadow-2xl">
-                <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
-                  <h2 className="text-lg font-bold text-white flex items-center gap-2.5">
-                    {editingLombaId ? <Edit3 className="w-4 h-4 text-accent" /> : <Plus className="w-4 h-4 text-accent" />}
-                    {editingLombaId ? "Edit Info Lomba" : "Tambah Info Lomba Baru"}
-                  </h2>
-                  {editingLombaId && (
-                    <button
-                      type="button"
-                      onClick={resetLombaForm}
-                      className="text-xs font-bold text-white/60 hover:text-red-400 flex items-center gap-1 bg-white/5 px-3 py-1.5 rounded-full cursor-pointer"
-                    >
-                      <X className="w-3 h-3" /> Batal
-                    </button>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                  {/* Sisi Kiri: Form Input Lomba */}
-                  <form onSubmit={handleLombaSubmit} className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-white/70 mb-1">Judul Lomba</label>
-                      <input
-                        type="text"
-                        required
-                        value={formDataLomba.title}
-                        onChange={(e) => setFormDataLomba({ ...formDataLomba, title: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-white/70 mb-1">Penyelenggara</label>
-                      <input
-                        type="text"
-                        required
-                        value={formDataLomba.organizer}
-                        onChange={(e) => setFormDataLomba({ ...formDataLomba, organizer: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-xs font-bold text-white/70 mb-1">Deskripsi</label>
-                      <textarea
-                        rows="3"
-                        value={formDataLomba.description}
-                        onChange={(e) => setFormDataLomba({ ...formDataLomba, description: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl p-3 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-white/70 mb-1">Deadline Pendaftaran</label>
-                      <input
-                        type="text"
-                        placeholder="Contoh: 15 November 2026"
-                        value={formDataLomba.deadline_pendaftaran}
-                        onChange={(e) => setFormDataLomba({ ...formDataLomba, deadline_pendaftaran: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-white/70 mb-1">Deadline Pengumpulan</label>
-                      <input
-                        type="text"
-                        placeholder="Contoh: 20 November 2026"
-                        value={formDataLomba.deadline_pengumpulan}
-                        onChange={(e) => setFormDataLomba({ ...formDataLomba, deadline_pengumpulan: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-xs font-bold text-white/70 mb-1">Benefit / Hadiah</label>
-                      <input
-                        type="text"
-                        value={formDataLomba.benefit}
-                        onChange={(e) => setFormDataLomba({ ...formDataLomba, benefit: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-white/70 mb-1">Link Pendaftaran (URL)</label>
-                      <input
-                        type="url"
-                        value={formDataLomba.registration_url}
-                        onChange={(e) => setFormDataLomba({ ...formDataLomba, registration_url: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-white/70 mb-1">Link Guidebook (URL)</label>
-                      <input
-                        type="url"
-                        value={formDataLomba.guidebook_url}
-                        onChange={(e) => setFormDataLomba({ ...formDataLomba, guidebook_url: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div className="md:col-span-2 flex justify-end pt-4 border-t border-white/10">
-                      <button
-                        type="submit"
-                        className="px-6 py-2.5 bg-accent text-[#02182b] font-bold rounded-full hover:bg-[#ffcf33] text-sm shadow-md cursor-pointer"
-                      >
-                        {editingLombaId ? "Simpan Perubahan Lomba" : "Tambah Lomba ke Database"}
-                      </button>
-                    </div>
-                  </form>
-
-                  {/* Sisi Kanan: Live Preview Card Lomba */}
-                  <div className="lg:col-span-5 flex flex-col bg-[#04284d]/60 border border-[#164a78] rounded-2xl p-5 backdrop-blur-sm">
-                    <div className="w-full flex items-center justify-between mb-3 px-1">
-                      <span className="text-xs font-bold text-accent uppercase tracking-wider flex items-center gap-1.5">
-                        <Eye className="w-3.5 h-3.5 text-accent" />
-                        Live Preview Card
-                      </span>
-                    </div>
-
-                    <div className="w-full rounded-2xl bg-[#073969] border border-[#164a78] p-5 shadow-lg flex flex-col text-left">
-                      <div className="flex items-start justify-between gap-2 mb-3">
-                        <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-accent/15 text-accent border border-accent/25">
-                          Lomba & Beasiswa
-                        </span>
-                        {formDataLomba.deadline_pendaftaran && (
-                          <span className="text-[11px] font-semibold text-white/60 flex items-center gap-1">
-                            <Calendar className="w-3 h-3 text-accent" />
-                            {formDataLomba.deadline_pendaftaran}
-                          </span>
-                        )}
-                      </div>
-
-                      <h3 className="text-lg font-bold text-white mb-1.5 line-clamp-2">
-                        {formDataLomba.title || "Judul Kompetisi / Beasiswa Baru"}
-                      </h3>
-                      <p className="text-xs font-semibold text-accent mb-3">
-                        {formDataLomba.organizer || "Penyelenggara Kegiatan"}
-                      </p>
-
-                      <p className="text-xs text-white/70 line-clamp-3 mb-4 leading-relaxed">
-                        {formDataLomba.description || "Deskripsi lengkap mengenai lomba atau beasiswa akan tampil di sini secara terstruktur..."}
-                      </p>
-
-                      {formDataLomba.benefit && (
-                        <div className="p-3 rounded-xl bg-[#04284d] border-l-2 border-accent text-xs text-white/85 mb-4">
-                          <span className="font-bold text-accent mr-1">Hadiah/Benefit:</span>
-                          {formDataLomba.benefit}
-                        </div>
-                      )}
-
-                      <div className="mt-auto pt-3 border-t border-white/10 flex items-center justify-between text-xs font-bold text-accent">
-                        <span>Lihat detail lomba →</span>
-                        {formDataLomba.registration_url && (
-                          <span className="text-[10px] text-white/40">Link Aktif</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Tabel Lomba */}
-              <section className="bg-[#073969] border border-[#164a78] rounded-3xl overflow-hidden shadow-2xl">
-                <div className="p-5 border-b border-[#164a78] flex justify-between items-center">
-                  <h3 className="font-bold text-white">Daftar Lomba di Database</h3>
-                  <span className="text-xs text-accent font-bold px-3 py-1 bg-accent/10 border border-accent/20 rounded-full">
-                    {lombaList.length} Entri
-                  </span>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="border-b border-white/10 text-white/50 text-xs">
-                        <th className="p-4">Judul & Penyelenggara</th>
-                        <th className="p-4">Deadline</th>
-                        <th className="p-4 text-right">Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                      {loadingLomba ? (
-                        <tr><td colSpan="3" className="p-8 text-center text-white/40">Memuat data...</td></tr>
-                      ) : lombaList.length === 0 ? (
-                        <tr><td colSpan="3" className="p-8 text-center text-white/40">Belum ada data lomba di database.</td></tr>
-                      ) : (
-                        lombaList.map((item) => (
-                          <tr key={item.id} className="hover:bg-white/[0.03]">
-                            <td className="p-4">
-                              <p className="font-bold text-white">{item.title}</p>
-                              <p className="text-xs text-white/60">{item.organizer}</p>
-                            </td>
-                            <td className="p-4 text-xs text-white/75">{item.deadline_pendaftaran || "-"}</td>
-                            <td className="p-4 text-right">
-                              <button
-                                onClick={() => {
-                                  setEditingLombaId(item.id);
-                                  setFormDataLomba({
-                                    title: item.title || "",
-                                    organizer: item.organizer || "",
-                                    description: item.description || "",
-                                    deadline_pendaftaran: item.deadline_pendaftaran || "",
-                                    deadline_pengumpulan: item.deadline_pengumpulan || "",
-                                    benefit: item.benefit || "",
-                                    categories: parseCategories(item.categories),
-                                    deadline_timestamp: item.deadline_timestamp || "",
-                                    registration_url: item.registration_url || "",
-                                    guidebook_url: item.guidebook_url || "",
-                                    instagram_url: item.instagram_url || "",
-                                    contacts: Array.isArray(item.contacts) ? item.contacts : [],
-                                  });
-                                  window.scrollTo({ top: 0, behavior: "smooth" });
-                                }}
-                                className="text-xs text-accent hover:underline mr-3 font-semibold cursor-pointer"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => handleLombaDelete(item.id)}
-                                className="text-xs text-red-400 hover:underline font-semibold cursor-pointer"
-                              >
-                                Hapus
-                              </button>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-            </div>
-          )}
-
-          {/* ================= 2. MENU ARTIKEL ================= */}
-          {activeMenu === "artikel" && (
-            <div className="space-y-10">
-              <section className="bg-[#073969] border border-[#164a78] rounded-3xl p-6 sm:p-8 shadow-2xl">
-                <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
-                  <h2 className="text-lg font-bold text-white flex items-center gap-2.5">
-                    {editingArtikelId ? <Edit3 className="w-4 h-4 text-accent" /> : <Plus className="w-4 h-4 text-accent" />}
-                    {editingArtikelId ? "Edit Artikel" : "Tulis Artikel Baru"}
-                  </h2>
-                  {editingArtikelId && (
-                    <button
-                      type="button"
-                      onClick={resetArtikelForm}
-                      className="text-xs font-bold text-white/60 hover:text-red-400 flex items-center gap-1 bg-white/5 px-3 py-1.5 rounded-full cursor-pointer"
-                    >
-                      <X className="w-3 h-3" /> Batal
-                    </button>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                  {/* Sisi Kiri: Form Input Artikel */}
-                  <form onSubmit={handleArtikelSubmit} className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="md:col-span-2">
-                      <label className="block text-xs font-bold text-white/70 mb-1">Judul Artikel</label>
-                      <input
-                        type="text"
-                        required
-                        value={formDataArtikel.title}
-                        onChange={(e) => setFormDataArtikel({ ...formDataArtikel, title: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-white/70 mb-1">Kategori</label>
-                      <select
-                        value={formDataArtikel.category}
-                        onChange={(e) => setFormDataArtikel({ ...formDataArtikel, category: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      >
-                        <option value="Berita">Berita</option>
-                        <option value="Kegiatan">Kegiatan</option>
-                        <option value="Opini">Opini</option>
-                        <option value="Prestasi">Prestasi</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-white/70 mb-1">Penulis</label>
-                      <input
-                        type="text"
-                        value={formDataArtikel.author}
-                        onChange={(e) => setFormDataArtikel({ ...formDataArtikel, author: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-white/70 mb-1">Tanggal Tampil</label>
-                      <input
-                        type="text"
-                        placeholder="Contoh: 10 November 2026"
-                        value={formDataArtikel.date}
-                        onChange={(e) => setFormDataArtikel({ ...formDataArtikel, date: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <ImageUploadField
-                        label="Foto Sampul Artikel (Cover Image)"
-                        value={formDataArtikel.image}
-                        onChange={(val) => setFormDataArtikel({ ...formDataArtikel, image: val })}
-                        placeholder="https://... atau klik tombol Upload Foto"
-                        onAlert={showAlert}
-                      />
-                    </div>
-
-                    {/* Pengaturan Berita Hot / Sorotan Beranda */}
-                    <div className="md:col-span-2">
-                      <label className="flex items-center gap-3 p-3.5 bg-[#04284d] border border-[#164a78] rounded-xl cursor-pointer hover:border-accent/40 transition-all select-none">
-                        <input
-                          type="checkbox"
-                          checked={formDataArtikel.is_hot || false}
-                          onChange={(e) => setFormDataArtikel({ ...formDataArtikel, is_hot: e.target.checked })}
-                          className="w-4 h-4 accent-amber-400 rounded cursor-pointer"
-                        />
-                        <div>
-                          <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                            🔥 Jadikan Berita Hot / Sorotan Utama di Beranda
-                          </span>
-                          <span className="text-[11px] text-white/50 block">
-                            Tepat 1 artikel akan diprioritaskan tampil di kartu besar sebelah kiri pada halaman Beranda
-                          </span>
-                        </div>
-                      </label>
-                    </div>
-
-                    <div className="md:col-span-2">
-                      <label className="block text-xs font-bold text-white/70 mb-1">Ringkasan (Excerpt)</label>
-                      <textarea
-                        rows="2"
-                        value={formDataArtikel.excerpt}
-                        onChange={(e) => setFormDataArtikel({ ...formDataArtikel, excerpt: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl p-3 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-xs font-bold text-white/70 mb-1">Konten Artikel (Teks atau HTML sederhana)</label>
-                      <textarea
-                        rows="5"
-                        required
-                        value={formDataArtikel.content}
-                        onChange={(e) => setFormDataArtikel({ ...formDataArtikel, content: e.target.value })}
-                        placeholder="Tuliskan isi artikel di sini..."
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl p-3 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div className="md:col-span-2 flex justify-end pt-4 border-t border-white/10">
-                      <button
-                        type="submit"
-                        className="px-6 py-2.5 bg-accent text-[#02182b] font-bold rounded-full hover:bg-[#ffcf33] text-sm shadow-md cursor-pointer"
-                      >
-                        {editingArtikelId ? "Simpan Perubahan Artikel" : "Terbitkan Artikel ke Database"}
-                      </button>
-                    </div>
-                  </form>
-
-                  {/* Sisi Kanan: Live Preview Card Artikel */}
-                  <div className="lg:col-span-5 flex flex-col bg-[#04284d]/60 border border-[#164a78] rounded-2xl p-5 backdrop-blur-sm">
-                    <div className="w-full flex items-center justify-between mb-3 px-1">
-                      <span className="text-xs font-bold text-accent uppercase tracking-wider flex items-center gap-1.5">
-                        <Eye className="w-3.5 h-3.5 text-accent" />
-                        Live Preview Card
-                      </span>
-                    </div>
-
-                    <div className="w-full rounded-2xl bg-[#073969] border border-[#164a78] overflow-hidden shadow-lg flex flex-col text-left">
-                      <div className="aspect-[16/10] w-full bg-[#03233f] relative overflow-hidden flex items-center justify-center">
-                        {formDataArtikel.image ? (
-                          <img
-                            src={formDataArtikel.image}
-                            alt="Cover"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center justify-center text-white/30">
-                            <FileText className="w-10 h-10 mb-1" />
-                            <span className="text-[11px]">Sampul Artikel</span>
-                          </div>
-                        )}
-                        <div className="absolute top-3 left-3 flex items-center gap-1.5">
-                          <span className="px-3 py-1 bg-accent/90 text-slate-900 text-[10px] font-bold uppercase tracking-wider rounded-lg shadow-sm">
-                            {formDataArtikel.category || "Berita"}
-                          </span>
-                          {formDataArtikel.is_hot && (
-                            <span className="px-2.5 py-1 bg-red-500 text-white text-[10px] font-extrabold uppercase tracking-wider rounded-lg shadow-sm flex items-center gap-1">
-                              <Flame className="w-3 h-3 fill-white" /> Hot
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="p-5 flex flex-col flex-1">
-                        <span className="text-accent text-[11px] font-bold mb-2 block tracking-wider uppercase">
-                          {formDataArtikel.date || "16 November 2026"} • {formDataArtikel.author || "Divisi Kominfo"}
-                        </span>
-                        <h3 className="text-base font-extrabold text-white leading-snug line-clamp-2 mb-2">
-                          {formDataArtikel.title || "Judul Artikel atau Berita Baru HIMSIKA"}
-                        </h3>
-                        <p className="text-xs text-white/70 line-clamp-3 mb-4 leading-relaxed">
-                          {formDataArtikel.excerpt || "Ringkasan pengantar artikel berita akan muncul di sini agar pembaca tertarik membaca selengkapnya..."}
-                        </p>
-                        <div className="mt-auto pt-3 border-t border-white/10 flex items-center justify-between text-xs font-bold text-accent">
-                          <span>Baca Selengkapnya →</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Tabel Artikel (Rapi, Spotlight Berita Hot, Filter & Pagination) */}
-              <section className="bg-[#073969] border border-[#164a78] rounded-3xl p-5 sm:p-7 shadow-2xl">
-                {/* 1. Spotlight Card Berita Hot Aktif */}
-                {(() => {
-                  const currentHot = artikelList.find((a) => a.is_hot) || artikelList.find((a) => a.category === "Berita Utama");
-                  if (!currentHot) return null;
-                  return (
-                    <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-linear-to-r from-[#0d3b66] via-[#073969] to-[#04284d] border border-accent/40 shadow-xl relative overflow-hidden">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <div className="flex items-center gap-4 min-w-0">
-                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden shrink-0 bg-[#03233f] border border-white/10">
-                            {currentHot.image ? (
-                              <img
-                                src={currentHot.image}
-                                alt={currentHot.title}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-white/30">
-                                <FileText className="w-6 h-6" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 mb-1 flex-wrap">
-                              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-red-500 text-white uppercase tracking-wider flex items-center gap-1 shadow-sm">
-                                <Flame className="w-3 h-3 fill-white" /> Berita Hot Aktif
-                              </span>
-                              <span className="text-[10px] text-accent font-bold uppercase tracking-wider">
-                                {currentHot.category} • Sedang Tayang di Headline Beranda Utama
-                              </span>
-                            </div>
-                            <h4 className="text-sm sm:text-base font-extrabold text-white truncate" title={currentHot.title}>
-                              {currentHot.title}
-                            </h4>
-                            <p className="text-xs text-white/60 line-clamp-1 mt-0.5">
-                              {currentHot.date} • Ditulis oleh {currentHot.author}
-                            </p>
-                          </div>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingArtikelId(currentHot.id);
-                            setFormDataArtikel({
-                              title: currentHot.title || "",
-                              category: currentHot.category || "Berita",
-                              date: currentHot.date || "",
-                              author: currentHot.author || "Divisi Kominfo",
-                              image: currentHot.image || "",
-                              excerpt: currentHot.excerpt || "",
-                              content: typeof currentHot.content === "string" ? currentHot.content : JSON.stringify(currentHot.content),
-                              is_hot: true,
-                            });
-                            window.scrollTo({ top: 0, behavior: "smooth" });
-                          }}
-                          className="px-4 py-2 rounded-xl bg-accent/20 hover:bg-accent text-accent hover:text-[#043761] border border-accent/40 text-xs font-bold transition-all shrink-0 cursor-pointer"
-                        >
-                          Edit Berita Hot
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })()}
-
-                {/* 2. Controls: Search Input & Category Pills */}
-                <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-5">
-                  <div className="relative flex-1">
-                    <Search className="w-4 h-4 text-white/40 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      placeholder="Cari judul atau ringkasan berita..."
-                      value={artikelSearch}
-                      onChange={(e) => {
-                        setArtikelSearch(e.target.value);
-                        setArtikelPage(1);
-                      }}
-                      className="w-full pl-10 pr-9 py-2.5 bg-[#04284d] border border-[#164a78] rounded-xl text-xs sm:text-sm text-white placeholder:text-white/40 focus:border-accent focus:outline-none"
-                    />
-                    {artikelSearch && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setArtikelSearch("");
-                          setArtikelPage(1);
-                        }}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-                    {["Semua", "Berita", "Kegiatan", "Opini", "Prestasi"].map((cat) => (
-                      <button
-                        key={cat}
-                        type="button"
-                        onClick={() => {
-                          setArtikelCategoryFilter(cat);
-                          setArtikelPage(1);
-                        }}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                          artikelCategoryFilter === cat
-                            ? "bg-accent text-[#043761]"
-                            : "bg-[#04284d] text-white/70 hover:text-white border border-[#164a78]"
-                        }`}
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 3. Paginated Articles Table */}
-                {(() => {
-                  const searchLower = artikelSearch.toLowerCase();
-                  const filtered = artikelList.filter((item) => {
-                    const matchSearch =
-                      !artikelSearch ||
-                      item.title?.toLowerCase().includes(searchLower) ||
-                      item.excerpt?.toLowerCase().includes(searchLower) ||
-                      item.author?.toLowerCase().includes(searchLower);
-                    const matchCat =
-                      artikelCategoryFilter === "Semua" || item.category === artikelCategoryFilter;
-                    return matchSearch && matchCat;
-                  });
-
-                  const totalPages = Math.ceil(filtered.length / ARTIKEL_PER_PAGE) || 1;
-                  const currentPage = Math.min(artikelPage, totalPages);
-                  const startIndex = (currentPage - 1) * ARTIKEL_PER_PAGE;
-                  const currentItems = filtered.slice(startIndex, startIndex + ARTIKEL_PER_PAGE);
-
-                  return (
-                    <div>
-                      <div className="overflow-x-auto rounded-2xl border border-[#164a78]">
-                        <table className="w-full text-left text-sm">
-                          <thead>
-                            <tr className="border-b border-white/10 bg-[#04284d]/60 text-white/50 text-xs">
-                              <th className="p-3.5 sm:p-4">Judul & Kategori</th>
-                              <th className="p-3.5 sm:p-4">Penulis & Tanggal</th>
-                              <th className="p-3.5 sm:p-4 text-right">Aksi & Berita Hot</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-white/5 bg-[#073969]/50">
-                            {loadingArtikel ? (
-                              <tr>
-                                <td colSpan="3" className="p-8 text-center text-white/40">
-                                  Memuat daftar artikel...
-                                </td>
-                              </tr>
-                            ) : currentItems.length === 0 ? (
-                              <tr>
-                                <td colSpan="3" className="p-8 text-center text-white/40">
-                                  {artikelSearch || artikelCategoryFilter !== "Semua"
-                                    ? "Tidak ada artikel yang cocok dengan pencarian atau filter."
-                                    : "Belum ada artikel tersimpan di database."}
-                                </td>
-                              </tr>
-                            ) : (
-                              currentItems.map((item) => (
-                                <tr key={item.id} className="hover:bg-white/[0.04] transition-colors">
-                                  <td className="p-3.5 sm:p-4 max-w-xs sm:max-w-md">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <p className="font-bold text-white line-clamp-1">{item.title}</p>
-                                      {item.is_hot && (
-                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-red-500/20 text-red-300 border border-red-500/30 shrink-0 flex items-center gap-1">
-                                          <Flame className="w-3 h-3 text-red-400 fill-red-400" /> HOT
-                                        </span>
-                                      )}
-                                    </div>
-                                    <span className="text-[10px] font-bold text-accent uppercase tracking-wider">
-                                      {item.category}
-                                    </span>
-                                  </td>
-                                  <td className="p-3.5 sm:p-4 text-xs text-white/70 whitespace-nowrap">
-                                    <p className="font-medium text-white/90">{item.author}</p>
-                                    <p className="text-white/40">{item.date}</p>
-                                  </td>
-                                  <td className="p-3.5 sm:p-4 text-right whitespace-nowrap">
-                                    <button
-                                      type="button"
-                                      onClick={() => handleSetSingleHot(item)}
-                                      title={item.is_hot ? "Artikel ini sudah berstatus Hot Utama" : "Jadikan satu-satunya Berita Hot di Beranda"}
-                                      className={`text-xs px-3 py-1.5 rounded-xl font-bold mr-2 transition-all cursor-pointer ${
-                                        item.is_hot
-                                          ? "bg-red-500/25 text-red-300 border border-red-500/50 hover:bg-red-500/35 shadow-sm"
-                                          : "bg-white/5 text-white/70 border border-white/10 hover:border-accent hover:text-accent"
-                                      }`}
-                                    >
-                                      {item.is_hot ? "🔥 Hot Aktif" : "Set Hot"}
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setEditingArtikelId(item.id);
-                                        setFormDataArtikel({
-                                          title: item.title || "",
-                                          category: item.category || "Berita",
-                                          date: item.date || "",
-                                          author: item.author || "Divisi Kominfo",
-                                          image: item.image || "",
-                                          excerpt: item.excerpt || "",
-                                          content: typeof item.content === "string" ? item.content : JSON.stringify(item.content),
-                                          is_hot: Boolean(item.is_hot || item.category === "Berita Utama"),
-                                        });
-                                        window.scrollTo({ top: 0, behavior: "smooth" });
-                                      }}
-                                      className="text-xs text-accent hover:underline mr-3 font-semibold cursor-pointer"
-                                    >
-                                      Edit
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleArtikelDelete(item.id)}
-                                      className="text-xs text-red-400 hover:underline font-semibold cursor-pointer"
-                                    >
-                                      Hapus
-                                    </button>
-                                  </td>
-                                </tr>
-                              ))
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
-
-                      {/* 4. Pagination Navigation Bar */}
-                      {filtered.length > ARTIKEL_PER_PAGE && (
-                        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 pt-4 border-t border-white/10 text-xs">
-                          <span className="text-white/60 text-[11px]">
-                            Menampilkan {startIndex + 1} - {Math.min(startIndex + ARTIKEL_PER_PAGE, filtered.length)} dari {filtered.length} artikel
-                          </span>
-
-                          <div className="flex items-center gap-1.5">
-                            <button
-                              type="button"
-                              disabled={currentPage <= 1}
-                              onClick={() => setArtikelPage((p) => Math.max(1, p - 1))}
-                              className="px-2.5 py-1.5 rounded-lg bg-[#04284d] border border-[#164a78] text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white/10 flex items-center gap-1 cursor-pointer"
-                            >
-                              <ChevronLeft className="w-3.5 h-3.5" />
-                              <span className="hidden sm:inline">Sebelumnya</span>
-                            </button>
-
-                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
-                              <button
-                                key={num}
-                                type="button"
-                                onClick={() => setArtikelPage(num)}
-                                className={`w-7 h-7 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                                  currentPage === num
-                                    ? "bg-accent text-[#043761]"
-                                    : "bg-[#04284d] text-white/70 hover:text-white border border-[#164a78]"
-                                }`}
-                              >
-                                {num}
-                              </button>
-                            ))}
-
-                            <button
-                              type="button"
-                              disabled={currentPage >= totalPages}
-                              onClick={() => setArtikelPage((p) => Math.min(totalPages, p + 1))}
-                              className="px-2.5 py-1.5 rounded-lg bg-[#04284d] border border-[#164a78] text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white/10 flex items-center gap-1 cursor-pointer"
-                            >
-                              <span className="hidden sm:inline">Selanjutnya</span>
-                              <ChevronRight className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()}
-              </section>
-            </div>
-          )}
-
-          {/* ================= 3. MENU PRESTASI ================= */}
-          {activeMenu === "prestasi" && (
-            <div className="space-y-10">
-              <section className="bg-[#073969] border border-[#164a78] rounded-3xl p-6 sm:p-8 shadow-2xl">
-                <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
-                  <h2 className="text-lg font-bold text-white flex items-center gap-2.5">
-                    {editingPrestasiId ? <Edit3 className="w-4 h-4 text-accent" /> : <Plus className="w-4 h-4 text-accent" />}
-                    {editingPrestasiId ? "Edit Prestasi" : "Tambah Prestasi Baru"}
-                  </h2>
-                  {editingPrestasiId && (
-                    <button
-                      type="button"
-                      onClick={resetPrestasiForm}
-                      className="text-xs font-bold text-white/60 hover:text-red-400 flex items-center gap-1 bg-white/5 px-3 py-1.5 rounded-full cursor-pointer"
-                    >
-                      <X className="w-3 h-3" /> Batal
-                    </button>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                  {/* Sisi Kiri: Form Input Prestasi */}
-                  <form onSubmit={handlePrestasiSubmit} className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-white/70 mb-1">Judul Kompetisi / Penghargaan</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="Contoh: COMPFAIR 2024 Bidang UI/UX"
-                        value={formDataPrestasi.judul}
-                        onChange={(e) => setFormDataPrestasi({ ...formDataPrestasi, judul: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-white/70 mb-1">Peringkat</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="Contoh: Juara 1, Juara 2, atau Finalis"
-                        value={formDataPrestasi.peringkat}
-                        onChange={(e) => setFormDataPrestasi({ ...formDataPrestasi, peringkat: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <ImageUploadField
-                        label="Foto / Poster Prestasi Mahasiswa"
-                        value={formDataPrestasi.gambar}
-                        onChange={(val) => setFormDataPrestasi({ ...formDataPrestasi, gambar: val })}
-                        placeholder="https://... atau klik tombol Upload Foto"
-                        onAlert={showAlert}
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-xs font-bold text-white/70 mb-1">Link Instagram Post</label>
-                      <input
-                        type="url"
-                        placeholder="https://www.instagram.com/p/..."
-                        value={formDataPrestasi.instagram_url}
-                        onChange={(e) => setFormDataPrestasi({ ...formDataPrestasi, instagram_url: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-xs font-bold text-white/70 mb-1">Nama Pemenang (Satu nama per baris)</label>
-                      <textarea
-                        rows="3"
-                        placeholder="Nama Mahasiswa 1 (NIM)&#10;Nama Mahasiswa 2 (NIM)"
-                        value={formDataPrestasi.pemenang}
-                        onChange={(e) => setFormDataPrestasi({ ...formDataPrestasi, pemenang: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl p-3 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div className="md:col-span-2 flex justify-end pt-4 border-t border-white/10">
-                      <button
-                        type="submit"
-                        className="px-6 py-2.5 bg-accent text-[#02182b] font-bold rounded-full hover:bg-[#ffcf33] text-sm shadow-md cursor-pointer"
-                      >
-                        {editingPrestasiId ? "Simpan Perubahan Prestasi" : "Simpan Prestasi ke Database"}
-                      </button>
-                    </div>
-                  </form>
-
-                  {/* Sisi Kanan: Live Preview Card Prestasi */}
-                  <div className="lg:col-span-5 flex flex-col bg-[#04284d]/60 border border-[#164a78] rounded-2xl p-5 backdrop-blur-sm">
-                    <div className="w-full flex items-center justify-between mb-3 px-1">
-                      <span className="text-xs font-bold text-accent uppercase tracking-wider flex items-center gap-1.5">
-                        <Eye className="w-3.5 h-3.5 text-accent" />
-                        Live Preview Card
-                      </span>
-                    </div>
-
-                    <div className="w-full rounded-2xl bg-[#073969] border border-[#164a78] overflow-hidden shadow-lg flex flex-col text-left">
-                      <div className="aspect-[16/10] w-full bg-[#03233f] relative overflow-hidden flex items-center justify-center">
-                        {formDataPrestasi.gambar ? (
-                          <img
-                            src={formDataPrestasi.gambar}
-                            alt="Prestasi"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center justify-center text-white/30">
-                            <Award className="w-10 h-10 mb-1 text-accent/60" />
-                            <span className="text-[11px]">Foto Prestasi / Piagam</span>
-                          </div>
-                        )}
-                        <div className="absolute top-3 left-3">
-                          <span className="px-3 py-1 bg-accent/20 border border-accent/50 text-accent text-[10px] font-black uppercase tracking-wider rounded-full shadow-sm">
-                            {formDataPrestasi.peringkat || "Juara 1"}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="p-5 flex flex-col flex-1">
-                        <h3 className="text-base font-bold text-white leading-snug mb-2">
-                          {formDataPrestasi.judul || "Nama Kompetisi / Ajang Penghargaan"}
-                        </h3>
-                        <div className="mt-1 space-y-1 text-xs text-white/75 mb-4">
-                          {formDataPrestasi.pemenang ? (
-                            formDataPrestasi.pemenang
-                              .split("\n")
-                              .filter(Boolean)
-                              .map((nama, idx) => (
-                                <p key={idx} className="leading-relaxed font-medium">
-                                  • {nama}
-                                </p>
-                              ))
-                          ) : (
-                            <p className="text-white/40 italic">Nama Mahasiswa / Tim Pemenang</p>
-                          )}
-                        </div>
-                        <div className="mt-auto pt-3 border-t border-white/10 flex items-center justify-between">
-                          <span className="text-[11px] text-white/50">Sistem Informasi UNSIKA</span>
-                          {formDataPrestasi.instagram_url && (
-                            <span className="text-xs font-bold text-accent flex items-center gap-1">
-                              Instagram Post <ExternalLink className="w-3 h-3" />
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Tabel Prestasi */}
-              <section className="bg-[#073969] border border-[#164a78] rounded-3xl overflow-hidden shadow-2xl">
-                <div className="p-5 border-b border-[#164a78] flex justify-between items-center">
-                  <h3 className="font-bold text-white">Daftar Prestasi di Database</h3>
-                  <span className="text-xs text-accent font-bold px-3 py-1 bg-accent/10 border border-accent/20 rounded-full">
-                    {prestasiList.length} Entri
-                  </span>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="border-b border-white/10 text-white/50 text-xs">
-                        <th className="p-4">Kompetisi & Peringkat</th>
-                        <th className="p-4">Pemenang</th>
-                        <th className="p-4 text-right">Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                      {loadingPrestasi ? (
-                        <tr><td colSpan="3" className="p-8 text-center text-white/40">Memuat prestasi...</td></tr>
-                      ) : prestasiList.length === 0 ? (
-                        <tr><td colSpan="3" className="p-8 text-center text-white/40">Belum ada data prestasi di database.</td></tr>
-                      ) : (
-                        prestasiList.map((item) => (
-                          <tr key={item.id} className="hover:bg-white/[0.03]">
-                            <td className="p-4">
-                              <p className="font-bold text-white">{item.judul}</p>
-                              <span className="text-xs text-accent font-bold">{item.peringkat}</span>
-                            </td>
-                            <td className="p-4 text-xs text-white/70">
-                              {Array.isArray(item.pemenang)
-                                ? item.pemenang.join(", ")
-                                : String(item.pemenang || "")}
-                            </td>
-                            <td className="p-4 text-right">
-                              <button
-                                onClick={() => {
-                                  setEditingPrestasiId(item.id);
-                                  setFormDataPrestasi({
-                                    judul: item.judul || "",
-                                    peringkat: item.peringkat || "Juara 1",
-                                    pemenang: Array.isArray(item.pemenang)
-                                      ? item.pemenang.join("\n")
-                                      : String(item.pemenang || ""),
-                                    gambar: item.gambar || "",
-                                    instagram_url: item.instagram_url || "",
-                                  });
-                                  window.scrollTo({ top: 0, behavior: "smooth" });
-                                }}
-                                className="text-xs text-accent hover:underline mr-3 font-semibold cursor-pointer"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => handlePrestasiDelete(item.id)}
-                                className="text-xs text-red-400 hover:underline font-semibold cursor-pointer"
-                              >
-                                Hapus
-                              </button>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-            </div>
-          )}
-
-          {/* ================= 4. MENU GALERI ================= */}
-          {activeMenu === "galeri" && (
-            <div className="space-y-10">
-              <section className="bg-[#073969] border border-[#164a78] rounded-3xl p-6 sm:p-8 shadow-2xl">
-                <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
-                  <h2 className="text-lg font-bold text-white flex items-center gap-2.5">
-                    {editingGaleriId ? <Edit3 className="w-4 h-4 text-accent" /> : <Plus className="w-4 h-4 text-accent" />}
-                    {editingGaleriId ? "Edit Foto Galeri" : "Upload Foto Galeri Baru"}
-                  </h2>
-                  {editingGaleriId && (
-                    <button
-                      type="button"
-                      onClick={resetGaleriForm}
-                      className="text-xs font-bold text-white/60 hover:text-red-400 flex items-center gap-1 bg-white/5 px-3 py-1.5 rounded-full cursor-pointer"
-                    >
-                      <X className="w-3 h-3" /> Batal
-                    </button>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                  {/* Sisi Kiri: Form Input Galeri */}
-                  <form onSubmit={handleGaleriSubmit} className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="md:col-span-2">
-                      <label className="block text-xs font-bold text-white/70 mb-1">Album / Divisi</label>
-                      <select
-                        value={formDataGaleri.album}
-                        onChange={(e) => setFormDataGaleri({ ...formDataGaleri, album: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      >
-                        {ALBUM_OPTIONS.map((a) => (
-                          <option key={a} value={a}>{a}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="md:col-span-2">
-                      <ImageUploadField
-                        label="Foto Dokumentasi Kegiatan *"
-                        value={formDataGaleri.foto}
-                        onChange={(val) => setFormDataGaleri({ ...formDataGaleri, foto: val })}
-                        placeholder="https://... atau klik tombol Upload Foto"
-                        onAlert={showAlert}
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-xs font-bold text-white/70 mb-1">Keterangan / Caption (Opsional)</label>
-                      <input
-                        type="text"
-                        placeholder="Dokumentasi kegiatan..."
-                        value={formDataGaleri.caption}
-                        onChange={(e) => setFormDataGaleri({ ...formDataGaleri, caption: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div className="md:col-span-2 flex justify-end pt-4 border-t border-white/10">
-                      <button
-                        type="submit"
-                        className="px-6 py-2.5 bg-accent text-[#02182b] font-bold rounded-full hover:bg-[#ffcf33] text-sm shadow-md cursor-pointer"
-                      >
-                        {editingGaleriId ? "Simpan Perubahan Foto" : "Simpan Foto ke Database"}
-                      </button>
-                    </div>
-                  </form>
-
-                  {/* Sisi Kanan: Live Preview Card Galeri */}
-                  <div className="lg:col-span-5 flex flex-col bg-[#04284d]/60 border border-[#164a78] rounded-2xl p-5 backdrop-blur-sm">
-                    <div className="w-full flex items-center justify-between mb-3 px-1">
-                      <span className="text-xs font-bold text-accent uppercase tracking-wider flex items-center gap-1.5">
-                        <Eye className="w-3.5 h-3.5 text-accent" />
-                        Live Preview Card
-                      </span>
-                    </div>
-
-                    <div className="w-full rounded-2xl bg-[#073969] border border-[#164a78] overflow-hidden shadow-lg flex flex-col text-left">
-                      <div className="aspect-[4/3] w-full bg-[#03233f] relative overflow-hidden flex items-center justify-center group">
-                        {formDataGaleri.foto ? (
-                          <img
-                            src={formDataGaleri.foto}
-                            alt="Dokumentasi"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center justify-center text-white/30">
-                            <ImageIcon className="w-10 h-10 mb-1" />
-                            <span className="text-[11px]">Foto Dokumentasi</span>
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-4">
-                          <span className="px-2.5 py-0.5 rounded-md bg-accent/20 border border-accent/40 text-accent text-[10px] font-bold uppercase w-fit mb-1">
-                            {formDataGaleri.album || "Divisi Kominfo"}
-                          </span>
-                          <p className="text-xs text-white/90 font-medium line-clamp-2">
-                            {formDataGaleri.caption || "Keterangan foto kegiatan mahasiswa..."}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Tabel Galeri */}
-              <section className="bg-[#073969] border border-[#164a78] rounded-3xl overflow-hidden shadow-2xl">
-                <div className="p-5 border-b border-[#164a78] flex justify-between items-center">
-                  <h3 className="font-bold text-white">Daftar Foto di Database</h3>
-                  <span className="text-xs text-accent font-bold px-3 py-1 bg-accent/10 border border-accent/20 rounded-full">
-                    {galeriList.length} Foto
-                  </span>
-                </div>
-                <div className="p-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {loadingGaleri ? (
-                    <div className="col-span-full py-8 text-center text-white/40">Memuat galeri...</div>
-                  ) : galeriList.length === 0 ? (
-                    <div className="col-span-full py-8 text-center text-white/40">Belum ada foto galeri di database.</div>
-                  ) : (
-                    galeriList.map((item) => (
-                      <div key={item.id} className="group relative rounded-2xl overflow-hidden border border-[#164a78] bg-[#04284d]">
-                        <div className="aspect-[4/3] overflow-hidden">
-                          <img src={item.foto} alt={item.album} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                        </div>
-                        <div className="p-3">
-                          <p className="text-xs font-bold text-white truncate">{item.album}</p>
-                          <div className="mt-2 flex justify-between items-center pt-2 border-t border-white/10">
-                            <button
-                              onClick={() => {
-                                setEditingGaleriId(item.id);
-                                setFormDataGaleri({
-                                  album: item.album || "Divisi Kominfo",
-                                  foto: item.foto || "",
-                                  caption: item.caption || "",
-                                });
-                                window.scrollTo({ top: 0, behavior: "smooth" });
-                              }}
-                              className="text-xs text-accent hover:underline font-semibold cursor-pointer"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleGaleriDelete(item.id)}
-                              className="text-xs text-red-400 hover:underline font-semibold cursor-pointer"
-                            >
-                              Hapus
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </section>
-            </div>
-          )}
-
-          {/* ================= 5. MENU PENGURUS ================= */}
-          {activeMenu === "pengurus" && (
-            <div className="space-y-10">
-              <section className="bg-[#073969] border border-[#164a78] rounded-3xl p-6 sm:p-8 shadow-2xl">
-                <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
-                  <h2 className="text-lg font-bold text-white flex items-center gap-2.5">
-                    {editingPengurusId ? <Edit3 className="w-4 h-4 text-accent" /> : <Plus className="w-4 h-4 text-accent" />}
-                    {editingPengurusId ? "Edit Pengurus" : "Tambah Pengurus / Profil Baru"}
-                  </h2>
-                  {editingPengurusId && (
-                    <button
-                      type="button"
-                      onClick={resetPengurusForm}
-                      className="text-xs font-bold text-white/60 hover:text-red-400 flex items-center gap-1 bg-white/5 px-3 py-1.5 rounded-full cursor-pointer"
-                    >
-                      <X className="w-3 h-3" /> Batal
-                    </button>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                  {/* Sisi Kiri: Form Input Pengurus */}
-                  <form onSubmit={handlePengurusSubmit} className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-white/70 mb-1">Nama Lengkap</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="Nama Pengurus"
-                        value={formDataPengurus.nama}
-                        onChange={(e) => setFormDataPengurus({ ...formDataPengurus, nama: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-white/70 mb-1">Jabatan</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="Contoh: Ketua Himpunan, Sekretaris, dll"
-                        value={formDataPengurus.jabatan}
-                        onChange={(e) => setFormDataPengurus({ ...formDataPengurus, jabatan: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label className="block text-xs font-bold text-white/70 mb-1">Kelompok / Bagian</label>
-                      <select
-                        value={formDataPengurus.kelompok}
-                        onChange={(e) => setFormDataPengurus({ ...formDataPengurus, kelompok: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      >
-                        {KELOMPOK_OPTIONS.map((k) => (
-                          <option key={k.id} value={k.id}>{k.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="sm:col-span-2">
-                      <ImageUploadField
-                        label="Foto Profil Formal Pengurus"
-                        value={formDataPengurus.foto}
-                        onChange={(val) => setFormDataPengurus({ ...formDataPengurus, foto: val })}
-                        placeholder="https://... atau klik tombol Upload Foto"
-                        onAlert={showAlert}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-white/70 mb-1">Instagram (Username atau URL)</label>
-                      <input
-                        type="text"
-                        placeholder="username atau https://instagram.com/..."
-                        value={formDataPengurus.instagram}
-                        onChange={(e) => setFormDataPengurus({ ...formDataPengurus, instagram: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-white/70 mb-1">LinkedIn (Username, slug, atau URL)</label>
-                      <input
-                        type="text"
-                        placeholder="username atau https://linkedin.com/in/..."
-                        value={formDataPengurus.linkedin}
-                        onChange={(e) => setFormDataPengurus({ ...formDataPengurus, linkedin: e.target.value })}
-                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                      />
-                    </div>
-                    <div className="sm:col-span-2 flex justify-end pt-4 border-t border-white/10">
-                      <button
-                        type="submit"
-                        className="px-6 py-2.5 bg-accent text-[#043761] font-black rounded-xl hover:bg-[#ffcf33] text-sm shadow-md cursor-pointer transition-all"
-                      >
-                        {editingPengurusId ? "Simpan Perubahan Pengurus" : "Simpan Pengurus ke Database"}
-                      </button>
-                    </div>
-                  </form>
-
-                  {/* Sisi Kanan: Live Interactive Web Preview Card */}
-                  <div className="lg:col-span-5 flex flex-col items-center bg-[#04284d]/60 border border-[#164a78] rounded-2xl p-5 backdrop-blur-sm">
-                    <div className="w-full flex items-center justify-between mb-3 px-1">
-                      <span className="text-xs font-bold text-accent uppercase tracking-wider flex items-center gap-1.5">
-                        <Eye className="w-3.5 h-3.5 text-accent" />
-                        Live Preview Card
-                      </span>
-                    </div>
-
-                    <div
-                      onClick={() => setPreviewPengurusModal({
-                        nama: formDataPengurus.nama || "Nama Lengkap Pengurus",
-                        jabatan: formDataPengurus.jabatan || "Jabatan Pengurus",
-                        kelompok: formDataPengurus.kelompok || "bph",
-                        foto: formDataPengurus.foto || (editingPengurusId ? pengurusList.find((p) => p.id === editingPengurusId)?.foto : ""),
-                        instagram: formDataPengurus.instagram,
-                        linkedin: formDataPengurus.linkedin,
-                        angkatan: "2023",
-                      })}
-                      className="w-full max-w-[270px] rounded-2xl overflow-hidden bg-[#073969] border border-accent/60 shadow-[0_10px_30px_rgba(0,0,0,0.5)] cursor-pointer hover:scale-102 transition-transform duration-300 text-left flex flex-col group"
-                    >
-                      <div className="aspect-[4/5] overflow-hidden bg-[#02182b] relative">
-                        {formDataPengurus.foto || (editingPengurusId && pengurusList.find((p) => p.id === editingPengurusId)?.foto) ? (
-                          <img
-                            src={formDataPengurus.foto || pengurusList.find((p) => p.id === editingPengurusId)?.foto}
-                            alt="Preview Pengurus"
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center bg-linear-to-b from-[#04284d] to-[#073969] text-white/50">
-                            <div className="w-14 h-14 rounded-full bg-accent/15 border border-accent/30 flex items-center justify-center text-accent mb-2">
-                              <Users className="w-7 h-7" />
-                            </div>
-                            <span className="text-xs font-bold text-white/80">Foto Formal Pengurus</span>
-                            <span className="text-[10px] text-white/40 mt-1">Upload atau masukkan link foto</span>
-                          </div>
-                        )}
-                        <div className="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-full bg-[#04284d]/90 backdrop-blur-xs border border-white/15 text-[10px] font-bold text-accent uppercase tracking-wider shadow-sm">
-                          {formDataPengurus.kelompok.toUpperCase()}
-                        </div>
-                      </div>
-
-                      <div className="p-4 flex-1 flex flex-col justify-between bg-[#073969]">
-                        <div>
-                          <p className="text-sm font-bold text-white leading-snug group-hover:text-accent transition-colors">
-                            {formDataPengurus.nama || "Nama Lengkap Pengurus"}
-                          </p>
-                          <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-accent leading-snug">
-                            {formDataPengurus.jabatan || "Jabatan Pengurus"}
-                          </p>
-                        </div>
-                        <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-[11px]">
-                          <span className="text-white/50 text-[10px] font-medium">
-                            Angkatan 2023 • S1 SI
-                          </span>
-                          <div className="flex items-center gap-1.5 text-xs font-bold">
-                            <span className={formDataPengurus.instagram ? "text-pink-400" : "text-white/20"}>IG</span>
-                            <span className="text-white/20">•</span>
-                            <span className={formDataPengurus.linkedin ? "text-blue-400" : "text-white/20"}>LI</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <p className="text-[11px] text-white/50 text-center mt-3">
-                      Klik kartu di atas untuk menguji popup detail anggota sebelum disimpan.
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              {/* Daftar Pengurus: Mendukung Mode Grid Kartu Web dan Mode Tabel */}
-              <section className="bg-[#073969] border border-[#164a78] rounded-3xl overflow-hidden shadow-2xl">
-                <div className="p-5 border-b border-[#164a78] flex flex-wrap gap-3 justify-between items-center">
-                  <div>
-                    <h3 className="font-bold text-white text-base">Daftar Pengurus di Database</h3>
-                    <p className="text-xs text-white/50 mt-0.5">Semua profil pengurus yang aktif tampil di halaman web</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {/* Toggle View Mode */}
-                    <div className="flex items-center bg-[#04284d] border border-[#164a78] p-1 rounded-xl">
-                      <button
-                        type="button"
-                        onClick={() => setPengurusViewMode("cards")}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                          pengurusViewMode === "cards"
-                            ? "bg-accent text-[#043761] shadow-sm"
-                            : "text-white/70 hover:text-white"
-                        }`}
-                      >
-                        <Grid className="w-3.5 h-3.5" />
-                        <span>Grid Kartu</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPengurusViewMode("table")}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                          pengurusViewMode === "table"
-                            ? "bg-accent text-[#043761] shadow-sm"
-                            : "text-white/70 hover:text-white"
-                        }`}
-                      >
-                        <List className="w-3.5 h-3.5" />
-                        <span>Tabel</span>
-                      </button>
-                    </div>
-
-                    <span className="text-xs text-accent font-bold px-3 py-1 bg-accent/10 border border-accent/20 rounded-full">
-                      {pengurusList.length} Pengurus
-                    </span>
-                  </div>
-                </div>
-
-                {/* Mode 1: Grid Kartu Web (Sesuai Tampilan Asli Website) */}
-                {pengurusViewMode === "cards" && (
-                  <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {loadingPengurus ? (
-                      <div className="col-span-full py-12 text-center text-white/50">Memuat data pengurus...</div>
-                    ) : pengurusList.length === 0 ? (
-                      <div className="col-span-full py-12 text-center text-white/50">Belum ada data pengurus di database.</div>
-                    ) : (
-                      pengurusList.map((item) => (
-                        <div
-                          key={item.id}
-                          className="group rounded-2xl overflow-hidden bg-[#04284d]/80 border border-[#164a78] hover:border-accent/60 transition-all duration-300 shadow-lg flex flex-col justify-between"
-                        >
-                          <div className="aspect-[4/5] overflow-hidden bg-[#02182b] relative">
-                            {item.foto ? (
-                              <img
-                                src={item.foto}
-                                alt={item.nama}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex flex-col items-center justify-center p-3 text-center bg-linear-to-b from-[#04284d] to-[#073969] text-white/50">
-                                <Users className="w-8 h-8 text-accent/50 mb-1" />
-                                <span className="text-[11px] font-semibold text-white/70">Foto Belum Ada</span>
-                              </div>
-                            )}
-                            <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-[#04284d]/90 backdrop-blur-xs border border-white/15 text-[10px] font-bold text-accent uppercase tracking-wider shadow-sm">
-                              {item.kelompok?.toUpperCase()}
-                            </div>
-                          </div>
-
-                          <div className="p-3.5 flex-1 flex flex-col justify-between">
-                            <div>
-                              <p className="text-sm font-bold text-white leading-snug line-clamp-1">
-                                {item.nama}
-                              </p>
-                              <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-accent leading-snug line-clamp-1">
-                                {item.jabatan}
-                              </p>
-                            </div>
-                            <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between">
-                              <button
-                                type="button"
-                                onClick={() => setPreviewPengurusModal(item)}
-                                className="text-[11px] text-white/70 hover:text-white flex items-center gap-1 font-semibold cursor-pointer"
-                              >
-                                <Eye className="w-3 h-3 text-accent" /> Detail
-                              </button>
-                              <div className="flex items-center gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setEditingPengurusId(item.id);
-                                    setFormDataPengurus({
-                                      nama: item.nama || "",
-                                      jabatan: item.jabatan || "",
-                                      kelompok: item.kelompok || "bph",
-                                      foto: item.foto || "",
-                                      instagram: item.instagram || "",
-                                      linkedin: item.linkedin || "",
-                                    });
-                                    window.scrollTo({ top: 0, behavior: "smooth" });
-                                  }}
-                                  className="text-[11px] text-accent hover:underline font-bold cursor-pointer"
-                                >
-                                  Edit
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handlePengurusDelete(item.id)}
-                                  className="text-[11px] text-red-400 hover:underline font-bold cursor-pointer"
-                                >
-                                  Hapus
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                )}
-
-                {/* Mode 2: Tabel Pengurus Responsif dengan Thumbnail Foto Asli */}
-                {pengurusViewMode === "table" && (
-                  <div className="overflow-x-auto w-full">
-                    <table className="w-full text-left text-sm min-w-[650px]">
-                      <thead>
-                        <tr className="border-b border-white/10 text-white/50 text-xs">
-                          <th className="p-4">Foto & Nama</th>
-                          <th className="p-4">Kelompok</th>
-                          <th className="p-4">Media Sosial</th>
-                          <th className="p-4 text-right">Aksi</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-white/5">
-                        {loadingPengurus ? (
-                          <tr><td colSpan="4" className="p-8 text-center text-white/40">Memuat pengurus...</td></tr>
-                        ) : pengurusList.length === 0 ? (
-                          <tr><td colSpan="4" className="p-8 text-center text-white/40">Belum ada data pengurus di database.</td></tr>
-                        ) : (
-                          pengurusList.map((item) => (
-                            <tr key={item.id} className="hover:bg-white/[0.03]">
-                              <td className="p-4 flex items-center gap-3">
-                                {item.foto ? (
-                                  <img src={item.foto} alt={item.nama} className="w-10 h-10 rounded-xl object-cover shrink-0 border border-white/20 shadow-sm" />
-                                ) : (
-                                  <div className="w-10 h-10 rounded-xl bg-accent/20 text-accent font-bold flex items-center justify-center shrink-0">
-                                    {item.nama.charAt(0)}
-                                  </div>
-                                )}
-                                <div>
-                                  <p className="font-bold text-white">{item.nama}</p>
-                                  <p className="text-xs text-accent font-semibold">{item.jabatan}</p>
-                                </div>
-                              </td>
-                              <td className="p-4 text-xs text-white/70 uppercase font-semibold">
-                                {item.kelompok}
-                              </td>
-                              <td className="p-4 text-xs text-white/60">
-                                <p>IG: {item.instagram || "-"}</p>
-                                <p>LI: {item.linkedin || "-"}</p>
-                              </td>
-                              <td className="p-4 text-right">
-                                <button
-                                  type="button"
-                                  onClick={() => setPreviewPengurusModal(item)}
-                                  className="text-xs text-white/80 hover:text-white mr-3 font-semibold cursor-pointer inline-flex items-center gap-1"
-                                >
-                                  <Eye className="w-3 h-3 text-accent" /> Preview
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setEditingPengurusId(item.id);
-                                    setFormDataPengurus({
-                                      nama: item.nama || "",
-                                      jabatan: item.jabatan || "",
-                                      kelompok: item.kelompok || "bph",
-                                      foto: item.foto || "",
-                                      instagram: item.instagram || "",
-                                      linkedin: item.linkedin || "",
-                                    });
-                                    window.scrollTo({ top: 0, behavior: "smooth" });
-                                  }}
-                                  className="text-xs text-accent hover:underline mr-3 font-semibold cursor-pointer"
-                                >
-                                  Edit
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handlePengurusDelete(item.id)}
-                                  className="text-xs text-red-400 hover:underline font-semibold cursor-pointer"
-                                >
-                                  Hapus
-                                </button>
-                              </td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </section>
-
-              {/* POPUP MODAL PREVIEW DETAIL PENGURUS (Identik dengan Web Publik) */}
-              {previewPengurusModal && (
-                <div
-                  className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
-                  onClick={() => setPreviewPengurusModal(null)}
-                >
-                  <div
-                    onClick={(e) => e.stopPropagation()}
-                    className="relative w-full max-w-[340px] bg-[#073969] border border-accent/40 rounded-2xl overflow-hidden shadow-2xl"
-                  >
-                    <button
-                      onClick={() => setPreviewPengurusModal(null)}
-                      type="button"
-                      className="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-black/70 hover:bg-black text-white/80 hover:text-white flex items-center justify-center border border-white/20 transition-all cursor-pointer"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-
-                    <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#04284d]">
-                      {previewPengurusModal.foto ? (
-                        <img
-                          src={previewPengurusModal.foto}
-                          alt={previewPengurusModal.nama}
-                          className="w-full h-full object-cover block"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center bg-linear-to-b from-[#04284d] to-[#073969] text-white/50">
-                          <Users className="w-12 h-12 text-accent/50 mb-2" />
-                          <span className="text-xs font-bold text-white/80">Foto Belum Ditambahkan</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="p-4 sm:p-5 bg-[#073969]">
-                      <span className="text-[10px] font-bold text-accent uppercase tracking-wider block mb-1">
-                        Preview Modal Pengurus
-                      </span>
-                      <h3 className="text-lg font-bold text-white leading-tight">
-                        {previewPengurusModal.nama}
-                      </h3>
-                      <p className="mt-1 text-xs font-semibold text-accent leading-snug">
-                        {previewPengurusModal.jabatan} • <span className="text-white/70 font-normal uppercase">{previewPengurusModal.kelompok}</span>
-                      </p>
-                      <p className="mt-1 text-[11px] text-white/50">
-                        Angkatan 2023 • S1 Sistem Informasi
-                      </p>
-
-                      <div className="grid grid-cols-2 gap-2 mt-4 pt-3.5 border-t border-white/10">
-                        {previewPengurusModal.instagram ? (
-                          <a
-                            href={previewPengurusModal.instagram.startsWith("http") ? previewPengurusModal.instagram : `https://instagram.com/${previewPengurusModal.instagram.replace(/^@/, '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white text-xs font-semibold transition-all"
-                          >
-                            <span>Instagram</span>
-                            <ExternalLink className="w-3 h-3 text-white/50" />
-                          </a>
-                        ) : (
-                          <div className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white/30 text-xs font-medium cursor-not-allowed">
-                            <span>Instagram (-)</span>
-                          </div>
-                        )}
-
-                        {previewPengurusModal.linkedin ? (
-                          <a
-                            href={previewPengurusModal.linkedin.startsWith("http") ? previewPengurusModal.linkedin : `https://linkedin.com/in/${previewPengurusModal.linkedin}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white text-xs font-semibold transition-all"
-                          >
-                            <span>LinkedIn</span>
-                            <ExternalLink className="w-3 h-3 text-white/50" />
-                          </a>
-                        ) : (
-                          <div className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white/30 text-xs font-medium cursor-not-allowed">
-                            <span>LinkedIn (-)</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </motion.div>
-      </AnimatePresence>
-    </main>
-
-    {/* FLOATING BOTTOM DOCK NAVIGATION (Sesuai Referensi Gambar 1: White Pill Dock & Elevated Center Button) */}
-    <nav className="fixed bottom-3 sm:bottom-5 inset-x-0 z-50 flex justify-center px-3 sm:px-4 pointer-events-none select-none">
-      <div className="pointer-events-auto bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_16px_40px_rgba(0,0,0,0.38)] rounded-[32px] sm:rounded-full py-2 px-3 sm:px-6 flex items-center justify-between gap-1 sm:gap-4 max-w-full">
-        {/* Kiri: 2 Menu (Lomba & Artikel) */}
-        <div className="flex items-center gap-1 sm:gap-2">
-          {[
-            { id: "lomba", label: "Lomba", icon: Trophy, count: lombaList.length },
-            { id: "artikel", label: "Artikel", icon: FileText, count: artikelList.length },
-          ].map((item) => {
-            const Icon = item.icon;
-            const isSelected = activeMenu === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => {
-                  setActiveMenu(item.id);
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-                className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl font-bold transition-all text-xs cursor-pointer whitespace-nowrap ${
-                  isSelected
-                    ? "bg-blue-50 text-blue-600 font-extrabold shadow-xs"
-                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-100/70"
-                }`}
-              >
-                <Icon className={`w-4 h-4 shrink-0 ${isSelected ? "text-blue-600" : "text-slate-400"}`} />
-                <span className="text-[11px] sm:text-xs">{item.label}</span>
-                <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
-                    isSelected ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"
-                  }`}
-                >
-                  {item.count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Tengah: Elevated Floating Button (Prestasi) */}
-        <div className="relative -mt-6 sm:-mt-8 px-1 sm:px-2 flex flex-col items-center">
-          <button
-            type="button"
-            onClick={() => {
-              setActiveMenu("prestasi");
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-            className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-linear-to-tr from-blue-600 via-blue-500 to-indigo-600 text-white shadow-[0_10px_24px_rgba(37,99,235,0.48)] flex items-center justify-center border-4 border-[#032d52] sm:border-white transition-all transform hover:scale-105 active:scale-95 cursor-pointer relative ${
-              activeMenu === "prestasi"
-                ? "ring-4 ring-blue-400/50 scale-105"
-                : ""
-            }`}
-            title={`Prestasi Mahasiswa (${prestasiList.length})`}
-          >
-            <Award className="w-5 h-5 sm:w-6 sm:h-6" />
-            <span className="absolute -top-1 -right-1 bg-amber-400 text-[#02182b] text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-md border-2 border-white">
-              {prestasiList.length}
-            </span>
-          </button>
-          <span className={`text-[10px] font-extrabold mt-1 tracking-tight ${
-            activeMenu === "prestasi" ? "text-blue-600" : "text-slate-500"
-          }`}>
-            Prestasi
-          </span>
-        </div>
-
-        {/* Kanan: 2 Menu (Galeri & Pengurus) */}
-        <div className="flex items-center gap-1 sm:gap-2">
-          {[
-            { id: "galeri", label: "Galeri", icon: ImageIcon, count: galeriList.length },
-            { id: "pengurus", label: "Pengurus", icon: Users, count: pengurusList.length },
-          ].map((item) => {
-            const Icon = item.icon;
-            const isSelected = activeMenu === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => {
-                  setActiveMenu(item.id);
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-                className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl font-bold transition-all text-xs cursor-pointer whitespace-nowrap ${
-                  isSelected
-                    ? "bg-blue-50 text-blue-600 font-extrabold shadow-xs"
-                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-100/70"
-                }`}
-              >
-                <Icon className={`w-4 h-4 shrink-0 ${isSelected ? "text-blue-600" : "text-slate-400"}`} />
-                <span className="text-[11px] sm:text-xs">{item.label}</span>
-                <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
-                    isSelected ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"
-                  }`}
-                >
-                  {item.count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </nav>
-
-    {/* Custom Modal Popup (Validasi & Konfirmasi Semua CRUD - Tanpa Emoji dan Tanpa SVG) */}
+  const modal = (
     <CustomModal
       isOpen={modalConfig.isOpen}
       type={modalConfig.type}
@@ -2722,8 +850,791 @@ export default function AdminDashboard() {
       confirmText={modalConfig.confirmText}
       cancelText={modalConfig.cancelText}
       onConfirm={modalConfig.onConfirm}
-      onCancel={() => setModalConfig((prev) => ({ ...prev, isOpen: false }))}
+      onCancel={closeModal}
     />
-  </motion.div>
+  );
+
+  // ==================== LOGIN ====================
+  if (!session) {
+    return (
+      <main className="min-h-screen bg-linear-to-b from-[#043761] via-[#032d52] to-[#02182b] flex items-center justify-center p-4 font-primary text-white">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          className="w-full max-w-md bg-[#073969] border border-[#164a78] p-8 sm:p-10 rounded-3xl shadow-2xl"
+        >
+          <div className="text-center mb-8">
+            <img src={LogoHimsika} alt="Logo HIMSIKA" className="w-20 h-20 mx-auto mb-4 object-contain" />
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+              HIMSIKA <span className="text-accent">Admin</span>
+            </h1>
+            <p className="text-xs text-white/60 mt-1.5">Masuk dengan akun email resmi pengurus HIMSIKA</p>
+          </div>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className={labelCls} htmlFor="admin-email">Email</label>
+              <input id="admin-email" type="email" required autoComplete="email" placeholder="admin@himsika.unsika.ac.id" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} />
+            </div>
+            <div>
+              <label className={labelCls} htmlFor="admin-pass">Kata Sandi</label>
+              <input id="admin-pass" type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} />
+            </div>
+            <button
+              type="submit"
+              disabled={authLoading}
+              className="w-full py-3.5 bg-accent text-[#043761] font-bold rounded-xl hover:bg-accent-hover transition-colors mt-3 text-sm cursor-pointer disabled:opacity-50"
+            >
+              {authLoading ? "Memverifikasi..." : "Masuk ke Dashboard"}
+            </button>
+          </form>
+        </motion.div>
+        {modal}
+      </main>
+    );
+  }
+
+  const activeInfo = MENU.find((m) => m.id === activeMenu);
+
+  // ==================== DASHBOARD ====================
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="min-h-screen bg-linear-to-b from-[#043761] via-[#032d52] to-[#02182b] font-primary text-white"
+    >
+      {/* pb besar supaya konten tidak tertutup bottom bar */}
+      <main className="px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-32 max-w-7xl mx-auto">
+        <div className="flex items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-3 min-w-0">
+            <img src={LogoHimsika} alt="Logo HIMSIKA" className="w-10 h-10 object-contain shrink-0" />
+            <div className="min-w-0">
+              <span className="block text-[11px] font-bold uppercase tracking-widest text-accent">HIMSIKA Admin</span>
+              <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight truncate">
+                Kelola <span className="text-accent">{activeInfo?.title}</span>
+              </h1>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="shrink-0 px-4 py-2 rounded-xl text-xs font-bold text-red-300 border border-red-400/30 hover:bg-red-500/15 transition-colors cursor-pointer"
+          >
+            Keluar
+          </button>
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeMenu}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="space-y-8"
+          >
+            {/* ================= LOMBA ================= */}
+            {activeMenu === "lomba" && (
+              <>
+                <FormSection
+                  title={editingLombaId ? "Edit Info Lomba" : "Tambah Info Lomba"}
+                  editing={editingLombaId}
+                  onCancel={resetLombaForm}
+                  preview={
+                    <div className="rounded-2xl bg-[#073969] border border-[#164a78] p-5">
+                      <div className="flex items-start justify-between gap-2 mb-3">
+                        <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-accent/15 text-accent border border-accent/25">
+                          Lomba & Beasiswa
+                        </span>
+                        {formDataLomba.deadline_pendaftaran && (
+                          <span className="text-[11px] font-semibold text-white/60">{formDataLomba.deadline_pendaftaran}</span>
+                        )}
+                      </div>
+                      <h3 className="text-lg font-bold mb-1 line-clamp-2">{formDataLomba.title || "Judul Kompetisi"}</h3>
+                      <p className="text-xs font-semibold text-accent mb-3">{formDataLomba.organizer || "Penyelenggara"}</p>
+                      <p className="text-xs text-white/70 line-clamp-3 mb-4 leading-relaxed">
+                        {formDataLomba.description || "Deskripsi lomba tampil di sini."}
+                      </p>
+                      {formDataLomba.benefit && (
+                        <p className="p-3 rounded-xl bg-[#04284d] border-l-2 border-accent text-xs text-white/85">
+                          <span className="font-bold text-accent">Hadiah: </span>
+                          {formDataLomba.benefit}
+                        </p>
+                      )}
+                    </div>
+                  }
+                >
+                  <form onSubmit={handleLombaSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className={labelCls}>Judul Lomba</label>
+                      <input required value={formDataLomba.title} onChange={(e) => setFormDataLomba({ ...formDataLomba, title: e.target.value })} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>Penyelenggara</label>
+                      <input required value={formDataLomba.organizer} onChange={(e) => setFormDataLomba({ ...formDataLomba, organizer: e.target.value })} className={inputCls} />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className={labelCls}>Deskripsi</label>
+                      <textarea rows="3" value={formDataLomba.description} onChange={(e) => setFormDataLomba({ ...formDataLomba, description: e.target.value })} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>Deadline Pendaftaran</label>
+                      <input placeholder="15 November 2026" value={formDataLomba.deadline_pendaftaran} onChange={(e) => setFormDataLomba({ ...formDataLomba, deadline_pendaftaran: e.target.value })} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>Deadline Pengumpulan</label>
+                      <input placeholder="20 November 2026" value={formDataLomba.deadline_pengumpulan} onChange={(e) => setFormDataLomba({ ...formDataLomba, deadline_pengumpulan: e.target.value })} className={inputCls} />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className={labelCls}>Benefit / Hadiah</label>
+                      <input value={formDataLomba.benefit} onChange={(e) => setFormDataLomba({ ...formDataLomba, benefit: e.target.value })} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>Link Pendaftaran</label>
+                      <input type="url" value={formDataLomba.registration_url} onChange={(e) => setFormDataLomba({ ...formDataLomba, registration_url: e.target.value })} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>Link Guidebook</label>
+                      <input type="url" value={formDataLomba.guidebook_url} onChange={(e) => setFormDataLomba({ ...formDataLomba, guidebook_url: e.target.value })} className={inputCls} />
+                    </div>
+                    <SubmitBtn>{editingLombaId ? "Simpan Perubahan" : "Tambah Lomba"}</SubmitBtn>
+                  </form>
+                </FormSection>
+
+                <ListSection
+                  title="Daftar Lomba"
+                  items={lombaList}
+                  loading={loadingLomba}
+                  emptyText="Belum ada data lomba."
+                  searchText={(i) => `${i.title} ${i.organizer}`}
+                  columns={[
+                    {
+                      header: "Judul & Penyelenggara",
+                      render: (i) => (
+                        <>
+                          <p className="font-bold text-white line-clamp-1">{i.title}</p>
+                          <p className="text-xs text-white/60">{i.organizer}</p>
+                        </>
+                      ),
+                    },
+                    { header: "Deadline", className: "whitespace-nowrap text-xs text-white/70", render: (i) => i.deadline_pendaftaran || "-" },
+                    {
+                      header: "Aksi",
+                      className: "text-right whitespace-nowrap",
+                      render: (i) => (
+                        <>
+                          <ActionBtn
+                            onClick={() => {
+                              setEditingLombaId(i.id);
+                              setFormDataLomba({
+                                ...emptyLomba,
+                                ...Object.fromEntries(Object.keys(emptyLomba).map((k) => [k, i[k] ?? emptyLomba[k]])),
+                                categories: parseCategories(i.categories),
+                                contacts: Array.isArray(i.contacts) ? i.contacts : [],
+                              });
+                              scrollTop();
+                            }}
+                          >
+                            Edit
+                          </ActionBtn>
+                          <ActionBtn tone="danger" onClick={() => handleLombaDelete(i.id)}>Hapus</ActionBtn>
+                        </>
+                      ),
+                    },
+                  ]}
+                />
+              </>
+            )}
+
+            {/* ================= ARTIKEL ================= */}
+            {activeMenu === "artikel" && (
+              <>
+                <FormSection
+                  title={editingArtikelId ? "Edit Artikel" : "Tulis Artikel Baru"}
+                  editing={editingArtikelId}
+                  onCancel={resetArtikelForm}
+                  preview={
+                    <div className="rounded-2xl bg-[#073969] border border-[#164a78] overflow-hidden">
+                      <div className="aspect-[16/10] relative bg-[#03233f]">
+                        <Thumb
+                          src={formDataArtikel.image || artikelList.find((a) => a.id === editingArtikelId)?.thumb}
+                          alt="Sampul"
+                          className="w-full h-full"
+                          rounded="rounded-none"
+                        />
+                        <div className="absolute top-3 left-3 flex gap-1.5">
+                          <span className="px-3 py-1 bg-accent text-[#043761] text-[10px] font-bold uppercase rounded-lg">
+                            {formDataArtikel.category}
+                          </span>
+                          {formDataArtikel.is_hot && (
+                            <span className="px-2.5 py-1 bg-[#043761] text-accent border border-accent/50 text-[10px] font-extrabold uppercase rounded-lg">
+                              Hot
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="p-5">
+                        <span className="text-accent text-[11px] font-bold uppercase tracking-wider">
+                          {formDataArtikel.date || "Tanggal terbit"}
+                        </span>
+                        <h3 className="text-base font-extrabold leading-snug line-clamp-2 mt-1.5 mb-2">
+                          {formDataArtikel.title || "Judul Artikel"}
+                        </h3>
+                        <p className="text-xs text-white/70 line-clamp-3 leading-relaxed">
+                          {formDataArtikel.excerpt || "Ringkasan artikel tampil di sini."}
+                        </p>
+                      </div>
+                    </div>
+                  }
+                >
+                  <form onSubmit={handleArtikelSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                      <label className={labelCls}>Judul Artikel</label>
+                      <input required value={formDataArtikel.title} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, title: e.target.value })} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>Kategori</label>
+                      <select value={formDataArtikel.category} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, category: e.target.value })} className={inputCls}>
+                        {ARTIKEL_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className={labelCls}>Penulis</label>
+                      <input value={formDataArtikel.author} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, author: e.target.value })} className={inputCls} />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className={labelCls}>Tanggal Tampil</label>
+                      <input placeholder="Contoh: 10 November 2026 (kosongkan untuk hari ini)" value={formDataArtikel.date} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, date: e.target.value })} className={inputCls} />
+                    </div>
+                    <div className="md:col-span-2">
+                      <ImageUploadField label="Foto Sampul" value={formDataArtikel.image} onChange={(v) => setFormDataArtikel({ ...formDataArtikel, image: v })} onAlert={showAlert} />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className={`flex items-start gap-3 p-3.5 bg-[#04284d] border border-[#164a78] rounded-xl select-none ${editingArtikelIsHot ? "opacity-70" : "cursor-pointer hover:border-accent/40"}`}>
+                        <input
+                          type="checkbox"
+                          disabled={editingArtikelIsHot}
+                          checked={formDataArtikel.is_hot}
+                          onChange={(e) => setFormDataArtikel({ ...formDataArtikel, is_hot: e.target.checked })}
+                          className="mt-0.5 w-4 h-4 accent-[#ffc300]"
+                        />
+                        <span>
+                          <span className="block text-xs font-bold">Jadikan Berita Hot di Beranda</span>
+                          <span className="block text-[11px] text-white/50 mt-0.5">
+                            {editingArtikelIsHot
+                              ? "Artikel ini sedang Hot. Ganti dengan klik Set Hot di artikel lain."
+                              : "Hanya 1 artikel yang bisa Hot. Artikel Hot sebelumnya otomatis diganti."}
+                          </span>
+                        </span>
+                      </label>
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className={labelCls}>Ringkasan</label>
+                      <textarea rows="2" value={formDataArtikel.excerpt} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, excerpt: e.target.value })} className={inputCls} />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className={labelCls}>Konten Artikel</label>
+                      <textarea rows="5" required value={formDataArtikel.content} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, content: e.target.value })} className={inputCls} />
+                    </div>
+                    <SubmitBtn>{editingArtikelId ? "Simpan Perubahan" : "Terbitkan Artikel"}</SubmitBtn>
+                  </form>
+                </FormSection>
+
+                <ListSection
+                  title="Daftar Artikel (terbaru di atas)"
+                  items={artikelList}
+                  loading={loadingArtikel}
+                  emptyText="Belum ada artikel."
+                  searchText={(i) => `${i.title} ${i.excerpt || ""} ${i.author || ""}`}
+                  filters={ARTIKEL_CATEGORIES}
+                  filterOf={(i) => i.category}
+                  columns={[
+                    {
+                      header: "Judul & Kategori",
+                      render: (i) => (
+                        <div className="flex items-center gap-3 min-w-0">
+                          <Thumb src={i.thumb} alt={i.title} />
+                          <div className="min-w-0">
+                            <p className="font-bold text-white line-clamp-1">{i.title}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[10px] font-bold text-accent uppercase">{i.category}</span>
+                              {i.is_hot && (
+                                <span className="px-2 py-px rounded-full text-[10px] font-black bg-accent text-[#043761]">HOT</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ),
+                    },
+                    {
+                      header: "Penulis & Tanggal",
+                      className: "whitespace-nowrap text-xs",
+                      render: (i) => (
+                        <>
+                          <p className="text-white/85">{i.author}</p>
+                          <p className="text-white/45">{i.date}</p>
+                        </>
+                      ),
+                    },
+                    {
+                      header: "Aksi",
+                      className: "text-right whitespace-nowrap",
+                      render: (i) => (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => handleSetHot(i)}
+                            className={`text-xs px-3 py-1 rounded-lg font-bold mr-1 transition-colors cursor-pointer ${
+                              i.is_hot
+                                ? "bg-accent text-[#043761]"
+                                : "text-white/75 border border-white/15 hover:border-accent hover:text-accent"
+                            }`}
+                          >
+                            {i.is_hot ? "Hot Aktif" : "Set Hot"}
+                          </button>
+                          <ActionBtn
+                            onClick={() => {
+                              setEditingArtikelId(i.id);
+                              setFormDataArtikel({
+                                title: i.title || "",
+                                category: i.category || "Berita",
+                                date: i.date || "",
+                                author: i.author || "Divisi Kominfo",
+                                image: i.image || "",
+                                excerpt: i.excerpt || "",
+                                content: typeof i.content === "string" ? i.content : JSON.stringify(i.content),
+                                is_hot: i.is_hot,
+                              });
+                              scrollTop();
+                            }}
+                          >
+                            Edit
+                          </ActionBtn>
+                          <ActionBtn tone="danger" onClick={() => handleArtikelDelete(i)}>Hapus</ActionBtn>
+                        </>
+                      ),
+                    },
+                  ]}
+                />
+              </>
+            )}
+
+            {/* ================= PRESTASI ================= */}
+            {activeMenu === "prestasi" && (
+              <>
+                <FormSection
+                  title={editingPrestasiId ? "Edit Prestasi" : "Tambah Prestasi"}
+                  editing={editingPrestasiId}
+                  onCancel={resetPrestasiForm}
+                  preview={
+                    <div className="rounded-2xl bg-[#073969] border border-[#164a78] overflow-hidden">
+                      <div className="aspect-[16/10] relative bg-[#03233f]">
+                        <Thumb
+                          src={formDataPrestasi.gambar || prestasiList.find((p) => p.id === editingPrestasiId)?.thumb}
+                          alt="Prestasi"
+                          className="w-full h-full"
+                          rounded="rounded-none"
+                        />
+                        <span className="absolute top-3 left-3 px-3 py-1 bg-accent text-[#043761] text-[10px] font-black uppercase rounded-full">
+                          {formDataPrestasi.peringkat || "Juara 1"}
+                        </span>
+                      </div>
+                      <div className="p-5">
+                        <h3 className="text-base font-bold leading-snug mb-2">{formDataPrestasi.judul || "Nama Kompetisi"}</h3>
+                        <div className="space-y-1 text-xs text-white/75">
+                          {formDataPrestasi.pemenang
+                            ? formDataPrestasi.pemenang.split("\n").filter(Boolean).map((n, idx) => <p key={idx}>{n}</p>)
+                            : <p className="text-white/40">Nama pemenang</p>}
+                        </div>
+                      </div>
+                    </div>
+                  }
+                >
+                  <form onSubmit={handlePrestasiSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className={labelCls}>Judul Kompetisi</label>
+                      <input required value={formDataPrestasi.judul} onChange={(e) => setFormDataPrestasi({ ...formDataPrestasi, judul: e.target.value })} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>Peringkat</label>
+                      <input required placeholder="Juara 1, Finalis, ..." value={formDataPrestasi.peringkat} onChange={(e) => setFormDataPrestasi({ ...formDataPrestasi, peringkat: e.target.value })} className={inputCls} />
+                    </div>
+                    <div className="md:col-span-2">
+                      <ImageUploadField label="Foto / Poster" value={formDataPrestasi.gambar} onChange={(v) => setFormDataPrestasi({ ...formDataPrestasi, gambar: v })} onAlert={showAlert} />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className={labelCls}>Link Instagram Post</label>
+                      <input type="url" placeholder="https://www.instagram.com/p/..." value={formDataPrestasi.instagram_url} onChange={(e) => setFormDataPrestasi({ ...formDataPrestasi, instagram_url: e.target.value })} className={inputCls} />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className={labelCls}>Nama Pemenang (satu per baris)</label>
+                      <textarea rows="3" value={formDataPrestasi.pemenang} onChange={(e) => setFormDataPrestasi({ ...formDataPrestasi, pemenang: e.target.value })} className={inputCls} />
+                    </div>
+                    <SubmitBtn>{editingPrestasiId ? "Simpan Perubahan" : "Simpan Prestasi"}</SubmitBtn>
+                  </form>
+                </FormSection>
+
+                <ListSection
+                  title="Daftar Prestasi"
+                  items={prestasiList}
+                  loading={loadingPrestasi}
+                  emptyText="Belum ada data prestasi."
+                  searchText={(i) => `${i.judul} ${i.peringkat} ${i.pemenang.join(" ")}`}
+                  columns={[
+                    {
+                      header: "Kompetisi & Peringkat",
+                      render: (i) => (
+                        <div className="flex items-center gap-3 min-w-0">
+                          <Thumb src={i.thumb} alt={i.judul} />
+                          <div className="min-w-0">
+                            <p className="font-bold text-white line-clamp-1">{i.judul}</p>
+                            <span className="text-xs text-accent font-bold">{i.peringkat}</span>
+                          </div>
+                        </div>
+                      ),
+                    },
+                    {
+                      header: "Pemenang",
+                      className: "text-xs text-white/70 max-w-xs",
+                      render: (i) => <p className="line-clamp-2">{i.pemenang.join(", ")}</p>,
+                    },
+                    {
+                      header: "Aksi",
+                      className: "text-right whitespace-nowrap",
+                      render: (i) => (
+                        <>
+                          <ActionBtn
+                            onClick={() => {
+                              setEditingPrestasiId(i.id);
+                              setFormDataPrestasi({
+                                judul: i.judul || "",
+                                peringkat: i.peringkat || "Juara 1",
+                                pemenang: i.pemenang.join("\n"),
+                                gambar: i.gambar || "",
+                                instagram_url: i.instagram_url || "",
+                              });
+                              scrollTop();
+                            }}
+                          >
+                            Edit
+                          </ActionBtn>
+                          <ActionBtn tone="danger" onClick={() => handlePrestasiDelete(i.id)}>Hapus</ActionBtn>
+                        </>
+                      ),
+                    },
+                  ]}
+                />
+              </>
+            )}
+
+            {/* ================= GALERI ================= */}
+            {activeMenu === "galeri" && (
+              <>
+                <FormSection
+                  title={editingGaleriId ? "Edit Foto Galeri" : "Tambah Foto Galeri"}
+                  editing={editingGaleriId}
+                  onCancel={resetGaleriForm}
+                  preview={
+                    <div className="rounded-2xl border border-[#164a78] overflow-hidden aspect-[4/3] relative bg-[#03233f]">
+                      <Thumb
+                        src={formDataGaleri.foto || galeriList.find((g) => g.id === editingGaleriId)?.thumb}
+                        alt="Dokumentasi"
+                        className="w-full h-full"
+                        rounded="rounded-none"
+                      />
+                      <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-[#02182b]/90 to-transparent p-4">
+                        <span className="px-2.5 py-0.5 rounded-md bg-accent text-[#043761] text-[10px] font-bold uppercase">
+                          {formDataGaleri.album}
+                        </span>
+                        <p className="text-xs text-white/90 mt-1.5 line-clamp-2">{formDataGaleri.caption || "Keterangan foto"}</p>
+                      </div>
+                    </div>
+                  }
+                >
+                  <form onSubmit={handleGaleriSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                      <label className={labelCls}>Album / Divisi</label>
+                      <select value={formDataGaleri.album} onChange={(e) => setFormDataGaleri({ ...formDataGaleri, album: e.target.value })} className={inputCls}>
+                        {ALBUM_OPTIONS.map((a) => <option key={a} value={a}>{a}</option>)}
+                      </select>
+                    </div>
+                    <div className="md:col-span-2">
+                      <ImageUploadField label="Foto Dokumentasi" value={formDataGaleri.foto} onChange={(v) => setFormDataGaleri({ ...formDataGaleri, foto: v })} onAlert={showAlert} />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className={labelCls}>Keterangan (opsional)</label>
+                      <input value={formDataGaleri.caption} onChange={(e) => setFormDataGaleri({ ...formDataGaleri, caption: e.target.value })} className={inputCls} />
+                    </div>
+                    <SubmitBtn>{editingGaleriId ? "Simpan Perubahan" : "Simpan Foto"}</SubmitBtn>
+                  </form>
+                </FormSection>
+
+                <ListSection
+                  title="Daftar Foto Galeri"
+                  items={galeriList}
+                  loading={loadingGaleri}
+                  emptyText="Belum ada foto galeri."
+                  searchText={(i) => `${i.album} ${i.caption || ""}`}
+                  filters={ALBUM_OPTIONS.filter((a) => galeriList.some((g) => g.album === a))}
+                  filterOf={(i) => i.album}
+                  columns={[
+                    {
+                      header: "Foto & Album",
+                      render: (i) => (
+                        <div className="flex items-center gap-3 min-w-0">
+                          <Thumb src={i.thumb} alt={i.album} className="w-16 h-12" />
+                          <div className="min-w-0">
+                            <p className="font-bold text-white line-clamp-1">{i.album}</p>
+                            <p className="text-xs text-white/55 line-clamp-1">{i.caption || "-"}</p>
+                          </div>
+                        </div>
+                      ),
+                    },
+                    { header: "ID", className: "text-xs text-white/50 whitespace-nowrap", render: (i) => `#${i.id}` },
+                    {
+                      header: "Aksi",
+                      className: "text-right whitespace-nowrap",
+                      render: (i) => (
+                        <>
+                          <ActionBtn
+                            onClick={() => {
+                              setEditingGaleriId(i.id);
+                              setFormDataGaleri({ album: i.album || "Divisi Kominfo", foto: i.foto || "", caption: i.caption || "" });
+                              scrollTop();
+                            }}
+                          >
+                            Edit
+                          </ActionBtn>
+                          <ActionBtn tone="danger" onClick={() => handleGaleriDelete(i.id)}>Hapus</ActionBtn>
+                        </>
+                      ),
+                    },
+                  ]}
+                />
+              </>
+            )}
+
+            {/* ================= PENGURUS ================= */}
+            {activeMenu === "pengurus" && (
+              <>
+                <FormSection
+                  title={editingPengurusId ? "Edit Pengurus" : "Tambah Pengurus"}
+                  editing={editingPengurusId}
+                  onCancel={resetPengurusForm}
+                  preview={
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setPreviewPengurus({
+                          ...formDataPengurus,
+                          nama: formDataPengurus.nama || "Nama Pengurus",
+                          jabatan: formDataPengurus.jabatan || "Jabatan",
+                          thumb: formDataPengurus.foto || pengurusList.find((p) => p.id === editingPengurusId)?.thumb,
+                        })
+                      }
+                      className="w-full max-w-[260px] mx-auto block rounded-2xl overflow-hidden bg-[#073969] border border-accent/50 text-left hover:-translate-y-0.5 transition-transform cursor-pointer"
+                    >
+                      <div className="aspect-[4/5] relative bg-[#02182b]">
+                        <Thumb
+                          src={formDataPengurus.foto || pengurusList.find((p) => p.id === editingPengurusId)?.thumb}
+                          alt="Pengurus"
+                          className="w-full h-full"
+                          rounded="rounded-none"
+                        />
+                        <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-[#04284d]/90 text-[10px] font-bold text-accent uppercase">
+                          {formDataPengurus.kelompok}
+                        </span>
+                      </div>
+                      <div className="p-4">
+                        <p className="text-sm font-bold">{formDataPengurus.nama || "Nama Pengurus"}</p>
+                        <p className="mt-1 text-[11px] font-semibold uppercase text-accent">{formDataPengurus.jabatan || "Jabatan"}</p>
+                        <p className="mt-2 text-[10px] text-white/45">Klik untuk uji popup detail</p>
+                      </div>
+                    </button>
+                  }
+                >
+                  <form onSubmit={handlePengurusSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className={labelCls}>Nama Lengkap</label>
+                      <input required value={formDataPengurus.nama} onChange={(e) => setFormDataPengurus({ ...formDataPengurus, nama: e.target.value })} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>Jabatan</label>
+                      <input required value={formDataPengurus.jabatan} onChange={(e) => setFormDataPengurus({ ...formDataPengurus, jabatan: e.target.value })} className={inputCls} />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className={labelCls}>Kelompok</label>
+                      <select value={formDataPengurus.kelompok} onChange={(e) => setFormDataPengurus({ ...formDataPengurus, kelompok: e.target.value })} className={inputCls}>
+                        {KELOMPOK_OPTIONS.map((k) => <option key={k.id} value={k.id}>{k.label}</option>)}
+                      </select>
+                    </div>
+                    <div className="md:col-span-2">
+                      <ImageUploadField label="Foto Profil" value={formDataPengurus.foto} onChange={(v) => setFormDataPengurus({ ...formDataPengurus, foto: v })} onAlert={showAlert} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>Instagram</label>
+                      <input placeholder="username atau URL" value={formDataPengurus.instagram} onChange={(e) => setFormDataPengurus({ ...formDataPengurus, instagram: e.target.value })} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>LinkedIn</label>
+                      <input placeholder="username atau URL" value={formDataPengurus.linkedin} onChange={(e) => setFormDataPengurus({ ...formDataPengurus, linkedin: e.target.value })} className={inputCls} />
+                    </div>
+                    <SubmitBtn>{editingPengurusId ? "Simpan Perubahan" : "Simpan Pengurus"}</SubmitBtn>
+                  </form>
+                </FormSection>
+
+                <ListSection
+                  title="Daftar Pengurus"
+                  items={pengurusList}
+                  loading={loadingPengurus}
+                  emptyText="Belum ada data pengurus."
+                  searchText={(i) => `${i.nama} ${i.jabatan}`}
+                  filters={KELOMPOK_OPTIONS.map((k) => k.id.toUpperCase())}
+                  filterOf={(i) => String(i.kelompok).toUpperCase()}
+                  columns={[
+                    {
+                      header: "Nama & Jabatan",
+                      render: (i) => (
+                        <div className="flex items-center gap-3 min-w-0">
+                          <Thumb src={i.thumb} alt={i.nama} className="w-11 h-11" rounded="rounded-full" />
+                          <div className="min-w-0">
+                            <p className="font-bold text-white line-clamp-1">{i.nama}</p>
+                            <p className="text-xs text-accent font-semibold line-clamp-1">{i.jabatan}</p>
+                          </div>
+                        </div>
+                      ),
+                    },
+                    { header: "Kelompok", className: "text-xs text-white/70 uppercase font-semibold whitespace-nowrap", render: (i) => i.kelompok },
+                    {
+                      header: "Aksi",
+                      className: "text-right whitespace-nowrap",
+                      render: (i) => (
+                        <>
+                          <ActionBtn tone="muted" onClick={() => setPreviewPengurus(i)}>Detail</ActionBtn>
+                          <ActionBtn
+                            onClick={() => {
+                              setEditingPengurusId(i.id);
+                              setFormDataPengurus({
+                                nama: i.nama || "",
+                                jabatan: i.jabatan || "",
+                                kelompok: i.kelompok || "bph",
+                                foto: i.foto || "",
+                                instagram: i.instagram || "",
+                                linkedin: i.linkedin || "",
+                              });
+                              scrollTop();
+                            }}
+                          >
+                            Edit
+                          </ActionBtn>
+                          <ActionBtn tone="danger" onClick={() => handlePengurusDelete(i.id)}>Hapus</ActionBtn>
+                        </>
+                      ),
+                    },
+                  ]}
+                />
+              </>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </main>
+
+      {/* Popup detail pengurus (sama seperti di web publik) */}
+      <AnimatePresence>
+        {previewPengurus && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-[#02182b]/85 backdrop-blur-sm"
+            onClick={() => setPreviewPengurus(null)}
+          >
+            <motion.div
+              initial={{ y: 12, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 8, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-[340px] bg-[#073969] border border-accent/40 rounded-2xl overflow-hidden shadow-2xl"
+            >
+              <button
+                type="button"
+                onClick={() => setPreviewPengurus(null)}
+                className="absolute top-3 right-3 z-10 px-3 py-1 rounded-full bg-[#02182b]/80 text-white/85 hover:text-white text-xs font-bold cursor-pointer"
+              >
+                Tutup
+              </button>
+              <div className="aspect-[4/5] bg-[#04284d]">
+                <Thumb src={previewPengurus.thumb} alt={previewPengurus.nama} className="w-full h-full" rounded="rounded-none" />
+              </div>
+              <div className="p-5">
+                <h3 className="text-lg font-bold leading-tight">{previewPengurus.nama}</h3>
+                <p className="mt-1 text-xs font-semibold text-accent">
+                  {previewPengurus.jabatan} <span className="text-white/60 font-normal uppercase">/ {previewPengurus.kelompok}</span>
+                </p>
+                <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-white/10">
+                  {previewPengurus.instagram ? (
+                    <a href={socialUrl(previewPengurus.instagram, "https://instagram.com/")} target="_blank" rel="noopener noreferrer" className="text-center px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-xs font-semibold">
+                      Instagram
+                    </a>
+                  ) : (
+                    <span className="text-center px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white/30 text-xs">Instagram -</span>
+                  )}
+                  {previewPengurus.linkedin ? (
+                    <a href={socialUrl(previewPengurus.linkedin, "https://linkedin.com/in/")} target="_blank" rel="noopener noreferrer" className="text-center px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-xs font-semibold">
+                      LinkedIn
+                    </a>
+                  ) : (
+                    <span className="text-center px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white/30 text-xs">LinkedIn -</span>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Bottom menu bar: menempel di bawah. Lingkaran hanya muncul saat hover atau di menu aktif. */}
+      <nav
+        aria-label="Menu admin"
+        className="fixed bottom-0 inset-x-0 z-50 bg-[#073969]/95 backdrop-blur-md border-t border-[#164a78] pb-[env(safe-area-inset-bottom)]"
+      >
+        <ul className="mx-auto max-w-xl grid grid-cols-5">
+          {MENU.map((m) => {
+            const Icon = m.icon;
+            const active = activeMenu === m.id;
+            return (
+              <li key={m.id}>
+                <button
+                  type="button"
+                  aria-current={active ? "page" : undefined}
+                  onClick={() => {
+                    setActiveMenu(m.id);
+                    scrollTop();
+                  }}
+                  className="group w-full flex flex-col items-center gap-0.5 py-2 cursor-pointer focus-visible:outline-none"
+                >
+                  <span
+                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200 ${
+                      active
+                        ? "bg-accent text-[#043761]"
+                        : "text-white/60 group-hover:bg-white/10 group-hover:text-white group-focus-visible:bg-white/10"
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
+                  </span>
+                  <span className={`text-[11px] ${active ? "text-accent font-bold" : "text-white/60 group-hover:text-white"}`}>
+                    {m.label}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+
+      {modal}
+    </motion.div>
   );
 }

@@ -42,16 +42,12 @@ export default function Artikel() {
             };
           });
 
-          const dbIds = new Set(data.map((d) => String(d.id)));
-          const remainingFallback = artikelData.filter(
-            (a) => !dbIds.has(String(a.id)),
-          );
-
-          const combined = [...normalized, ...remainingFallback].sort(
+          // Database adalah sumber utama: artikel yang dihapus di admin tidak muncul lagi dari data lokal.
+          const combined = [...normalized].sort(
             (a, b) => {
-              const dateA = a.datetime || a.date || "";
-              const dateB = b.datetime || b.date || "";
-              return dateB.localeCompare(dateA);
+              const dateA = a.datetime || "";
+              const dateB = b.datetime || "";
+              return dateB.localeCompare(dateA) || Number(b.id) - Number(a.id);
             },
           );
 

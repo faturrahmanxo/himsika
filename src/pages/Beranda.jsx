@@ -142,16 +142,12 @@ export default function Beranda() {
             };
           });
 
-          const dbIds = new Set(data.map((d) => String(d.id)));
-          const remainingFallback = artikelData.filter(
-            (a) => !dbIds.has(String(a.id)),
-          );
-
-          const combined = [...normalized, ...remainingFallback].sort(
+          // Database adalah sumber utama: artikel yang dihapus di admin tidak muncul lagi dari data lokal.
+          const combined = [...normalized].sort(
             (a, b) => {
-              const dateA = a.datetime || a.date || "";
-              const dateB = b.datetime || b.date || "";
-              return dateB.localeCompare(dateA);
+              const dateA = a.datetime || "";
+              const dateB = b.datetime || "";
+              return dateB.localeCompare(dateA) || Number(b.id) - Number(a.id);
             },
           );
 
@@ -165,8 +161,8 @@ export default function Beranda() {
     fetchLatestArticles();
   }, []);
 
-  // Menentukan berita hot/utama: prioritaskan artikel dengan is_hot === true atau category === "Berita Utama"
-  const hotArticle = articles.find((a) => a.is_hot || a.category === "Berita Utama");
+  // Berita hot ditentukan dari kolom is_hot di database (diatur dari panel admin, selalu tepat 1).
+  const hotArticle = articles.find((a) => a.is_hot === true);
   const otherArticles = hotArticle
     ? articles.filter((a) => String(a.id) !== String(hotArticle.id))
     : articles.slice(1);
@@ -900,7 +896,7 @@ export default function Beranda() {
                       </div>
                       {featuredBerita.is_hot && (
                         <div className="bg-red-500 text-white px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest shadow-md flex items-center gap-1">
-                          🔥 Hot
+                          Hot
                         </div>
                       )}
                     </div>

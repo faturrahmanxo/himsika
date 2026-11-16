@@ -35,11 +35,8 @@ export default function Galeri() {
               albumSlug: d.album_slug || d.albumSlug || fallback?.albumSlug || "",
             };
           });
-          const dbIds = new Set(data.map((d) => String(d.id)));
-          const remainingFallback = galeriDefault.filter(
-            (g) => !dbIds.has(String(g.id)),
-          );
-          setGaleriList([...normalized, ...remainingFallback]);
+          // Database adalah sumber utama agar foto yang dihapus di admin tidak muncul lagi.
+          setGaleriList(normalized);
         }
       } catch (err) {
         console.warn("Menggunakan data galeri lokal:", err.message);
