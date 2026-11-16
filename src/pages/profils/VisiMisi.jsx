@@ -8,16 +8,11 @@ import { visi, misi, divisiRingkas } from "../../data/profilData";
 // isinya memang urutan butir, bukan kartu (R-05).
 export default function VisiMisi() {
   return (
-    <div className="min-h-screen bg-linear-to-b from-[#02182b] via-[#043761] to-[#02182b] font-primary text-white pb-24 relative overflow-hidden selection:bg-accent selection:text-[#02182b]">
-      {/* Background Dekorasi Khas HIMSIKA */}
-      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff07_1px,transparent_1px),linear-gradient(to_bottom,#ffffff07_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] [mask-image:radial-gradient(ellipse_75%_50%_at_50%_20%,#000_70%,transparent_100%)]"></div>
-        <div
-          className="absolute w-[35rem] h-[35rem] rounded-full blur-[140px] bg-accent/10 -top-24 left-1/2 -translate-x-1/2 pointer-events-none animate-pulse"
-          style={{ animationDuration: "8s" }}
-        ></div>
-        <div className="absolute w-[28rem] h-[28rem] rounded-full blur-[120px] bg-info/15 top-1/3 -right-24 pointer-events-none"></div>
-        <div className="absolute w-[30rem] h-[30rem] rounded-full blur-[130px] bg-blue-500/10 bottom-10 -left-20 pointer-events-none"></div>
+    <div className="relative min-h-screen bg-page font-primary text-white pb-24 overflow-x-clip selection:bg-accent selection:text-[#043761]">
+      {/* Background Motif Identitas (Sama dengan halaman Logo) */}
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,#000_40%,transparent_100%)]"></div>
+        <div className="absolute left-1/2 top-1/4 h-[40rem] w-[40rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/10 blur-[160px]"></div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -29,7 +24,7 @@ export default function VisiMisi() {
 
         {/* Visi */}
         <Reveal>
-          <section className="rounded-3xl bg-[#021f3f]/85 backdrop-blur-md border border-[#1b4e80] p-8 sm:p-12 relative overflow-hidden shadow-2xl shadow-black/30">
+          <section className="rounded-3xl bg-card border border-border p-8 sm:p-12 relative overflow-hidden shadow-xl shadow-black/20">
             <div className="absolute top-0 left-0 w-2 h-full bg-linear-to-b from-accent to-accent/30 shadow-[0_0_15px_rgba(255,195,0,0.5)]" />
             <p className="text-xs font-bold tracking-widest uppercase text-accent">
               Visi
@@ -53,7 +48,7 @@ export default function VisiMisi() {
             {misi.map((m, i) => (
               <Reveal key={i} delay={i * 0.04}>
                 <li className="flex gap-4 items-start group">
-                  <span className="shrink-0 mt-0.5 flex items-center justify-center w-8 h-8 rounded-lg bg-[#021f3f] border border-[#1b4e80] text-accent font-black text-sm shadow-md group-hover:border-accent/60 group-hover:scale-105 transition-all">
+                  <span className="shrink-0 mt-0.5 flex items-center justify-center w-8 h-8 rounded-lg bg-surface border border-border text-accent font-black text-sm shadow-md group-hover:border-accent/60 group-hover:scale-105 transition-all">
                     {i + 1}
                   </span>
                   <p className="text-white/80 leading-relaxed group-hover:text-white transition-colors">{m}</p>
@@ -78,7 +73,7 @@ export default function VisiMisi() {
           <div className="mt-8 grid sm:grid-cols-2 gap-5">
             {divisiRingkas.map((d, i) => (
               <Reveal key={d.nama} delay={i * 0.05}>
-                <article className="h-full rounded-2xl bg-[#021f3f]/80 backdrop-blur-xs border border-[#1b4e80] hover:border-accent/60 hover:-translate-y-1 transition-all p-6 shadow-lg shadow-black/25">
+                <article className="h-full rounded-2xl bg-card border border-border hover:border-accent/60 hover:-translate-y-1 transition-all p-6 shadow-md shadow-black/20">
                   <h3 className="text-lg font-bold text-white">{d.nama}</h3>
                   <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-accent">
                     {d.dept}

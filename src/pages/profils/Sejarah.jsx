@@ -9,16 +9,11 @@ import { sejarahSingkat, kabinet } from "../../data/profilData";
 // seragam) supaya urutan tahun terbaca sebagai satu garis waktu (RHYTHM 2).
 export default function Sejarah() {
   return (
-    <div className="min-h-screen bg-linear-to-b from-[#02182b] via-[#043761] to-[#02182b] font-primary text-white pb-24 relative overflow-hidden selection:bg-accent selection:text-[#02182b]">
-      {/* Background Dekorasi Khas HIMSIKA */}
-      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff07_1px,transparent_1px),linear-gradient(to_bottom,#ffffff07_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] [mask-image:radial-gradient(ellipse_75%_50%_at_50%_20%,#000_70%,transparent_100%)]"></div>
-        <div
-          className="absolute w-[35rem] h-[35rem] rounded-full blur-[140px] bg-accent/10 -top-24 left-1/2 -translate-x-1/2 pointer-events-none animate-pulse"
-          style={{ animationDuration: "8s" }}
-        ></div>
-        <div className="absolute w-[28rem] h-[28rem] rounded-full blur-[120px] bg-info/15 top-1/3 -right-24 pointer-events-none"></div>
-        <div className="absolute w-[30rem] h-[30rem] rounded-full blur-[130px] bg-blue-500/10 bottom-10 -left-20 pointer-events-none"></div>
+    <div className="relative min-h-screen bg-page font-primary text-white pb-24 overflow-x-clip selection:bg-accent selection:text-[#043761]">
+      {/* Background Motif Identitas (Sama dengan halaman Logo) */}
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,#000_40%,transparent_100%)]"></div>
+        <div className="absolute left-1/2 top-1/4 h-[40rem] w-[40rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/10 blur-[160px]"></div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -31,7 +26,7 @@ export default function Sejarah() {
         {/* Ringkasan: tahun berdiri sebagai penanda besar, paragraf di sebelahnya */}
         <section className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           <Reveal className="lg:col-span-4">
-            <div className="rounded-3xl bg-[#021f3f]/85 backdrop-blur-md border border-[#1b4e80] hover:border-accent/50 p-8 shadow-xl shadow-black/30 transition-all">
+            <div className="rounded-3xl bg-card border border-border hover:border-accent/50 p-8 shadow-xl shadow-black/20 transition-all">
               <p className="text-xs font-bold tracking-widest uppercase text-white/60">
                 Berdiri sejak
               </p>
@@ -95,12 +90,12 @@ export default function Sejarah() {
                     className={`absolute left-0 top-0 flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 transition-all ${
                       isAktif
                         ? "bg-accent border-accent shadow-[0_0_20px_rgba(255,195,0,0.4)]"
-                        : "bg-[#021f3f] border-[#1b4e80]"
+                        : "bg-card border-border"
                     }`}
                   >
                     <span
                       className={`text-xs font-bold ${
-                        isAktif ? "text-[#02182b]" : "text-white/60"
+                        isAktif ? "text-accent-foreground" : "text-white/60"
                       }`}
                     >
                       {String(i + 1).padStart(2, "0")}
