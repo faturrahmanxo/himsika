@@ -51,8 +51,19 @@ export default function Galeri() {
   );
 
   return (
-    <div className="min-h-screen bg-page font-primary text-white pb-24 selection:bg-accent selection:text-[#02182b]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-linear-to-b from-[#02182b] via-[#043761] to-[#02182b] font-primary text-white pb-24 relative overflow-hidden selection:bg-accent selection:text-[#02182b]">
+      {/* Background Dekorasi Khas HIMSIKA */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff07_1px,transparent_1px),linear-gradient(to_bottom,#ffffff07_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] [mask-image:radial-gradient(ellipse_75%_50%_at_50%_20%,#000_70%,transparent_100%)]"></div>
+        <div
+          className="absolute w-[35rem] h-[35rem] rounded-full blur-[140px] bg-accent/10 -top-24 left-1/2 -translate-x-1/2 pointer-events-none animate-pulse"
+          style={{ animationDuration: "8s" }}
+        ></div>
+        <div className="absolute w-[28rem] h-[28rem] rounded-full blur-[120px] bg-info/15 top-1/3 -right-24 pointer-events-none"></div>
+        <div className="absolute w-[30rem] h-[30rem] rounded-full blur-[130px] bg-blue-500/10 bottom-10 -left-20 pointer-events-none"></div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <PageHeader
           judul="Galeri"
           sorot="Kegiatan"
@@ -78,10 +89,10 @@ export default function Galeri() {
                   role="tab"
                   aria-selected={dipilih}
                   onClick={() => setAlbum(a)}
-                  className={`px-4 py-2.5 min-h-[44px] text-sm font-semibold rounded-lg border transition-colors cursor-pointer ${
+                  className={`px-4 py-2.5 min-h-[44px] text-sm font-semibold rounded-lg border transition-all cursor-pointer ${
                     dipilih
                       ? "bg-accent border-accent text-[#02182b] font-bold shadow-[0_0_15px_rgba(255,195,0,0.3)]"
-                      : "bg-[#021f3f] border-[#1b4e80] text-white/70 hover:text-white hover:border-accent/40"
+                      : "bg-[#021f3f]/80 backdrop-blur-xs border-[#1b4e80] text-white/70 hover:text-white hover:border-accent/40"
                   }`}
                 >
                   {a}
@@ -117,7 +128,7 @@ export default function Galeri() {
                 <button
                   onClick={() => setTerbuka(g)}
                   aria-label={`Perbesar foto ${g.album}`}
-                  className="group relative w-full h-full rounded-2xl overflow-hidden bg-[#021f3f] border border-[#1b4e80] hover:border-accent/60 transition-colors shadow-md shadow-black/20 cursor-pointer"
+                  className="group relative w-full h-full rounded-2xl overflow-hidden bg-[#021f3f]/90 backdrop-blur-xs border border-[#1b4e80] hover:border-accent/60 transition-all shadow-lg shadow-black/25 cursor-pointer"
                 >
                   <img
                     src={g.foto}
@@ -125,7 +136,7 @@ export default function Galeri() {
                     loading="lazy"
                     className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
                   />
-                  <span className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/85 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                     <span className="text-xs font-semibold text-white">
                       {g.album}
                     </span>

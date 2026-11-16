@@ -71,6 +71,28 @@ export default function StrukturOrganisasi() {
     return found ? found.label : "Anggota HIMSIKA";
   };
 
+  // Helper angkatan pengurus:
+  // - Ketua, Wakil, Sekum, Bendum (BPH), Ketua Divisi, Ketua Departemen = Angkatan 2024
+  // - Kecuali Dafa (Ketua Departemen Desain) = Angkatan 2025
+  // - Sisanya (Anggota Departemen) = Angkatan 2025
+  const getAngkatan = (member) => {
+    if (member?.angkatan) return member.angkatan;
+    const nama = (member?.nama || "").toLowerCase();
+    // Pengecualian khusus: Dafa ketua desain adalah angkatan 2025
+    if (nama.includes("dafa")) return "2025";
+
+    const jab = (member?.jabatan || "").toUpperCase();
+    const kel = (member?.kelompok || "").toLowerCase();
+
+    // BPH, Ketua Divisi, Ketua Departemen = Angkatan 2024
+    if (kel === "bph" || kel === "kadiv" || jab.includes("KETUA")) {
+      return "2024";
+    }
+
+    // Sisanya = Angkatan 2025
+    return "2025";
+  };
+
   const getInstagramUrl = (member) => {
     if (member?.instagram) {
       if (member.instagram.startsWith("http")) return member.instagram;
@@ -90,8 +112,19 @@ export default function StrukturOrganisasi() {
   };
 
   return (
-    <div className="min-h-screen bg-page font-primary text-white pb-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-linear-to-b from-[#02182b] via-[#043761] to-[#02182b] font-primary text-white pb-24 relative overflow-hidden selection:bg-accent selection:text-[#02182b]">
+      {/* Background Dekorasi Khas HIMSIKA */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff07_1px,transparent_1px),linear-gradient(to_bottom,#ffffff07_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] [mask-image:radial-gradient(ellipse_75%_50%_at_50%_20%,#000_70%,transparent_100%)]"></div>
+        <div
+          className="absolute w-[35rem] h-[35rem] rounded-full blur-[140px] bg-accent/10 -top-24 left-1/2 -translate-x-1/2 pointer-events-none animate-pulse"
+          style={{ animationDuration: "8s" }}
+        ></div>
+        <div className="absolute w-[28rem] h-[28rem] rounded-full blur-[120px] bg-info/15 top-1/3 -right-24 pointer-events-none"></div>
+        <div className="absolute w-[30rem] h-[30rem] rounded-full blur-[130px] bg-blue-500/10 bottom-10 -left-20 pointer-events-none"></div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <PageHeader
           judul="Struktur"
           sorot="Organisasi"
@@ -117,16 +150,16 @@ export default function StrukturOrganisasi() {
                   role="tab"
                   aria-selected={dipilih}
                   onClick={() => setAktif(k.id)}
-                  className={`px-4 py-2.5 min-h-[44px] text-sm font-semibold rounded-lg border transition-colors cursor-pointer ${
+                  className={`px-4 py-2.5 min-h-[44px] text-sm font-semibold rounded-lg border transition-all cursor-pointer ${
                     dipilih
-                      ? "bg-accent border-accent text-accent-foreground"
-                      : "bg-surface/50 border-border text-white/70 hover:text-white hover:border-white/30"
+                      ? "bg-accent border-accent text-accent-foreground font-bold shadow-[0_0_15px_rgba(255,195,0,0.3)]"
+                      : "bg-[#021f3f]/80 backdrop-blur-xs border-[#1b4e80] text-white/70 hover:text-white hover:border-accent/40"
                   }`}
                 >
                   {k.label}
                   <span
                     className={`ml-2 text-xs ${
-                      dipilih ? "text-accent-foreground/70" : "text-white/60"
+                      dipilih ? "text-accent-foreground/80 font-bold" : "text-white/60"
                     }`}
                   >
                     {jumlah}
@@ -151,25 +184,28 @@ export default function StrukturOrganisasi() {
               <Reveal key={p.nama} delay={Math.min(i * 0.03, 0.3)}>
                 <figure
                   onClick={() => setSelectedMember(p)}
-                  className="group h-full rounded-2xl overflow-hidden bg-card border border-border hover:border-accent/50 transition-colors cursor-pointer text-left flex flex-col"
+                  className="group h-full rounded-2xl overflow-hidden bg-[#021f3f]/90 backdrop-blur-xs border border-[#1b4e80] hover:border-accent/60 hover:-translate-y-1 transition-all duration-300 cursor-pointer text-left flex flex-col shadow-lg shadow-black/25"
                 >
-                  <div className="aspect-[4/5] overflow-hidden bg-surface">
+                  <div className="aspect-[4/5] overflow-hidden bg-surface relative">
                     <img
                       src={p.foto}
                       alt={`${p.nama}, ${p.jabatan}`}
                       loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
                     />
                   </div>
                   <figcaption className="p-4 flex-1 flex flex-col justify-between">
                     <div>
-                      <p className="text-sm font-bold text-white leading-snug">
+                      <p className="text-sm font-bold text-white leading-snug group-hover:text-accent transition-colors">
                         {p.nama}
                       </p>
                       <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-accent leading-snug">
                         {p.jabatan}
                       </p>
                     </div>
+                    <p className="mt-2.5 text-[10px] text-white/50 font-medium">
+                      Angkatan {getAngkatan(p)}
+                    </p>
                   </figcaption>
                 </figure>
               </Reveal>
@@ -250,7 +286,7 @@ export default function StrukturOrganisasi() {
 
                 {/* Angkatan & Program Studi */}
                 <p className="mt-1 text-[11px] text-white/50">
-                  Angkatan {selectedMember.angkatan || (selectedMember.jabatan?.includes("ANGGOTA") ? "2024" : "2023")} • S1 Sistem Informasi
+                  Angkatan {getAngkatan(selectedMember)} • S1 Sistem Informasi
                 </p>
 
                 {/* Tombol Media Sosial Langsung (Tanpa Teks Header Redundan) */}

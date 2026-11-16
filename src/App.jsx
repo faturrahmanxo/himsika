@@ -104,7 +104,10 @@ function App() {
             <div key="main-content">
               <Routes>
                 {/* Rute Rahasia Admin & Pengalihan /admin ke Beranda */}
-                <Route path="/portal-himsika-auth" element={<AdminDashboard />} />
+                <Route
+                  path="/portal-himsika-auth"
+                  element={<AdminDashboard />}
+                />
                 <Route path="/admin" element={<Navigate to="/" replace />} />
 
                 {/* Halaman Pengunjung Website */}
