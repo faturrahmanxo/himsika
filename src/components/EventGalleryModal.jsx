@@ -53,6 +53,28 @@ export default function EventGalleryModal({
 
   if (typeof document === "undefined") return null;
 
+  const currentItem = images && currentIndex !== null ? images[currentIndex] : null;
+  const currentSrc =
+    typeof currentItem === "string"
+      ? currentItem
+      : currentItem?.foto ||
+        currentItem?.src ||
+        currentItem?.image ||
+        currentItem?.url ||
+        "";
+  const currentCategory =
+    typeof currentItem === "object" && currentItem?.category
+      ? currentItem.category
+      : typeof currentItem === "object" && currentItem?.album
+      ? currentItem.album.toUpperCase()
+      : category;
+  const currentTitle =
+    typeof currentItem === "object" && currentItem?.title
+      ? currentItem.title
+      : typeof currentItem === "object" && currentItem?.album
+      ? `Dokumentasi ${currentItem.album}`
+      : title;
+
   return createPortal(
     <AnimatePresence>
       {isOpen && images.length > 0 && currentIndex !== null && (
@@ -97,8 +119,8 @@ export default function EventGalleryModal({
               <AnimatePresence mode="wait">
                 <motion.img
                   key={currentIndex}
-                  src={images[currentIndex]}
-                  alt={`${title} - Foto ${currentIndex + 1}`}
+                  src={currentSrc}
+                  alt={`${currentTitle} - Foto ${currentIndex + 1}`}
                   initial={{ opacity: 0, scale: 0.96 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.96 }}
@@ -123,10 +145,10 @@ export default function EventGalleryModal({
           {/* Bagian Bawah: Kategori Emas, Judul Kegiatan, dan Nomor Urut */}
           <div className="w-full text-center space-y-1 pb-2 z-50">
             <p className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-accent">
-              {category}
+              {currentCategory}
             </p>
             <h4 className="text-sm sm:text-base font-bold text-white tracking-wide">
-              {title}
+              {currentTitle}
             </h4>
             <p className="text-xs text-white/50 font-medium">
               {currentIndex + 1} / {images.length}

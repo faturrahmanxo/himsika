@@ -1,8 +1,9 @@
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { ZoomIn } from "lucide-react";
 import PageHeader from "../../components/PageHeader";
 import Reveal from "../../components/Reveal";
-import Lightbox from "../../components/Lightbox";
+import EventGalleryModal from "../../components/EventGalleryModal";
 import galeriDefault from "../../data/galeriData";
 import supabase from "../../supabase-client";
 
@@ -11,7 +12,7 @@ import supabase from "../../supabase-client";
 
 export default function Galeri() {
   const [album, setAlbum] = useState("Semua");
-  const [terbuka, setTerbuka] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
   const [galeriList, setGaleriList] = useState(galeriDefault);
 
   useEffect(() => {
@@ -132,7 +133,7 @@ export default function Galeri() {
                 className={i % 7 === 0 ? "col-span-2 row-span-2" : ""}
               >
                 <button
-                  onClick={() => setTerbuka(g)}
+                  onClick={() => setSelectedIndex(i)}
                   aria-label={`Perbesar foto ${g.album}`}
                   className="group relative w-full h-full rounded-2xl overflow-hidden bg-card border border-border hover:border-accent/60 transition-all shadow-md shadow-black/20 cursor-pointer"
                 >
@@ -140,9 +141,16 @@ export default function Galeri() {
                     src={g.foto}
                     alt={`Dokumentasi ${g.album}`}
                     loading="lazy"
-                    className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <span className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/85 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                  {/* Overlay Kaca Pembesar (Persis seperti Event Pages) */}
+                  <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-xs border border-white/30 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                      <ZoomIn className="w-4 h-4 text-white" />
+                    </div>
+                  </div>
+                  {/* Label Album di Bawah */}
+                  <span className="absolute inset-x-0 bottom-0 p-3 bg-linear-to-t from-black/85 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                     <span className="text-xs font-semibold text-white">
                       {g.album}
                     </span>
@@ -161,16 +169,26 @@ export default function Galeri() {
         </Reveal>
       </div>
 
-      <AnimatePresence>
-        {terbuka && (
-          <Lightbox
-            foto={terbuka}
-            daftar={tampil}
-            onClose={() => setTerbuka(null)}
-            onPindah={setTerbuka}
-          />
-        )}
-      </AnimatePresence>
+      {/* ================= MODAL LIGHTBOX IDENTIK DENGAN EVENT ================= */}
+      <EventGalleryModal
+        isOpen={selectedIndex !== null}
+        currentIndex={selectedIndex}
+        images={tampil.map((g) => g.foto)}
+        category={
+          selectedIndex !== null && tampil[selectedIndex]?.album
+            ? tampil[selectedIndex].album.toUpperCase()
+            : album === "Semua"
+            ? "DOKUMENTASI"
+            : album.toUpperCase()
+        }
+        title={
+          selectedIndex !== null && tampil[selectedIndex]?.album
+            ? `Dokumentasi ${tampil[selectedIndex].album}`
+            : "Galeri Kegiatan HIMSIKA"
+        }
+        onClose={() => setSelectedIndex(null)}
+        onNavigate={(newIdx) => setSelectedIndex(newIdx)}
+      />
     </div>
   );
 }

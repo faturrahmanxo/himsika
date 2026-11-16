@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { X, ExternalLink } from "lucide-react";
 import PageHeader from "../../components/PageHeader";
@@ -248,11 +249,11 @@ export default function StrukturOrganisasi() {
         </Reveal>
       </div>
 
-      {/* POPUP MODAL DETAIL PENGURUS & MEDIA SOSIAL */}
+      {/* POPUP MODAL DETAIL PENGURUS & MEDIA SOSIAL (Portaled ke body agar di atas Navbar) */}
       <AnimatePresence>
-        {selectedMember && (
+        {selectedMember && typeof document !== "undefined" && createPortal(
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 z-[999999] flex items-center justify-center p-4"
             role="dialog"
             aria-modal="true"
             aria-labelledby="member-modal-title"
@@ -371,7 +372,8 @@ export default function StrukturOrganisasi() {
                 </div>
               </div>
             </motion.div>
-          </div>
+          </div>,
+          document.body
         )}
       </AnimatePresence>
     </div>

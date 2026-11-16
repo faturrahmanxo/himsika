@@ -1,5 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { ZoomIn } from "lucide-react";
+import EventGalleryModal from "../../components/EventGalleryModal.jsx";
 // IMPORT DATA & SUPABASE
 import artikelData from "../../data/artikel";
 import supabase from "../../supabase-client";
@@ -290,7 +292,7 @@ export default function DetailArtikel() {
   );
 }
 
-// Galeri foto: grid rapi + lightbox sederhana
+// Galeri foto: grid rapi + EventGalleryModal (seragam dengan event)
 function GalleryGrid({ images }) {
   const [active, setActive] = useState(null);
   if (!images || images.length === 0) return null;
@@ -303,7 +305,7 @@ function GalleryGrid({ images }) {
             key={i}
             type="button"
             onClick={() => setActive(i)}
-            className="group relative aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 bg-white/5 shadow-lg cursor-zoom-in"
+            className="group relative aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 bg-white/5 shadow-lg cursor-pointer"
           >
             <img
               src={img.src}
@@ -311,59 +313,25 @@ function GalleryGrid({ images }) {
               loading="lazy"
               className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
             />
-            <span className="absolute inset-0 bg-linear-to-t from-[#043761]/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></span>
+            {/* Overlay Kaca Pembesar (Persis seperti Event Pages) */}
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-xs border border-white/30 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                <ZoomIn className="w-4 h-4 text-white" />
+              </div>
+            </div>
           </button>
         ))}
       </div>
 
-      {active !== null && (
-        <div
-          className="fixed inset-0 z-50 bg-[#021c33]/95 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8"
-          onClick={() => setActive(null)}
-        >
-          <button
-            type="button"
-            onClick={() => setActive(null)}
-            aria-label="Tutup"
-            className="absolute top-5 right-5 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xl font-bold transition-colors"
-          >
-            ×
-          </button>
-          <img
-            src={images[active].src}
-            alt={images[active].alt || "Foto"}
-            className="max-h-[85vh] max-w-full rounded-2xl shadow-2xl object-contain"
-            onClick={(e) => e.stopPropagation()}
-          />
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setActive((active - 1 + images.length) % images.length);
-              }}
-              className="w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-colors"
-              aria-label="Sebelumnya"
-            >
-              ‹
-            </button>
-            <span className="text-white/80 text-sm font-bold px-2">
-              {active + 1} / {images.length}
-            </span>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setActive((active + 1) % images.length);
-              }}
-              className="w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-colors"
-              aria-label="Berikutnya"
-            >
-              ›
-            </button>
-          </div>
-        </div>
-      )}
+      <EventGalleryModal
+        isOpen={active !== null}
+        currentIndex={active}
+        images={images.map((img) => img.src)}
+        category="ARTIKEL & BERITA"
+        title="Dokumentasi Berita"
+        onClose={() => setActive(null)}
+        onNavigate={(newIdx) => setActive(newIdx)}
+      />
     </div>
   );
 }
