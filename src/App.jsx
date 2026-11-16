@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence } from "motion/react";
 import supabase from "./supabase-client";
 
@@ -12,6 +12,7 @@ import Beranda from "./pages/Beranda";
 import Artikel from "./pages/Artikel";
 import BusinessCompany from "./pages/BusinessCompany";
 import Kontak from "./pages/Kontak.jsx";
+import NotFound from "./pages/NotFound.jsx";
 
 // Admin
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -43,6 +44,22 @@ import ArsipMateri from "./pages/events/ArsipMateri.jsx";
 import Preloader from "./components/Preloader";
 import ArrowToTop from "./components/ArrowToTop.jsx";
 
+// Komponen otomatis untuk normalisasi URL (memperbaiki double slash seperti //portal-himsika-auth)
+function PathNormalizer() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Jika ada double slash atau lebih (misal //portal-himsika-auth)
+    if (location.pathname.includes("//")) {
+      const cleanPath = location.pathname.replace(/\/+/g, "/");
+      navigate(cleanPath + location.search + location.hash, { replace: true });
+    }
+  }, [location, navigate]);
+
+  return null;
+}
+
 // Layout khusus halaman publik (agar Navbar & Footer tidak muncul di Admin)
 function PublicLayout() {
   return (
@@ -72,6 +89,23 @@ function PublicLayout() {
         <Route path="/kontak" element={<Kontak />} />
         <Route path="/credit" element={<Credit />} />
         <Route path="/artikel/:id" element={<DetailArtikel />} />
+
+        {/* Alias Rute yang sering salah ketik */}
+        <Route path="/struktur" element={<Navigate to="/struktur-organisasi" replace />} />
+        <Route path="/pengurus" element={<Navigate to="/struktur-organisasi" replace />} />
+        <Route path="/galeri" element={<Navigate to="/galeri-kegiatan" replace />} />
+        <Route path="/sejarah" element={<Navigate to="/sejarah-himsika" replace />} />
+        <Route path="/visimisi" element={<Navigate to="/visi-misi" replace />} />
+        <Route path="/visi" element={<Navigate to="/visi-misi" replace />} />
+        <Route path="/misi" element={<Navigate to="/visi-misi" replace />} />
+        <Route path="/lomba" element={<Navigate to="/aas/lomba-beasiswa" replace />} />
+        <Route path="/beasiswa" element={<Navigate to="/aas/lomba-beasiswa" replace />} />
+        <Route path="/prestasi" element={<Navigate to="/aas/prestasi" replace />} />
+        <Route path="/berita" element={<Navigate to="/artikel" replace />} />
+        <Route path="/contact" element={<Navigate to="/kontak" replace />} />
+
+        {/* Halaman 404 jika rute tidak ditemukan */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />
       <ArrowToTop />
@@ -96,6 +130,9 @@ function App() {
       {/* Background gelap di layer paling belakang */}
       <div className="fixed inset-0 bg-[#043761] -z-[999] pointer-events-none"></div>
 
+      {/* Normalisasi URL otomatis */}
+      <PathNormalizer />
+
       <div className={isLoading ? "h-screen overflow-hidden" : ""}>
         <AnimatePresence mode="wait">
           {isLoading ? (
@@ -109,6 +146,9 @@ function App() {
                   element={<AdminDashboard />}
                 />
                 <Route path="/admin" element={<Navigate to="/" replace />} />
+                <Route path="/portal-admin" element={<Navigate to="/portal-himsika-auth" replace />} />
+                <Route path="/portal-auth" element={<Navigate to="/portal-himsika-auth" replace />} />
+                <Route path="/admin-portal" element={<Navigate to="/portal-himsika-auth" replace />} />
 
                 {/* Halaman Pengunjung Website */}
                 <Route path="/*" element={<PublicLayout />} />
