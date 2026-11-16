@@ -25,6 +25,8 @@ import {
   Grid,
   List,
   ExternalLink,
+  Calendar,
+  Flame,
 } from "lucide-react";
 
 const AVAILABLE_CATEGORIES = [
@@ -242,6 +244,7 @@ export default function AdminDashboard() {
     image: "",
     excerpt: "",
     content: "",
+    is_hot: false,
   });
 
   // States Prestasi
@@ -421,13 +424,43 @@ export default function AdminDashboard() {
       .from("artikel")
       .select("*")
       .order("id", { ascending: false });
-    if (!error && data) setArtikelList(data);
+    if (!error && data) {
+      setArtikelList(
+        data.map((d) => ({
+          ...d,
+          is_hot: Boolean(d.is_hot || d.category === "Berita Utama"),
+        }))
+      );
+    }
     setLoadingArtikel(false);
+  };
+
+  const handleToggleHot = async (item) => {
+    const newHot = !item.is_hot;
+    setArtikelList((prev) =>
+      prev.map((a) => (a.id === item.id ? { ...a, is_hot: newHot } : a))
+    );
+    try {
+      let { error } = await supabase
+        .from("artikel")
+        .update({ is_hot: newHot })
+        .eq("id", item.id);
+      if (error && error.message?.includes("is_hot")) {
+        await supabase
+          .from("artikel")
+          .update({ category: newHot ? "Berita Utama" : "Berita" })
+          .eq("id", item.id);
+      }
+      fetchArtikel();
+    } catch (err) {
+      console.warn("Gagal ubah status hot:", err);
+      fetchArtikel();
+    }
   };
 
   const handleArtikelSubmit = async (e) => {
     e.preventDefault();
-    const payload = {
+    let payload = {
       title: formDataArtikel.title,
       category: formDataArtikel.category,
       date: formDataArtikel.date || new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }),
@@ -436,13 +469,20 @@ export default function AdminDashboard() {
       image: formDataArtikel.image,
       excerpt: formDataArtikel.excerpt,
       content: formDataArtikel.content,
+      is_hot: Boolean(formDataArtikel.is_hot),
     };
 
     if (editingArtikelId) {
-      const { error } = await supabase
+      let { error } = await supabase
         .from("artikel")
         .update(payload)
         .eq("id", editingArtikelId);
+      if (error && error.message?.includes("is_hot")) {
+        delete payload.is_hot;
+        if (formDataArtikel.is_hot) payload.category = "Berita Utama";
+        const retry = await supabase.from("artikel").update(payload).eq("id", editingArtikelId);
+        error = retry.error;
+      }
       if (error) alert("Gagal update artikel: " + error.message);
       else {
         alert("Artikel berhasil diperbarui!");
@@ -450,7 +490,13 @@ export default function AdminDashboard() {
         fetchArtikel();
       }
     } else {
-      const { error } = await supabase.from("artikel").insert([payload]);
+      let { error } = await supabase.from("artikel").insert([payload]);
+      if (error && error.message?.includes("is_hot")) {
+        delete payload.is_hot;
+        if (formDataArtikel.is_hot) payload.category = "Berita Utama";
+        const retry = await supabase.from("artikel").insert([payload]);
+        error = retry.error;
+      }
       if (error) alert("Gagal tambah artikel: " + error.message);
       else {
         alert("Artikel berhasil ditambahkan!");
@@ -477,6 +523,7 @@ export default function AdminDashboard() {
       image: "",
       excerpt: "",
       content: "",
+      is_hot: false,
     });
   };
 
@@ -686,17 +733,8 @@ export default function AdminDashboard() {
   // Background
   const AmbientBackground = () => (
     <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden select-none" aria-hidden="true">
-      {/* Soft Ambient Glows (Tanpa Kotak-Kotak Grid) */}
-      <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[36rem] h-[36rem] rounded-full bg-accent/10 blur-[150px]"></div>
-      <div className="absolute bottom-1/4 right-10 w-[30rem] h-[30rem] rounded-full bg-blue-500/10 blur-[160px]"></div>
-
-      {/* Star Sparkles */}
-      <svg className="absolute bottom-1/3 right-16 w-8 h-8 text-accent/30" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" />
-      </svg>
-      <svg className="absolute top-20 left-1/3 w-6 h-6 text-accent/25" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" />
-      </svg>
+      {/* Background polos elegan tanpa bulatan menyala */}
+      <div className="absolute inset-0 bg-linear-to-b from-[#043761] via-[#032d52] to-[#02182b] opacity-90"></div>
     </div>
   );
 
@@ -716,7 +754,6 @@ export default function AdminDashboard() {
               />
             </div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/25 text-accent font-bold text-[11px] uppercase tracking-widest mb-3">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
               Portal Resmi Administrator
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
@@ -775,177 +812,108 @@ export default function AdminDashboard() {
 
   // DASHBOARD UTAMA
   return (
-    <div className="min-h-screen bg-linear-to-b from-[#043761] via-primary to-[#043761] font-primary relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-b from-[#043761] via-[#032d52] to-[#02182b] font-primary relative text-white">
       <AmbientBackground />
 
-      {/* Overlay mobile & tablet */}
-      {sidebarOpen && (
-        <div
-          onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 lg:hidden cursor-pointer"
-        />
-      )}
-
-      {/* SIDEBAR */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-50 w-76 sm:w-80 bg-linear-to-b from-[#04284d]/98 via-[#043761]/98 to-[#03233f]/98 backdrop-blur-2xl border-r border-[#164a78] flex flex-col transition-transform duration-300 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0`}
-      >
-        <button
-          onClick={() => setSidebarOpen(false)}
-          type="button"
-          className="lg:hidden absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:text-accent cursor-pointer z-30"
-        >
-          <X className="w-4 h-4 pointer-events-none" />
-        </button>
-
-        {/* Brand */}
-        <div className="px-6 pt-8 pb-7 border-b border-[#164a78] flex flex-col items-center text-center relative">
-          <div className="w-16 h-16 flex items-center justify-center mb-2.5 transition-transform duration-300 hover:scale-105">
+      {/* TOP HEADER BAR */}
+      <header className="sticky top-0 z-40 bg-[#073969]/90 backdrop-blur-md border-b border-[#164a78] px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-md">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 flex items-center justify-center">
             <img
               src={LogoHimsika}
               alt="Logo HIMSIKA"
-              className="w-full h-full object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
+              className="w-full h-full object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
             />
           </div>
-          <h2 className="text-xl font-black text-white tracking-tight">HIMSIKA</h2>
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent mt-0.5">
-            Database Control
-          </span>
-        </div>
-
-        {/* Navigasi Menu CRUD */}
-        <nav className="flex-1 p-4 space-y-2 relative z-10 overflow-y-auto">
-          {[
-            { id: "lomba", label: "Kelola Lomba & Beasiswa", icon: Trophy, count: lombaList.length },
-            { id: "artikel", label: "Kelola Artikel & Berita", icon: FileText, count: artikelList.length },
-            { id: "prestasi", label: "Kelola Prestasi Mahasiswa", icon: Award, count: prestasiList.length },
-            { id: "galeri", label: "Kelola Galeri Kegiatan", icon: ImageIcon, count: galeriList.length },
-            { id: "pengurus", label: "Kelola Profil & Pengurus", icon: Users, count: pengurusList.length },
-          ].map((item) => {
-            const Icon = item.icon;
-            const isSelected = activeMenu === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => {
-                  setActiveMenu(item.id);
-                  setSidebarOpen(false);
-                }}
-                className={`group relative w-full flex items-center justify-between px-4 py-3.5 rounded-xl font-bold transition-all border cursor-pointer ${
-                  isSelected
-                    ? "bg-linear-to-r from-[#0d4f8f] via-[#083c6d] to-[#052d53] border-accent text-white shadow-[0_0_20px_rgba(255,195,0,0.22)] ring-1 ring-accent/40"
-                    : "bg-[#062c50]/50 border-white/10 text-white/80 hover:bg-[#084073] hover:text-white hover:border-accent/40"
-                }`}
-              >
-                {isSelected && (
-                  <span className="absolute left-0 top-2 bottom-2 w-1.5 bg-accent rounded-r-full shadow-[0_0_10px_rgba(255,195,0,0.8)]" />
-                )}
-                <div className="flex items-center gap-3 min-w-0 pr-2">
-                  <Icon className={`w-4 h-4 shrink-0 transition-colors ${isSelected ? "text-accent" : "text-white/60 group-hover:text-accent"}`} />
-                  <span className={`text-[13px] font-bold tracking-tight whitespace-nowrap ${isSelected ? "text-white" : "text-white/80 group-hover:text-white"}`}>
-                    {item.label}
-                  </span>
-                </div>
-                <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-black shrink-0 transition-all ${
-                  isSelected
-                    ? "bg-accent text-[#043761] shadow-sm shadow-black/30"
-                    : "bg-white/10 text-white/70 group-hover:bg-white/20 group-hover:text-white"
-                }`}>
-                  {item.count}
-                </span>
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* Logout */}
-        <div className="p-4 border-t border-[#164a78] relative z-10">
-          <button
-            onClick={handleLogout}
-            type="button"
-            className="w-full flex items-center justify-center gap-2 py-3 bg-red-500/15 border border-red-500/30 text-red-300 hover:bg-red-600 hover:text-white hover:border-red-600 font-bold rounded-xl transition-all text-xs cursor-pointer shadow-sm"
-          >
-            <LogOut className="w-3.5 h-3.5 pointer-events-none" /> Keluar Akun
-          </button>
-        </div>
-      </aside>
-
-      {/* MAIN CONTENT */}
-      <div className="lg:pl-80 relative z-10 flex flex-col min-h-screen">
-        {/* Top bar mobile */}
-        <header className="h-16 px-4 sm:px-6 flex items-center justify-between lg:hidden sticky top-0 z-30 bg-[#04284d]/95 backdrop-blur-xl border-b border-[#164a78]">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            type="button"
-            className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/80 hover:text-white cursor-pointer"
-          >
-            <Menu className="w-4 h-4 pointer-events-none" />
-          </button>
-          <span className="text-sm font-bold text-white capitalize">
-            Kelola {activeMenu}
-          </span>
-          <div className="w-9 h-9"></div>
-        </header>
-
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl w-full mx-auto">
-          {/* Header section */}
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="w-6 h-[2px] bg-accent rounded-full"></span>
-              <span className="text-accent font-bold text-xs uppercase tracking-widest flex items-center gap-1.5">
-                Database Management <Sparkles className="w-3.5 h-3.5" />
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-base font-black text-white tracking-tight">HIMSIKA</span>
+              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-accent/15 text-accent border border-accent/25">
+                Admin Control
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight capitalize">
-              Kelola <span className="text-accent">{activeMenu}</span>
-            </h1>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#04284d] border border-[#164a78] text-xs">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <span className="text-white/60 text-[11px]">Database:</span>
+            <span className="font-semibold text-emerald-400 text-[11px]">Supabase Live</span>
+          </div>
+          <div className="hidden md:flex items-center gap-2 text-xs text-white/70 bg-[#04284d] border border-[#164a78] px-3 py-1.5 rounded-xl">
+            <Users className="w-3.5 h-3.5 text-accent shrink-0" />
+            <span className="text-[11px] truncate max-w-[180px]" title={session?.user?.email}>
+              {session?.user?.email}
+            </span>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500/15 border border-red-500/30 text-red-300 hover:bg-red-600 hover:text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Keluar</span>
+          </button>
+        </div>
+      </header>
+
+      {/* MAIN CONTENT AREA */}
+      <main className="relative z-10 flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl w-full mx-auto pb-32">
+        {/* Header Section */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="w-6 h-[2px] bg-accent rounded-full"></span>
+            <span className="text-accent font-bold text-xs uppercase tracking-widest flex items-center gap-1.5">
+              Database Management <Sparkles className="w-3.5 h-3.5" />
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight capitalize">
+            Kelola <span className="text-accent">{activeMenu}</span>
+          </h1>
+        </div>
+
+        {/* Quick Stats Bar (Lega, Bersih, Tanpa Bulet Menyala) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+          <div className="bg-[#073969]/80 border border-[#164a78] rounded-2xl p-4 sm:p-5 flex items-center gap-3.5 backdrop-blur-sm shadow-md min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-accent/15 border border-accent/25 flex items-center justify-center text-accent shrink-0">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block">Total Data Aktif</span>
+              <span className="text-xl sm:text-2xl font-extrabold text-white truncate block">
+                {activeMenu === "lomba" && `${lombaList.length} Lomba`}
+                {activeMenu === "artikel" && `${artikelList.length} Artikel`}
+                {activeMenu === "prestasi" && `${prestasiList.length} Prestasi`}
+                {activeMenu === "galeri" && `${galeriList.length} Foto`}
+                {activeMenu === "pengurus" && `${pengurusList.length} Pengurus`}
+              </span>
+            </div>
           </div>
 
-          {/* Quick Stats Bar (Responsif di semua ukuran tanpa teks tertekan) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-8">
-            <div className="bg-linear-to-br from-[#073969]/90 to-[#04284d]/90 border border-[#164a78] rounded-2xl p-4 sm:p-5 flex items-center gap-3.5 backdrop-blur-sm shadow-md min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-accent/15 border border-accent/25 flex items-center justify-center text-accent shrink-0">
-                <Sparkles className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block">Total Data Aktif</span>
-                <span className="text-xl sm:text-2xl font-extrabold text-white truncate block">
-                  {activeMenu === "lomba" && `${lombaList.length} Lomba`}
-                  {activeMenu === "artikel" && `${artikelList.length} Artikel`}
-                  {activeMenu === "prestasi" && `${prestasiList.length} Prestasi`}
-                  {activeMenu === "galeri" && `${galeriList.length} Foto`}
-                  {activeMenu === "pengurus" && `${pengurusList.length} Pengurus`}
-                </span>
-              </div>
+          <div className="bg-[#073969]/80 border border-[#164a78] rounded-2xl p-4 sm:p-5 flex items-center gap-3.5 backdrop-blur-sm shadow-md min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0">
+              <CheckCircle2 className="w-5 h-5" />
             </div>
-
-            <div className="bg-linear-to-br from-[#073969]/90 to-[#04284d]/90 border border-[#164a78] rounded-2xl p-4 sm:p-5 flex items-center gap-3.5 backdrop-blur-sm shadow-md min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0">
-                <CheckCircle2 className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block">Status Koneksi</span>
-                <span className="text-xs sm:text-sm font-extrabold text-emerald-400 flex items-center gap-1.5 whitespace-nowrap">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
-                  Supabase Live DB
-                </span>
-              </div>
-            </div>
-
-            <div className="col-span-1 sm:col-span-2 lg:col-span-1 bg-linear-to-br from-[#073969]/90 to-[#04284d]/90 border border-[#164a78] rounded-2xl p-4 sm:p-5 flex items-center gap-3.5 backdrop-blur-sm shadow-md min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 shrink-0">
-                <Users className="w-5 h-5" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block">Akses Administrator</span>
-                <span className="text-xs sm:text-sm font-bold text-white/90 truncate block" title={session?.user?.email}>
-                  {session?.user?.email || "Admin Terautentikasi"}
-                </span>
-              </div>
+            <div className="min-w-0">
+              <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block">Status Koneksi</span>
+              <span className="text-xs sm:text-sm font-extrabold text-emerald-400 flex items-center gap-1.5 whitespace-nowrap">
+                Supabase Live DB
+              </span>
             </div>
           </div>
+
+          <div className="col-span-1 sm:col-span-2 lg:col-span-1 bg-[#073969]/80 border border-[#164a78] rounded-2xl p-4 sm:p-5 flex items-center gap-3.5 backdrop-blur-sm shadow-md min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 shrink-0">
+              <Users className="w-5 h-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block">Akses Administrator</span>
+              <span className="text-xs sm:text-sm font-bold text-white/90 truncate block" title={session?.user?.email}>
+                {session?.user?.email || "Admin Terautentikasi"}
+              </span>
+            </div>
+          </div>
+        </div>
 
           {/* ================= 1. MENU LOMBA ================= */}
           {activeMenu === "lomba" && (
@@ -967,92 +935,144 @@ export default function AdminDashboard() {
                   )}
                 </div>
 
-                <form onSubmit={handleLombaSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-white/70 mb-1">Judul Lomba</label>
-                    <input
-                      type="text"
-                      required
-                      value={formDataLomba.title}
-                      onChange={(e) => setFormDataLomba({ ...formDataLomba, title: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                    />
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                  {/* Sisi Kiri: Form Input Lomba */}
+                  <form onSubmit={handleLombaSubmit} className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-white/70 mb-1">Judul Lomba</label>
+                      <input
+                        type="text"
+                        required
+                        value={formDataLomba.title}
+                        onChange={(e) => setFormDataLomba({ ...formDataLomba, title: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-white/70 mb-1">Penyelenggara</label>
+                      <input
+                        type="text"
+                        required
+                        value={formDataLomba.organizer}
+                        onChange={(e) => setFormDataLomba({ ...formDataLomba, organizer: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-bold text-white/70 mb-1">Deskripsi</label>
+                      <textarea
+                        rows="3"
+                        value={formDataLomba.description}
+                        onChange={(e) => setFormDataLomba({ ...formDataLomba, description: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl p-3 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-white/70 mb-1">Deadline Pendaftaran</label>
+                      <input
+                        type="text"
+                        placeholder="Contoh: 15 November 2026"
+                        value={formDataLomba.deadline_pendaftaran}
+                        onChange={(e) => setFormDataLomba({ ...formDataLomba, deadline_pendaftaran: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-white/70 mb-1">Deadline Pengumpulan</label>
+                      <input
+                        type="text"
+                        placeholder="Contoh: 20 November 2026"
+                        value={formDataLomba.deadline_pengumpulan}
+                        onChange={(e) => setFormDataLomba({ ...formDataLomba, deadline_pengumpulan: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-bold text-white/70 mb-1">Benefit / Hadiah</label>
+                      <input
+                        type="text"
+                        value={formDataLomba.benefit}
+                        onChange={(e) => setFormDataLomba({ ...formDataLomba, benefit: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-white/70 mb-1">Link Pendaftaran (URL)</label>
+                      <input
+                        type="url"
+                        value={formDataLomba.registration_url}
+                        onChange={(e) => setFormDataLomba({ ...formDataLomba, registration_url: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-white/70 mb-1">Link Guidebook (URL)</label>
+                      <input
+                        type="url"
+                        value={formDataLomba.guidebook_url}
+                        onChange={(e) => setFormDataLomba({ ...formDataLomba, guidebook_url: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div className="md:col-span-2 flex justify-end pt-4 border-t border-white/10">
+                      <button
+                        type="submit"
+                        className="px-6 py-2.5 bg-accent text-[#02182b] font-bold rounded-full hover:bg-[#ffcf33] text-sm shadow-md cursor-pointer"
+                      >
+                        {editingLombaId ? "Simpan Perubahan Lomba" : "Tambah Lomba ke Database"}
+                      </button>
+                    </div>
+                  </form>
+
+                  {/* Sisi Kanan: Live Preview Card Lomba */}
+                  <div className="lg:col-span-5 flex flex-col bg-[#04284d]/60 border border-[#164a78] rounded-2xl p-5 backdrop-blur-sm">
+                    <div className="w-full flex items-center justify-between mb-3 px-1">
+                      <span className="text-xs font-bold text-accent uppercase tracking-wider flex items-center gap-1.5">
+                        <Eye className="w-3.5 h-3.5 text-accent" />
+                        Live Preview Card
+                      </span>
+                    </div>
+
+                    <div className="w-full rounded-2xl bg-[#073969] border border-[#164a78] p-5 shadow-lg flex flex-col text-left">
+                      <div className="flex items-start justify-between gap-2 mb-3">
+                        <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-accent/15 text-accent border border-accent/25">
+                          Lomba & Beasiswa
+                        </span>
+                        {formDataLomba.deadline_pendaftaran && (
+                          <span className="text-[11px] font-semibold text-white/60 flex items-center gap-1">
+                            <Calendar className="w-3 h-3 text-accent" />
+                            {formDataLomba.deadline_pendaftaran}
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="text-lg font-bold text-white mb-1.5 line-clamp-2">
+                        {formDataLomba.title || "Judul Kompetisi / Beasiswa Baru"}
+                      </h3>
+                      <p className="text-xs font-semibold text-accent mb-3">
+                        {formDataLomba.organizer || "Penyelenggara Kegiatan"}
+                      </p>
+
+                      <p className="text-xs text-white/70 line-clamp-3 mb-4 leading-relaxed">
+                        {formDataLomba.description || "Deskripsi lengkap mengenai lomba atau beasiswa akan tampil di sini secara terstruktur..."}
+                      </p>
+
+                      {formDataLomba.benefit && (
+                        <div className="p-3 rounded-xl bg-[#04284d] border-l-2 border-accent text-xs text-white/85 mb-4">
+                          <span className="font-bold text-accent mr-1">Hadiah/Benefit:</span>
+                          {formDataLomba.benefit}
+                        </div>
+                      )}
+
+                      <div className="mt-auto pt-3 border-t border-white/10 flex items-center justify-between text-xs font-bold text-accent">
+                        <span>Lihat detail lomba →</span>
+                        {formDataLomba.registration_url && (
+                          <span className="text-[10px] text-white/40">Link Aktif</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-white/70 mb-1">Penyelenggara</label>
-                    <input
-                      type="text"
-                      required
-                      value={formDataLomba.organizer}
-                      onChange={(e) => setFormDataLomba({ ...formDataLomba, organizer: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-white/70 mb-1">Deskripsi</label>
-                    <textarea
-                      rows="3"
-                      value={formDataLomba.description}
-                      onChange={(e) => setFormDataLomba({ ...formDataLomba, description: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl p-3 text-white text-sm focus:border-accent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-white/70 mb-1">Deadline Pendaftaran</label>
-                    <input
-                      type="text"
-                      placeholder="Contoh: 15 November 2026"
-                      value={formDataLomba.deadline_pendaftaran}
-                      onChange={(e) => setFormDataLomba({ ...formDataLomba, deadline_pendaftaran: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-white/70 mb-1">Deadline Pengumpulan</label>
-                    <input
-                      type="text"
-                      placeholder="Contoh: 20 November 2026"
-                      value={formDataLomba.deadline_pengumpulan}
-                      onChange={(e) => setFormDataLomba({ ...formDataLomba, deadline_pengumpulan: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-white/70 mb-1">Benefit / Hadiah</label>
-                    <input
-                      type="text"
-                      value={formDataLomba.benefit}
-                      onChange={(e) => setFormDataLomba({ ...formDataLomba, benefit: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-white/70 mb-1">Link Pendaftaran (URL)</label>
-                    <input
-                      type="url"
-                      value={formDataLomba.registration_url}
-                      onChange={(e) => setFormDataLomba({ ...formDataLomba, registration_url: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-white/70 mb-1">Link Guidebook (URL)</label>
-                    <input
-                      type="url"
-                      value={formDataLomba.guidebook_url}
-                      onChange={(e) => setFormDataLomba({ ...formDataLomba, guidebook_url: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                    />
-                  </div>
-                  <div className="md:col-span-2 flex justify-end pt-4 border-t border-white/10">
-                    <button
-                      type="submit"
-                      className="px-6 py-2.5 bg-accent text-[#02182b] font-bold rounded-full hover:bg-[#ffcf33] text-sm shadow-md cursor-pointer"
-                    >
-                      {editingLombaId ? "Simpan Perubahan Lomba" : "Tambah Lomba ke Database"}
-                    </button>
-                  </div>
-                </form>
+                </div>
               </section>
 
               {/* Tabel Lomba */}
@@ -1146,86 +1166,162 @@ export default function AdminDashboard() {
                   )}
                 </div>
 
-                <form onSubmit={handleArtikelSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-white/70 mb-1">Judul Artikel</label>
-                    <input
-                      type="text"
-                      required
-                      value={formDataArtikel.title}
-                      onChange={(e) => setFormDataArtikel({ ...formDataArtikel, title: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                    />
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                  {/* Sisi Kiri: Form Input Artikel */}
+                  <form onSubmit={handleArtikelSubmit} className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-bold text-white/70 mb-1">Judul Artikel</label>
+                      <input
+                        type="text"
+                        required
+                        value={formDataArtikel.title}
+                        onChange={(e) => setFormDataArtikel({ ...formDataArtikel, title: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-white/70 mb-1">Kategori</label>
+                      <select
+                        value={formDataArtikel.category}
+                        onChange={(e) => setFormDataArtikel({ ...formDataArtikel, category: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      >
+                        <option value="Berita">Berita</option>
+                        <option value="Kegiatan">Kegiatan</option>
+                        <option value="Opini">Opini</option>
+                        <option value="Prestasi">Prestasi</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-white/70 mb-1">Penulis</label>
+                      <input
+                        type="text"
+                        value={formDataArtikel.author}
+                        onChange={(e) => setFormDataArtikel({ ...formDataArtikel, author: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-white/70 mb-1">Tanggal Tampil</label>
+                      <input
+                        type="text"
+                        placeholder="Contoh: 10 November 2026"
+                        value={formDataArtikel.date}
+                        onChange={(e) => setFormDataArtikel({ ...formDataArtikel, date: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <ImageUploadField
+                        label="Foto Sampul Artikel (Cover Image)"
+                        value={formDataArtikel.image}
+                        onChange={(val) => setFormDataArtikel({ ...formDataArtikel, image: val })}
+                        placeholder="https://... atau klik tombol Upload Foto"
+                      />
+                    </div>
+
+                    {/* Pengaturan Berita Hot / Sorotan Beranda */}
+                    <div className="md:col-span-2">
+                      <label className="flex items-center gap-3 p-3.5 bg-[#04284d] border border-[#164a78] rounded-xl cursor-pointer hover:border-accent/40 transition-all select-none">
+                        <input
+                          type="checkbox"
+                          checked={formDataArtikel.is_hot || false}
+                          onChange={(e) => setFormDataArtikel({ ...formDataArtikel, is_hot: e.target.checked })}
+                          className="w-4 h-4 accent-amber-400 rounded cursor-pointer"
+                        />
+                        <div>
+                          <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                            🔥 Jadikan Berita Hot / Sorotan Utama di Beranda
+                          </span>
+                          <span className="text-[11px] text-white/50 block">
+                            Artikel ini akan diprioritaskan tampil di kartu besar sebelah kiri pada halaman Beranda
+                          </span>
+                        </div>
+                      </label>
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-bold text-white/70 mb-1">Ringkasan (Excerpt)</label>
+                      <textarea
+                        rows="2"
+                        value={formDataArtikel.excerpt}
+                        onChange={(e) => setFormDataArtikel({ ...formDataArtikel, excerpt: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl p-3 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-bold text-white/70 mb-1">Konten Artikel (Teks atau HTML sederhana)</label>
+                      <textarea
+                        rows="5"
+                        required
+                        value={formDataArtikel.content}
+                        onChange={(e) => setFormDataArtikel({ ...formDataArtikel, content: e.target.value })}
+                        placeholder="Tuliskan isi artikel di sini..."
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl p-3 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div className="md:col-span-2 flex justify-end pt-4 border-t border-white/10">
+                      <button
+                        type="submit"
+                        className="px-6 py-2.5 bg-accent text-[#02182b] font-bold rounded-full hover:bg-[#ffcf33] text-sm shadow-md cursor-pointer"
+                      >
+                        {editingArtikelId ? "Simpan Perubahan Artikel" : "Terbitkan Artikel ke Database"}
+                      </button>
+                    </div>
+                  </form>
+
+                  {/* Sisi Kanan: Live Preview Card Artikel */}
+                  <div className="lg:col-span-5 flex flex-col bg-[#04284d]/60 border border-[#164a78] rounded-2xl p-5 backdrop-blur-sm">
+                    <div className="w-full flex items-center justify-between mb-3 px-1">
+                      <span className="text-xs font-bold text-accent uppercase tracking-wider flex items-center gap-1.5">
+                        <Eye className="w-3.5 h-3.5 text-accent" />
+                        Live Preview Card
+                      </span>
+                    </div>
+
+                    <div className="w-full rounded-2xl bg-[#073969] border border-[#164a78] overflow-hidden shadow-lg flex flex-col text-left">
+                      <div className="aspect-[16/10] w-full bg-[#03233f] relative overflow-hidden flex items-center justify-center">
+                        {formDataArtikel.image ? (
+                          <img
+                            src={formDataArtikel.image}
+                            alt="Cover"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center text-white/30">
+                            <FileText className="w-10 h-10 mb-1" />
+                            <span className="text-[11px]">Sampul Artikel</span>
+                          </div>
+                        )}
+                        <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                          <span className="px-3 py-1 bg-accent/90 text-slate-900 text-[10px] font-bold uppercase tracking-wider rounded-lg shadow-sm">
+                            {formDataArtikel.category || "Berita"}
+                          </span>
+                          {formDataArtikel.is_hot && (
+                            <span className="px-2.5 py-1 bg-red-500 text-white text-[10px] font-extrabold uppercase tracking-wider rounded-lg shadow-sm flex items-center gap-1">
+                              <Flame className="w-3 h-3 fill-white" /> Hot
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="p-5 flex flex-col flex-1">
+                        <span className="text-accent text-[11px] font-bold mb-2 block tracking-wider uppercase">
+                          {formDataArtikel.date || "16 November 2026"} • {formDataArtikel.author || "Divisi Kominfo"}
+                        </span>
+                        <h3 className="text-base font-extrabold text-white leading-snug line-clamp-2 mb-2">
+                          {formDataArtikel.title || "Judul Artikel atau Berita Baru HIMSIKA"}
+                        </h3>
+                        <p className="text-xs text-white/70 line-clamp-3 mb-4 leading-relaxed">
+                          {formDataArtikel.excerpt || "Ringkasan pengantar artikel berita akan muncul di sini agar pembaca tertarik membaca selengkapnya..."}
+                        </p>
+                        <div className="mt-auto pt-3 border-t border-white/10 flex items-center justify-between text-xs font-bold text-accent">
+                          <span>Baca Selengkapnya →</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-white/70 mb-1">Kategori</label>
-                    <select
-                      value={formDataArtikel.category}
-                      onChange={(e) => setFormDataArtikel({ ...formDataArtikel, category: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                    >
-                      <option value="Berita">Berita</option>
-                      <option value="Kegiatan">Kegiatan</option>
-                      <option value="Opini">Opini</option>
-                      <option value="Prestasi">Prestasi</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-white/70 mb-1">Penulis</label>
-                    <input
-                      type="text"
-                      value={formDataArtikel.author}
-                      onChange={(e) => setFormDataArtikel({ ...formDataArtikel, author: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-white/70 mb-1">Tanggal Tampil</label>
-                    <input
-                      type="text"
-                      placeholder="Contoh: 10 November 2026"
-                      value={formDataArtikel.date}
-                      onChange={(e) => setFormDataArtikel({ ...formDataArtikel, date: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <ImageUploadField
-                      label="Foto Sampul Artikel (Cover Image)"
-                      value={formDataArtikel.image}
-                      onChange={(val) => setFormDataArtikel({ ...formDataArtikel, image: val })}
-                      placeholder="https://... atau klik tombol Upload Foto"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-white/70 mb-1">Ringkasan (Excerpt)</label>
-                    <textarea
-                      rows="2"
-                      value={formDataArtikel.excerpt}
-                      onChange={(e) => setFormDataArtikel({ ...formDataArtikel, excerpt: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl p-3 text-white text-sm focus:border-accent"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-white/70 mb-1">Konten Artikel (Teks atau HTML sederhana)</label>
-                    <textarea
-                      rows="6"
-                      required
-                      value={formDataArtikel.content}
-                      onChange={(e) => setFormDataArtikel({ ...formDataArtikel, content: e.target.value })}
-                      placeholder="Tuliskan isi artikel di sini..."
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl p-3 text-white text-sm focus:border-accent"
-                    />
-                  </div>
-                  <div className="md:col-span-2 flex justify-end pt-4 border-t border-white/10">
-                    <button
-                      type="submit"
-                      className="px-6 py-2.5 bg-accent text-[#02182b] font-bold rounded-full hover:bg-[#ffcf33] text-sm shadow-md cursor-pointer"
-                    >
-                      {editingArtikelId ? "Simpan Perubahan Artikel" : "Terbitkan Artikel ke Database"}
-                    </button>
-                  </div>
-                </form>
+                </div>
               </section>
 
               {/* Tabel Artikel */}
@@ -1242,7 +1338,7 @@ export default function AdminDashboard() {
                       <tr className="border-b border-white/10 text-white/50 text-xs">
                         <th className="p-4">Judul & Kategori</th>
                         <th className="p-4">Penulis & Tanggal</th>
-                        <th className="p-4 text-right">Aksi</th>
+                        <th className="p-4 text-right">Aksi & Status Hot</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
@@ -1254,14 +1350,33 @@ export default function AdminDashboard() {
                         artikelList.map((item) => (
                           <tr key={item.id} className="hover:bg-white/[0.03]">
                             <td className="p-4">
-                              <p className="font-bold text-white">{item.title}</p>
+                              <div className="flex items-center gap-2">
+                                <p className="font-bold text-white line-clamp-1">{item.title}</p>
+                                {item.is_hot && (
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-red-500/20 text-red-300 border border-red-500/30 shrink-0 flex items-center gap-1">
+                                    <Flame className="w-3 h-3 text-red-400 fill-red-400" /> HOT
+                                  </span>
+                                )}
+                              </div>
                               <span className="text-[10px] font-bold text-accent uppercase">{item.category}</span>
                             </td>
                             <td className="p-4 text-xs text-white/70">
                               <p>{item.author}</p>
                               <p className="text-white/40">{item.date}</p>
                             </td>
-                            <td className="p-4 text-right">
+                            <td className="p-4 text-right whitespace-nowrap">
+                              <button
+                                type="button"
+                                onClick={() => handleToggleHot(item)}
+                                title="Klik untuk ubah status Berita Hot di Beranda"
+                                className={`text-xs px-2.5 py-1 rounded-lg font-bold mr-3 transition-all cursor-pointer ${
+                                  item.is_hot
+                                    ? "bg-red-500/20 text-red-300 border border-red-500/40 hover:bg-red-500/30"
+                                    : "bg-white/5 text-white/70 border border-white/10 hover:border-accent hover:text-accent"
+                                }`}
+                              >
+                                {item.is_hot ? "🔥 Hot Aktif" : "Set Hot"}
+                              </button>
                               <button
                                 onClick={() => {
                                   setEditingArtikelId(item.id);
@@ -1273,6 +1388,7 @@ export default function AdminDashboard() {
                                     image: item.image || "",
                                     excerpt: item.excerpt || "",
                                     content: typeof item.content === "string" ? item.content : JSON.stringify(item.content),
+                                    is_hot: Boolean(item.is_hot || item.category === "Berita Utama"),
                                   });
                                   window.scrollTo({ top: 0, behavior: "smooth" });
                                 }}
@@ -1317,66 +1433,129 @@ export default function AdminDashboard() {
                   )}
                 </div>
 
-                <form onSubmit={handlePrestasiSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-white/70 mb-1">Judul Kompetisi / Penghargaan</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Contoh: COMPFAIR 2024 Bidang UI/UX"
-                      value={formDataPrestasi.judul}
-                      onChange={(e) => setFormDataPrestasi({ ...formDataPrestasi, judul: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                    />
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                  {/* Sisi Kiri: Form Input Prestasi */}
+                  <form onSubmit={handlePrestasiSubmit} className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-white/70 mb-1">Judul Kompetisi / Penghargaan</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Contoh: COMPFAIR 2024 Bidang UI/UX"
+                        value={formDataPrestasi.judul}
+                        onChange={(e) => setFormDataPrestasi({ ...formDataPrestasi, judul: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-white/70 mb-1">Peringkat</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Contoh: Juara 1, Juara 2, atau Finalis"
+                        value={formDataPrestasi.peringkat}
+                        onChange={(e) => setFormDataPrestasi({ ...formDataPrestasi, peringkat: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <ImageUploadField
+                        label="Foto / Poster Prestasi Mahasiswa"
+                        value={formDataPrestasi.gambar}
+                        onChange={(val) => setFormDataPrestasi({ ...formDataPrestasi, gambar: val })}
+                        placeholder="https://... atau klik tombol Upload Foto"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-bold text-white/70 mb-1">Link Instagram Post</label>
+                      <input
+                        type="url"
+                        placeholder="https://www.instagram.com/p/..."
+                        value={formDataPrestasi.instagram_url}
+                        onChange={(e) => setFormDataPrestasi({ ...formDataPrestasi, instagram_url: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-bold text-white/70 mb-1">Nama Pemenang (Satu nama per baris)</label>
+                      <textarea
+                        rows="3"
+                        placeholder="Nama Mahasiswa 1 (NIM)&#10;Nama Mahasiswa 2 (NIM)"
+                        value={formDataPrestasi.pemenang}
+                        onChange={(e) => setFormDataPrestasi({ ...formDataPrestasi, pemenang: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl p-3 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div className="md:col-span-2 flex justify-end pt-4 border-t border-white/10">
+                      <button
+                        type="submit"
+                        className="px-6 py-2.5 bg-accent text-[#02182b] font-bold rounded-full hover:bg-[#ffcf33] text-sm shadow-md cursor-pointer"
+                      >
+                        {editingPrestasiId ? "Simpan Perubahan Prestasi" : "Simpan Prestasi ke Database"}
+                      </button>
+                    </div>
+                  </form>
+
+                  {/* Sisi Kanan: Live Preview Card Prestasi */}
+                  <div className="lg:col-span-5 flex flex-col bg-[#04284d]/60 border border-[#164a78] rounded-2xl p-5 backdrop-blur-sm">
+                    <div className="w-full flex items-center justify-between mb-3 px-1">
+                      <span className="text-xs font-bold text-accent uppercase tracking-wider flex items-center gap-1.5">
+                        <Eye className="w-3.5 h-3.5 text-accent" />
+                        Live Preview Card
+                      </span>
+                    </div>
+
+                    <div className="w-full rounded-2xl bg-[#073969] border border-[#164a78] overflow-hidden shadow-lg flex flex-col text-left">
+                      <div className="aspect-[16/10] w-full bg-[#03233f] relative overflow-hidden flex items-center justify-center">
+                        {formDataPrestasi.gambar ? (
+                          <img
+                            src={formDataPrestasi.gambar}
+                            alt="Prestasi"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center text-white/30">
+                            <Award className="w-10 h-10 mb-1 text-accent/60" />
+                            <span className="text-[11px]">Foto Prestasi / Piagam</span>
+                          </div>
+                        )}
+                        <div className="absolute top-3 left-3">
+                          <span className="px-3 py-1 bg-accent/20 border border-accent/50 text-accent text-[10px] font-black uppercase tracking-wider rounded-full shadow-sm">
+                            {formDataPrestasi.peringkat || "Juara 1"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="p-5 flex flex-col flex-1">
+                        <h3 className="text-base font-bold text-white leading-snug mb-2">
+                          {formDataPrestasi.judul || "Nama Kompetisi / Ajang Penghargaan"}
+                        </h3>
+                        <div className="mt-1 space-y-1 text-xs text-white/75 mb-4">
+                          {formDataPrestasi.pemenang ? (
+                            formDataPrestasi.pemenang
+                              .split("\n")
+                              .filter(Boolean)
+                              .map((nama, idx) => (
+                                <p key={idx} className="leading-relaxed font-medium">
+                                  • {nama}
+                                </p>
+                              ))
+                          ) : (
+                            <p className="text-white/40 italic">Nama Mahasiswa / Tim Pemenang</p>
+                          )}
+                        </div>
+                        <div className="mt-auto pt-3 border-t border-white/10 flex items-center justify-between">
+                          <span className="text-[11px] text-white/50">Sistem Informasi UNSIKA</span>
+                          {formDataPrestasi.instagram_url && (
+                            <span className="text-xs font-bold text-accent flex items-center gap-1">
+                              Instagram Post <ExternalLink className="w-3 h-3" />
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-white/70 mb-1">Peringkat</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Contoh: Juara 1, Juara 2, atau Finalis"
-                      value={formDataPrestasi.peringkat}
-                      onChange={(e) => setFormDataPrestasi({ ...formDataPrestasi, peringkat: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <ImageUploadField
-                      label="Foto / Poster Prestasi Mahasiswa"
-                      value={formDataPrestasi.gambar}
-                      onChange={(val) => setFormDataPrestasi({ ...formDataPrestasi, gambar: val })}
-                      placeholder="https://... atau klik tombol Upload Foto"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-white/70 mb-1">Link Instagram Post</label>
-                    <input
-                      type="url"
-                      placeholder="https://www.instagram.com/p/..."
-                      value={formDataPrestasi.instagram_url}
-                      onChange={(e) => setFormDataPrestasi({ ...formDataPrestasi, instagram_url: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-white/70 mb-1">Nama Pemenang (Satu nama per baris)</label>
-                    <textarea
-                      rows="3"
-                      placeholder="Nama Mahasiswa 1 (NIM)&#10;Nama Mahasiswa 2 (NIM)"
-                      value={formDataPrestasi.pemenang}
-                      onChange={(e) => setFormDataPrestasi({ ...formDataPrestasi, pemenang: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl p-3 text-white text-sm focus:border-accent"
-                    />
-                  </div>
-                  <div className="md:col-span-2 flex justify-end pt-4 border-t border-white/10">
-                    <button
-                      type="submit"
-                      className="px-6 py-2.5 bg-accent text-[#02182b] font-bold rounded-full hover:bg-[#ffcf33] text-sm shadow-md cursor-pointer"
-                    >
-                      {editingPrestasiId ? "Simpan Perubahan Prestasi" : "Simpan Prestasi ke Database"}
-                    </button>
-                  </div>
-                </form>
+                </div>
               </section>
 
               {/* Tabel Prestasi */}
@@ -1469,46 +1648,84 @@ export default function AdminDashboard() {
                   )}
                 </div>
 
-                <form onSubmit={handleGaleriSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-white/70 mb-1">Album / Divisi</label>
-                    <select
-                      value={formDataGaleri.album}
-                      onChange={(e) => setFormDataGaleri({ ...formDataGaleri, album: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                    >
-                      {ALBUM_OPTIONS.map((a) => (
-                        <option key={a} value={a}>{a}</option>
-                      ))}
-                    </select>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                  {/* Sisi Kiri: Form Input Galeri */}
+                  <form onSubmit={handleGaleriSubmit} className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-bold text-white/70 mb-1">Album / Divisi</label>
+                      <select
+                        value={formDataGaleri.album}
+                        onChange={(e) => setFormDataGaleri({ ...formDataGaleri, album: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      >
+                        {ALBUM_OPTIONS.map((a) => (
+                          <option key={a} value={a}>{a}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="md:col-span-2">
+                      <ImageUploadField
+                        label="Foto Dokumentasi Kegiatan *"
+                        value={formDataGaleri.foto}
+                        onChange={(val) => setFormDataGaleri({ ...formDataGaleri, foto: val })}
+                        placeholder="https://... atau klik tombol Upload Foto"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-bold text-white/70 mb-1">Keterangan / Caption (Opsional)</label>
+                      <input
+                        type="text"
+                        placeholder="Dokumentasi kegiatan..."
+                        value={formDataGaleri.caption}
+                        onChange={(e) => setFormDataGaleri({ ...formDataGaleri, caption: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div className="md:col-span-2 flex justify-end pt-4 border-t border-white/10">
+                      <button
+                        type="submit"
+                        className="px-6 py-2.5 bg-accent text-[#02182b] font-bold rounded-full hover:bg-[#ffcf33] text-sm shadow-md cursor-pointer"
+                      >
+                        {editingGaleriId ? "Simpan Perubahan Foto" : "Simpan Foto ke Database"}
+                      </button>
+                    </div>
+                  </form>
+
+                  {/* Sisi Kanan: Live Preview Card Galeri */}
+                  <div className="lg:col-span-5 flex flex-col bg-[#04284d]/60 border border-[#164a78] rounded-2xl p-5 backdrop-blur-sm">
+                    <div className="w-full flex items-center justify-between mb-3 px-1">
+                      <span className="text-xs font-bold text-accent uppercase tracking-wider flex items-center gap-1.5">
+                        <Eye className="w-3.5 h-3.5 text-accent" />
+                        Live Preview Card
+                      </span>
+                    </div>
+
+                    <div className="w-full rounded-2xl bg-[#073969] border border-[#164a78] overflow-hidden shadow-lg flex flex-col text-left">
+                      <div className="aspect-[4/3] w-full bg-[#03233f] relative overflow-hidden flex items-center justify-center group">
+                        {formDataGaleri.foto ? (
+                          <img
+                            src={formDataGaleri.foto}
+                            alt="Dokumentasi"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center text-white/30">
+                            <ImageIcon className="w-10 h-10 mb-1" />
+                            <span className="text-[11px]">Foto Dokumentasi</span>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-4">
+                          <span className="px-2.5 py-0.5 rounded-md bg-accent/20 border border-accent/40 text-accent text-[10px] font-bold uppercase w-fit mb-1">
+                            {formDataGaleri.album || "Divisi Kominfo"}
+                          </span>
+                          <p className="text-xs text-white/90 font-medium line-clamp-2">
+                            {formDataGaleri.caption || "Keterangan foto kegiatan mahasiswa..."}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="md:col-span-2">
-                    <ImageUploadField
-                      label="Foto Dokumentasi Kegiatan *"
-                      value={formDataGaleri.foto}
-                      onChange={(val) => setFormDataGaleri({ ...formDataGaleri, foto: val })}
-                      placeholder="https://... atau klik tombol Upload Foto"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-xs font-bold text-white/70 mb-1">Keterangan / Caption (Opsional)</label>
-                    <input
-                      type="text"
-                      placeholder="Dokumentasi kegiatan..."
-                      value={formDataGaleri.caption}
-                      onChange={(e) => setFormDataGaleri({ ...formDataGaleri, caption: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                    />
-                  </div>
-                  <div className="md:col-span-2 flex justify-end pt-4 border-t border-white/10">
-                    <button
-                      type="submit"
-                      className="px-6 py-2.5 bg-accent text-[#02182b] font-bold rounded-full hover:bg-[#ffcf33] text-sm shadow-md cursor-pointer"
-                    >
-                      {editingGaleriId ? "Simpan Perubahan Foto" : "Simpan Foto ke Database"}
-                    </button>
-                  </div>
-                </form>
+                </div>
               </section>
 
               {/* Tabel Galeri */}
@@ -1662,11 +1879,8 @@ export default function AdminDashboard() {
                   <div className="lg:col-span-5 flex flex-col items-center bg-[#04284d]/60 border border-[#164a78] rounded-2xl p-5 backdrop-blur-sm">
                     <div className="w-full flex items-center justify-between mb-3 px-1">
                       <span className="text-xs font-bold text-accent uppercase tracking-wider flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                        Live Web Preview Card
-                      </span>
-                      <span className="text-[10px] text-white/60 bg-white/10 px-2.5 py-0.5 rounded-full font-medium">
-                        Tampilan di Web
+                        <Eye className="w-3.5 h-3.5 text-accent" />
+                        Live Preview Card
                       </span>
                     </div>
 
@@ -2027,7 +2241,48 @@ export default function AdminDashboard() {
             </div>
           )}
         </main>
+
+        {/* FLOATING BOTTOM DOCK NAVIGATION (Simpel, Kecil, dan Bagus) */}
+        <nav className="fixed bottom-3 sm:bottom-5 inset-x-0 z-50 flex justify-center px-3 pointer-events-none">
+          <div className="pointer-events-auto bg-[#073969]/95 backdrop-blur-xl border border-[#164a78] shadow-[0_12px_40px_rgba(0,0,0,0.6)] rounded-2xl p-1.5 flex items-center gap-1 sm:gap-2 max-w-full overflow-x-auto">
+            {[
+              { id: "lomba", label: "Lomba", icon: Trophy, count: lombaList.length },
+              { id: "artikel", label: "Artikel", icon: FileText, count: artikelList.length },
+              { id: "prestasi", label: "Prestasi", icon: Award, count: prestasiList.length },
+              { id: "galeri", label: "Galeri", icon: ImageIcon, count: galeriList.length },
+              { id: "pengurus", label: "Pengurus", icon: Users, count: pengurusList.length },
+            ].map((item) => {
+              const Icon = item.icon;
+              const isSelected = activeMenu === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setActiveMenu(item.id);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl font-bold transition-all text-xs cursor-pointer select-none whitespace-nowrap ${
+                    isSelected
+                      ? "bg-accent text-[#02182b] font-extrabold shadow-md scale-[1.02]"
+                      : "text-white/70 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 shrink-0 ${isSelected ? "text-[#02182b]" : "text-white/70"}`} />
+                  <span className="text-xs">{item.label}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${
+                      isSelected
+                        ? "bg-[#043761] text-accent"
+                        : "bg-white/10 text-white/60"
+                    }`}
+                  >
+                    {item.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </nav>
       </div>
-    </div>
-  );
-}
+    );
+  }

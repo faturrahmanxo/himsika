@@ -39,8 +39,10 @@ CREATE TABLE IF NOT EXISTS public.artikel (
     excerpt TEXT,
     content JSONB,
     author TEXT DEFAULT 'HIMSIKA',
+    is_hot BOOLEAN DEFAULT false,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+ALTER TABLE public.artikel ADD COLUMN IF NOT EXISTS is_hot BOOLEAN DEFAULT false;
 
 -- 3. TABEL PRESTASI MAHASISWA
 CREATE TABLE IF NOT EXISTS public.prestasi (

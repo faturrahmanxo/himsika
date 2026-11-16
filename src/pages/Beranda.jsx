@@ -127,6 +127,7 @@ export default function Beranda() {
               artikelData.find((a) => a.title === d.title);
             return {
               ...d,
+              is_hot: Boolean(d.is_hot),
               image:
                 d.image && d.image.trim()
                   ? d.image.trim()
@@ -164,9 +165,13 @@ export default function Beranda() {
     fetchLatestArticles();
   }, []);
 
-  const artikelBerita = articles.slice(0, 3);
-  const featuredBerita = artikelBerita[0];
-  const listBerita = artikelBerita.slice(1);
+  // Menentukan berita hot/utama: prioritaskan artikel dengan is_hot === true atau category === "Berita Utama"
+  const hotArticle = articles.find((a) => a.is_hot || a.category === "Berita Utama");
+  const otherArticles = hotArticle
+    ? articles.filter((a) => String(a.id) !== String(hotArticle.id))
+    : articles.slice(1);
+  const featuredBerita = hotArticle || articles[0];
+  const listBerita = otherArticles.slice(0, 2);
 
   const heroSlides = [
     { id: 1, image: Image1, alt: "Kegiatan HIMSIKA 1" },
@@ -889,8 +894,15 @@ export default function Beranda() {
                       alt={featuredBerita.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
-                    <div className="absolute top-4 left-4 bg-accent/90 text-slate-900 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                      {featuredBerita.category}
+                    <div className="absolute top-4 left-4 flex items-center gap-2">
+                      <div className="bg-accent/90 text-slate-900 px-3.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-md">
+                        {featuredBerita.category}
+                      </div>
+                      {featuredBerita.is_hot && (
+                        <div className="bg-red-500 text-white px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest shadow-md flex items-center gap-1">
+                          🔥 Hot
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="px-2 pb-2">
