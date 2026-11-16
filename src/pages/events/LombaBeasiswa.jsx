@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import LogoAAS from "../../assets/logo/proker/AAS.png";
 import supabase from "../../supabase-client";
 import { LOMBA_CADANGAN } from "../../data/lombaFallback";
+import { isLombaExpired } from "../../utils/lombaDeadline";
 
 // Halaman Info Lomba & Beasiswa (portal AAS).
 //
@@ -88,20 +89,37 @@ export default function LombaBeasiswa() {
         if (err) throw err;
         if (!masihDipakai) return;
 
-        // Tabel kosong juga dianggap belum ada isinya, jadi pakai cadangan.
+        // Tabel kosong juga dianggap belum ada isinya, jadi pakai cadangan yang belum kadaluarsa.
         if (!data || data.length === 0) {
-          setLombaData(LOMBA_CADANGAN);
+          setLombaData(LOMBA_CADANGAN.filter((item) => !isLombaExpired(item)));
           setSumberCadangan(true);
           return;
         }
 
-        setLombaData(data);
-        setSumberCadangan(false);
+        // Otomatis hapus lomba dari Supabase jika sudah lewat batas akhir
+        const expired = data.filter((item) => isLombaExpired(item));
+        if (expired.length > 0) {
+          const expiredIds = expired.map((x) => x.id);
+          supabase
+            .from("lomba")
+            .delete()
+            .in("id", expiredIds)
+            .then(() => {});
+        }
+
+        const validData = data.filter((item) => !isLombaExpired(item));
+        if (validData.length === 0) {
+          setLombaData(LOMBA_CADANGAN.filter((item) => !isLombaExpired(item)));
+          setSumberCadangan(true);
+        } else {
+          setLombaData(validData);
+          setSumberCadangan(false);
+        }
       } catch {
         // Database tidak bisa dihubungi. Halaman tetap terisi dari daftar
-        // cadangan yang tersimpan di dalam project.
+        // cadangan yang tersimpan di dalam project dan belum lewat deadline.
         if (!masihDipakai) return;
-        setLombaData(LOMBA_CADANGAN);
+        setLombaData(LOMBA_CADANGAN.filter((item) => !isLombaExpired(item)));
         setSumberCadangan(true);
       } finally {
         if (masihDipakai) setIsLoading(false);
@@ -136,6 +154,7 @@ export default function LombaBeasiswa() {
 
   const processedData = useMemo(() => {
     const result = lombaData.filter((item) => {
+      if (isLombaExpired(item)) return false;
       const itemCategories = parseCategories(item.categories);
       const matchCategory =
         selectedCategory === "Semua" ||

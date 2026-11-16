@@ -121,6 +121,18 @@ html.lenis body {
   background-color: #ffc300;
 }
 
+/* Form inputs & textareas: disable manual resize and scrollbars */
+textarea {
+  resize: none !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+textarea::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
 .custom-shape-divider-bottom-1786246288 {
   position: absolute;
   z-index: 10;

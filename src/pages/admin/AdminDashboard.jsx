@@ -8,6 +8,7 @@ import { PRESTASI_DATA } from "../../data/prestasiData";
 import LogoHimsika from "../../assets/logo/HIMSIKA.png";
 // Ikon hanya dipakai untuk bottom menu bar.
 import { Trophy, FileText, Award, Image as ImageIcon, Users } from "lucide-react";
+import { isLombaExpired, getLombaFinalTimestamp } from "../../utils/lombaDeadline";
 
 const MENU = [
   { id: "lomba", label: "Lomba", title: "Lomba & Beasiswa", icon: Trophy },
@@ -40,6 +41,8 @@ const PAGE_SIZE = 8;
 
 const inputCls =
   "w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40 transition-colors";
+const textareaCls =
+  "w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40 transition-colors resize-none overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden";
 const labelCls = "block text-xs font-bold text-white/70 mb-1.5";
 
 // Urutan artikel: tanggal terbaru dulu. Pakai kolom datetime, kalau kosong baca teks "26 September 2026".
@@ -397,16 +400,19 @@ function FormSection({ title, editing, onCancel, children, preview }) {
           <button
             type="button"
             onClick={onCancel}
-            className="text-xs font-bold text-white/70 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full cursor-pointer"
+            className="text-xs font-bold text-white/70 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full cursor-pointer transition-colors"
           >
             Batal Edit
           </button>
         )}
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
         <div className="lg:col-span-7">{children}</div>
-        <div className="lg:col-span-5 lg:sticky lg:top-6 bg-[#04284d]/60 border border-[#164a78] rounded-2xl p-5">
-          <span className="block text-xs font-bold text-accent uppercase tracking-wider mb-3">Live Preview Card</span>
+        <div className="lg:col-span-5 bg-[#04284d]/80 border border-[#164a78] rounded-2xl p-5 shadow-inner">
+          <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
+            <span className="text-xs font-bold text-accent uppercase tracking-wider">Live Preview Card</span>
+            <span className="text-[11px] text-white/50">Tampilan Web</span>
+          </div>
           {preview}
         </div>
       </div>
@@ -559,15 +565,33 @@ export default function AdminDashboard() {
   const fetchLomba = async () => {
     setLoadingLomba(true);
     const { data, error } = await supabase.from("lomba").select("*").order("id", { ascending: false });
-    if (!error && data) setLombaList(data);
+    if (!error && data) {
+      // Otomatis hapus lomba dari Supabase jika batas akhir tanggal sudah terlewat
+      const expired = data.filter((item) => isLombaExpired(item));
+      if (expired.length > 0) {
+        const expiredIds = expired.map((x) => x.id);
+        await supabase.from("lomba").delete().in("id", expiredIds);
+      }
+      const activeLomba = data.filter((item) => !isLombaExpired(item));
+      setLombaList(activeLomba);
+    }
     setLoadingLomba(false);
   };
 
   const handleLombaSubmit = async (e) => {
     e.preventDefault();
+    const calculatedTs = getLombaFinalTimestamp(formDataLomba);
+    if (calculatedTs && calculatedTs < Date.now()) {
+      return showAlert(
+        "Tanggal deadline yang Anda masukkan sudah lewat dari hari ini. Silakan masukkan tanggal yang masih aktif.",
+        "Deadline Sudah Lewat",
+      );
+    }
     const payload = {
       ...formDataLomba,
-      deadline_timestamp: formDataLomba.deadline_timestamp ? Number(formDataLomba.deadline_timestamp) : null,
+      deadline_timestamp:
+        calculatedTs ||
+        (formDataLomba.deadline_timestamp ? Number(formDataLomba.deadline_timestamp) : null),
     };
     const { error } = editingLombaId
       ? await supabase.from("lomba").update(payload).eq("id", editingLombaId)
@@ -942,26 +966,55 @@ export default function AdminDashboard() {
                   editing={editingLombaId}
                   onCancel={resetLombaForm}
                   preview={
-                    <div className="rounded-2xl bg-[#073969] border border-[#164a78] p-5">
-                      <div className="flex items-start justify-between gap-2 mb-3">
-                        <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-accent/15 text-accent border border-accent/25">
+                    <div className="rounded-2xl bg-[#021f3f] border border-[#1b4e80] p-5 shadow-lg">
+                      <div className="flex items-start justify-between gap-3 mb-2.5">
+                        <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-accent/15 text-accent border border-accent/25">
                           Lomba & Beasiswa
                         </span>
                         {formDataLomba.deadline_pendaftaran && (
-                          <span className="text-[11px] font-semibold text-white/60">{formDataLomba.deadline_pendaftaran}</span>
+                          <span className="text-[11px] font-semibold text-accent/90">
+                            {formDataLomba.deadline_pendaftaran}
+                          </span>
                         )}
                       </div>
-                      <h3 className="text-lg font-bold mb-1 line-clamp-2">{formDataLomba.title || "Judul Kompetisi"}</h3>
-                      <p className="text-xs font-semibold text-accent mb-3">{formDataLomba.organizer || "Penyelenggara"}</p>
-                      <p className="text-xs text-white/70 line-clamp-3 mb-4 leading-relaxed">
-                        {formDataLomba.description || "Deskripsi lomba tampil di sini."}
+                      <h3 className="text-base font-bold text-white mb-1 line-clamp-2 leading-snug">
+                        {formDataLomba.title || "Judul Kompetisi"}
+                      </h3>
+                      <p className="text-xs font-medium text-white/70 mb-3">
+                        {formDataLomba.organizer || "Penyelenggara"}
                       </p>
+                      <p className="text-xs text-white/60 line-clamp-3 mb-3 leading-relaxed">
+                        {formDataLomba.description || "Deskripsi kompetisi akan tampil di sini..."}
+                      </p>
+
+                      <div className="grid grid-cols-2 gap-2 text-xs mb-3">
+                        <div className="p-2.5 rounded-xl bg-[#032a50] border border-[#184877]">
+                          <span className="block text-[10px] font-medium text-white/50 uppercase tracking-wider mb-0.5">Pendaftaran</span>
+                          <span className="font-semibold text-white text-xs truncate block">{formDataLomba.deadline_pendaftaran || "-"}</span>
+                        </div>
+                        <div className="p-2.5 rounded-xl bg-[#032a50] border border-[#184877]">
+                          <span className="block text-[10px] font-medium text-white/50 uppercase tracking-wider mb-0.5">Pengumpulan</span>
+                          <span className="font-semibold text-white text-xs truncate block">{formDataLomba.deadline_pengumpulan || "-"}</span>
+                        </div>
+                      </div>
+
                       {formDataLomba.benefit && (
-                        <p className="p-3 rounded-xl bg-[#04284d] border-l-2 border-accent text-xs text-white/85">
-                          <span className="font-bold text-accent">Hadiah: </span>
+                        <div className="p-2.5 rounded-xl bg-accent/[0.08] border-l-2 border-accent text-xs text-white/85 mb-3 leading-relaxed">
+                          <span className="font-bold text-accent mr-1">Hadiah/Benefit:</span>
                           {formDataLomba.benefit}
-                        </p>
+                        </div>
                       )}
+
+                      <div className="flex gap-2 pt-2 border-t border-white/10">
+                        <div className="flex-1 py-2 text-center text-xs font-semibold rounded-lg bg-accent text-[#043761]">
+                          Daftar Sekarang
+                        </div>
+                        {formDataLomba.guidebook_url && (
+                          <div className="px-3 py-2 text-center text-xs font-medium rounded-lg border border-[#1b4e80] text-white/80">
+                            Guidebook
+                          </div>
+                        )}
+                      </div>
                     </div>
                   }
                 >
@@ -976,7 +1029,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="md:col-span-2">
                       <label className={labelCls}>Deskripsi</label>
-                      <textarea rows="3" value={formDataLomba.description} onChange={(e) => setFormDataLomba({ ...formDataLomba, description: e.target.value })} className={inputCls} />
+                      <textarea rows="3" value={formDataLomba.description} onChange={(e) => setFormDataLomba({ ...formDataLomba, description: e.target.value })} className={textareaCls} />
                     </div>
                     <div>
                       <label className={labelCls}>Deadline Pendaftaran</label>
@@ -1131,11 +1184,11 @@ export default function AdminDashboard() {
                     </div>
                     <div className="md:col-span-2">
                       <label className={labelCls}>Ringkasan</label>
-                      <textarea rows="2" value={formDataArtikel.excerpt} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, excerpt: e.target.value })} className={inputCls} />
+                      <textarea rows="2" value={formDataArtikel.excerpt} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, excerpt: e.target.value })} className={textareaCls} />
                     </div>
                     <div className="md:col-span-2">
                       <label className={labelCls}>Konten Artikel</label>
-                      <textarea rows="5" required value={formDataArtikel.content} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, content: e.target.value })} className={inputCls} />
+                      <textarea rows="5" required value={formDataArtikel.content} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, content: e.target.value })} className={textareaCls} />
                     </div>
                     <SubmitBtn>{editingArtikelId ? "Simpan Perubahan" : "Terbitkan Artikel"}</SubmitBtn>
                   </form>
@@ -1269,7 +1322,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="md:col-span-2">
                       <label className={labelCls}>Nama Pemenang (satu per baris)</label>
-                      <textarea rows="3" value={formDataPrestasi.pemenang} onChange={(e) => setFormDataPrestasi({ ...formDataPrestasi, pemenang: e.target.value })} className={inputCls} />
+                      <textarea rows="3" value={formDataPrestasi.pemenang} onChange={(e) => setFormDataPrestasi({ ...formDataPrestasi, pemenang: e.target.value })} className={textareaCls} />
                     </div>
                     <SubmitBtn>{editingPrestasiId ? "Simpan Perubahan" : "Simpan Prestasi"}</SubmitBtn>
                   </form>
