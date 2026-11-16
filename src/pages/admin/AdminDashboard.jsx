@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import supabase from "../../supabase-client";
+import pengurusData from "../../data/pengurusData";
 
 import LogoHimsika from "../../assets/logo/HIMSIKA.png";
 import {
@@ -20,6 +21,10 @@ import {
   Menu,
   Upload,
   Loader2,
+  Eye,
+  Grid,
+  List,
+  ExternalLink,
 } from "lucide-react";
 
 const AVAILABLE_CATEGORIES = [
@@ -265,6 +270,8 @@ export default function AdminDashboard() {
   const [pengurusList, setPengurusList] = useState([]);
   const [loadingPengurus, setLoadingPengurus] = useState(false);
   const [editingPengurusId, setEditingPengurusId] = useState(null);
+  const [pengurusViewMode, setPengurusViewMode] = useState("cards");
+  const [previewPengurusModal, setPreviewPengurusModal] = useState(null);
   const [formDataPengurus, setFormDataPengurus] = useState({
     nama: "",
     jabatan: "",
@@ -604,7 +611,23 @@ export default function AdminDashboard() {
       .from("pengurus")
       .select("*")
       .order("id", { ascending: true });
-    if (!error && data) setPengurusList(data);
+    if (!error && data) {
+      const normalized = data.map((d) => {
+        const fallback =
+          pengurusData.find((p) => String(p.id) === String(d.id)) ||
+          pengurusData.find(
+            (p) => p.nama.toLowerCase() === d.nama.toLowerCase(),
+          );
+        return {
+          ...d,
+          foto: d.foto && d.foto.trim() ? d.foto.trim() : fallback?.foto || "",
+          instagram: d.instagram || fallback?.instagram || "",
+          linkedin: d.linkedin || fallback?.linkedin || "",
+          angkatan: d.angkatan || fallback?.angkatan || "2023",
+        };
+      });
+      setPengurusList(normalized);
+    }
     setLoadingPengurus(false);
   };
 
@@ -663,49 +686,11 @@ export default function AdminDashboard() {
   // Background
   const AmbientBackground = () => (
     <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden select-none" aria-hidden="true">
-      {/* 1. Grid Motif Identitas */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,#000_50%,transparent_100%)]"></div>
-
-      {/* 2. Soft Ambient Glows */}
+      {/* Soft Ambient Glows (Tanpa Kotak-Kotak Grid) */}
       <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[36rem] h-[36rem] rounded-full bg-accent/10 blur-[150px]"></div>
       <div className="absolute bottom-1/4 right-10 w-[30rem] h-[30rem] rounded-full bg-blue-500/10 blur-[160px]"></div>
 
-      {/* 3. Tech Ring Cyber Ornaments */}
-      <svg className="absolute -top-12 -right-12 w-80 h-80 text-accent/15" viewBox="0 0 200 200" fill="none">
-        <circle cx="100" cy="100" r="90" stroke="currentColor" strokeWidth="1" strokeDasharray="6 6" />
-        <circle cx="100" cy="100" r="70" stroke="currentColor" strokeWidth="0.5" />
-        <circle cx="100" cy="100" r="50" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" />
-        <path d="M100 0v200M0 100h200" stroke="currentColor" strokeWidth="0.5" strokeOpacity="0.4" />
-      </svg>
-
-      {/* 4. Circuit Lines with Nodes */}
-      <svg className="absolute top-1/3 left-6 w-56 h-72 text-white/10 hidden lg:block" viewBox="0 0 150 200" fill="none">
-        <path d="M10 20h60l30 40h40M30 100h40l25 -30h45M20 180h80l20 -20h20" stroke="currentColor" strokeWidth="1.5" />
-        <circle cx="10" cy="20" r="3.5" fill="currentColor" />
-        <circle cx="140" cy="60" r="3.5" fill="currentColor" />
-        <circle cx="30" cy="100" r="3.5" fill="currentColor" />
-        <circle cx="135" cy="70" r="3.5" fill="currentColor" />
-        <circle cx="20" cy="180" r="3.5" fill="currentColor" />
-        <circle cx="140" cy="160" r="3.5" fill="currentColor" />
-      </svg>
-
-      {/* 5. Cyber Hexagon Grid */}
-      <svg className="absolute bottom-16 left-12 w-48 h-48 text-accent/15 hidden md:block" viewBox="0 0 100 100" fill="none">
-        <polygon points="50,5 90,27.5 90,72.5 50,95 10,72.5 10,27.5" stroke="currentColor" strokeWidth="1" />
-        <polygon points="50,20 76,35 76,65 50,80 24,65 24,35" stroke="currentColor" strokeWidth="0.75" strokeDasharray="3 3" />
-        <circle cx="50" cy="50" r="4" fill="currentColor" />
-      </svg>
-
-      {/* 6. Dot Matrix 4x4 */}
-      <svg className="absolute top-24 right-1/4 w-32 h-32 text-white/15 hidden sm:block" viewBox="0 0 80 80" fill="currentColor">
-        {[0, 20, 40, 60].map((x) =>
-          [0, 20, 40, 60].map((y) => (
-            <circle key={`${x}-${y}`} cx={x + 10} cy={y + 10} r="1.5" />
-          ))
-        )}
-      </svg>
-
-      {/* 7. Star Sparkles */}
+      {/* Star Sparkles */}
       <svg className="absolute bottom-1/3 right-16 w-8 h-8 text-accent/30" viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" />
       </svg>
@@ -723,7 +708,7 @@ export default function AdminDashboard() {
 
         <div className="w-full max-w-md bg-[#073969] border border-[#164a78] p-8 sm:p-10 rounded-3xl shadow-2xl relative z-10">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 mx-auto mb-4 bg-white/10 border border-white/20 rounded-2xl p-2.5 flex items-center justify-center shadow-lg">
+            <div className="w-20 h-20 mx-auto mb-4 flex items-center justify-center transition-transform hover:scale-105 duration-300 drop-shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
               <img
                 src={LogoHimsika}
                 alt="Logo HIMSIKA"
@@ -793,39 +778,39 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-linear-to-b from-[#043761] via-primary to-[#043761] font-primary relative overflow-hidden">
       <AmbientBackground />
 
-      {/* Overlay mobile */}
+      {/* Overlay mobile & tablet */}
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 bg-black/40 backdrop-blur-xs z-40 md:hidden cursor-pointer"
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 lg:hidden cursor-pointer"
         />
       )}
 
       {/* SIDEBAR */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-80 bg-linear-to-b from-[#04284d]/98 via-[#043761]/98 to-[#03233f]/98 backdrop-blur-2xl border-r border-[#164a78] flex flex-col transition-transform duration-300 ${
+        className={`fixed inset-y-0 left-0 z-50 w-76 sm:w-80 bg-linear-to-b from-[#04284d]/98 via-[#043761]/98 to-[#03233f]/98 backdrop-blur-2xl border-r border-[#164a78] flex flex-col transition-transform duration-300 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0`}
+        } lg:translate-x-0`}
       >
         <button
           onClick={() => setSidebarOpen(false)}
           type="button"
-          className="md:hidden absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:text-accent cursor-pointer z-30"
+          className="lg:hidden absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:text-accent cursor-pointer z-30"
         >
           <X className="w-4 h-4 pointer-events-none" />
         </button>
 
         {/* Brand */}
-        <div className="px-6 pt-10 pb-8 border-b border-[#164a78] flex flex-col items-center text-center relative">
-          <div className="w-14 h-14 rounded-full bg-white shadow-[0_0_20px_rgba(255,195,0,0.25)] flex items-center justify-center mb-3">
+        <div className="px-6 pt-8 pb-7 border-b border-[#164a78] flex flex-col items-center text-center relative">
+          <div className="w-16 h-16 flex items-center justify-center mb-2.5 transition-transform duration-300 hover:scale-105">
             <img
               src={LogoHimsika}
               alt="Logo HIMSIKA"
-              className="w-full h-full object-contain"
+              className="w-full h-full object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.4)]"
             />
           </div>
           <h2 className="text-xl font-black text-white tracking-tight">HIMSIKA</h2>
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent mt-1">
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent mt-0.5">
             Database Control
           </span>
         </div>
@@ -888,9 +873,9 @@ export default function AdminDashboard() {
       </aside>
 
       {/* MAIN CONTENT */}
-      <div className="md:pl-80 relative z-10 flex flex-col min-h-screen">
+      <div className="lg:pl-80 relative z-10 flex flex-col min-h-screen">
         {/* Top bar mobile */}
-        <header className="h-16 px-4 flex items-center justify-between md:hidden sticky top-0 z-30 bg-[#04284d]/90 backdrop-blur-xl border-b border-[#164a78]">
+        <header className="h-16 px-4 sm:px-6 flex items-center justify-between lg:hidden sticky top-0 z-30 bg-[#04284d]/95 backdrop-blur-xl border-b border-[#164a78]">
           <button
             onClick={() => setSidebarOpen(true)}
             type="button"
@@ -904,7 +889,7 @@ export default function AdminDashboard() {
           <div className="w-9 h-9"></div>
         </header>
 
-        <main className="flex-1 px-4 sm:px-6 lg:px-10 py-10 max-w-6xl w-full mx-auto">
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl w-full mx-auto">
           {/* Header section */}
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-2">
@@ -913,20 +898,20 @@ export default function AdminDashboard() {
                 Database Management <Sparkles className="w-3.5 h-3.5" />
               </span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight capitalize">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight capitalize">
               Kelola <span className="text-accent">{activeMenu}</span>
             </h1>
           </div>
 
-          {/* Quick Stats Bar */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-            <div className="bg-[#073969]/80 border border-[#164a78] rounded-2xl p-4 flex items-center gap-3.5 backdrop-blur-sm">
+          {/* Quick Stats Bar (Responsif di semua ukuran tanpa teks tertekan) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-8">
+            <div className="bg-linear-to-br from-[#073969]/90 to-[#04284d]/90 border border-[#164a78] rounded-2xl p-4 sm:p-5 flex items-center gap-3.5 backdrop-blur-sm shadow-md min-w-0">
               <div className="w-10 h-10 rounded-xl bg-accent/15 border border-accent/25 flex items-center justify-center text-accent shrink-0">
                 <Sparkles className="w-5 h-5" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block">Total Data Aktif</span>
-                <span className="text-xl font-extrabold text-white">
+                <span className="text-xl sm:text-2xl font-extrabold text-white truncate block">
                   {activeMenu === "lomba" && `${lombaList.length} Lomba`}
                   {activeMenu === "artikel" && `${artikelList.length} Artikel`}
                   {activeMenu === "prestasi" && `${prestasiList.length} Prestasi`}
@@ -936,26 +921,26 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="bg-[#073969]/80 border border-[#164a78] rounded-2xl p-4 flex items-center gap-3.5 backdrop-blur-sm">
+            <div className="bg-linear-to-br from-[#073969]/90 to-[#04284d]/90 border border-[#164a78] rounded-2xl p-4 sm:p-5 flex items-center gap-3.5 backdrop-blur-sm shadow-md min-w-0">
               <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0">
                 <CheckCircle2 className="w-5 h-5" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block">Status Koneksi</span>
-                <span className="text-sm font-extrabold text-emerald-400 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span className="text-xs sm:text-sm font-extrabold text-emerald-400 flex items-center gap-1.5 whitespace-nowrap">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
                   Supabase Live DB
                 </span>
               </div>
             </div>
 
-            <div className="bg-[#073969]/80 border border-[#164a78] rounded-2xl p-4 flex items-center gap-3.5 backdrop-blur-sm">
+            <div className="col-span-1 sm:col-span-2 lg:col-span-1 bg-linear-to-br from-[#073969]/90 to-[#04284d]/90 border border-[#164a78] rounded-2xl p-4 sm:p-5 flex items-center gap-3.5 backdrop-blur-sm shadow-md min-w-0">
               <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/25 flex items-center justify-center text-blue-400 shrink-0">
                 <Users className="w-5 h-5" />
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider block">Akses Administrator</span>
-                <span className="text-xs font-bold text-white/80 truncate block max-w-[150px] sm:max-w-[180px]">
+                <span className="text-xs sm:text-sm font-bold text-white/90 truncate block" title={session?.user?.email}>
                   {session?.user?.email || "Admin Terautentikasi"}
                 </span>
               </div>
@@ -1598,158 +1583,447 @@ export default function AdminDashboard() {
                   )}
                 </div>
 
-                <form onSubmit={handlePengurusSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-white/70 mb-1">Nama Lengkap</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Nama Pengurus"
-                      value={formDataPengurus.nama}
-                      onChange={(e) => setFormDataPengurus({ ...formDataPengurus, nama: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-white/70 mb-1">Jabatan</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Contoh: Ketua Himpunan, Sekretaris, dll"
-                      value={formDataPengurus.jabatan}
-                      onChange={(e) => setFormDataPengurus({ ...formDataPengurus, jabatan: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-white/70 mb-1">Kelompok / Bagian</label>
-                    <select
-                      value={formDataPengurus.kelompok}
-                      onChange={(e) => setFormDataPengurus({ ...formDataPengurus, kelompok: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                  {/* Sisi Kiri: Form Input Pengurus */}
+                  <form onSubmit={handlePengurusSubmit} className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-white/70 mb-1">Nama Lengkap</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Nama Pengurus"
+                        value={formDataPengurus.nama}
+                        onChange={(e) => setFormDataPengurus({ ...formDataPengurus, nama: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-white/70 mb-1">Jabatan</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Contoh: Ketua Himpunan, Sekretaris, dll"
+                        value={formDataPengurus.jabatan}
+                        onChange={(e) => setFormDataPengurus({ ...formDataPengurus, jabatan: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-bold text-white/70 mb-1">Kelompok / Bagian</label>
+                      <select
+                        value={formDataPengurus.kelompok}
+                        onChange={(e) => setFormDataPengurus({ ...formDataPengurus, kelompok: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      >
+                        {KELOMPOK_OPTIONS.map((k) => (
+                          <option key={k.id} value={k.id}>{k.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <ImageUploadField
+                        label="Foto Profil Formal Pengurus"
+                        value={formDataPengurus.foto}
+                        onChange={(val) => setFormDataPengurus({ ...formDataPengurus, foto: val })}
+                        placeholder="https://... atau klik tombol Upload Foto"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-white/70 mb-1">Instagram (Username atau URL)</label>
+                      <input
+                        type="text"
+                        placeholder="username atau https://instagram.com/..."
+                        value={formDataPengurus.instagram}
+                        onChange={(e) => setFormDataPengurus({ ...formDataPengurus, instagram: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-white/70 mb-1">LinkedIn (Username, slug, atau URL)</label>
+                      <input
+                        type="text"
+                        placeholder="username atau https://linkedin.com/in/..."
+                        value={formDataPengurus.linkedin}
+                        onChange={(e) => setFormDataPengurus({ ...formDataPengurus, linkedin: e.target.value })}
+                        className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
+                      />
+                    </div>
+                    <div className="sm:col-span-2 flex justify-end pt-4 border-t border-white/10">
+                      <button
+                        type="submit"
+                        className="px-6 py-2.5 bg-accent text-[#043761] font-black rounded-xl hover:bg-[#ffcf33] text-sm shadow-md cursor-pointer transition-all"
+                      >
+                        {editingPengurusId ? "Simpan Perubahan Pengurus" : "Simpan Pengurus ke Database"}
+                      </button>
+                    </div>
+                  </form>
+
+                  {/* Sisi Kanan: Live Interactive Web Preview Card */}
+                  <div className="lg:col-span-5 flex flex-col items-center bg-[#04284d]/60 border border-[#164a78] rounded-2xl p-5 backdrop-blur-sm">
+                    <div className="w-full flex items-center justify-between mb-3 px-1">
+                      <span className="text-xs font-bold text-accent uppercase tracking-wider flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+                        Live Web Preview Card
+                      </span>
+                      <span className="text-[10px] text-white/60 bg-white/10 px-2.5 py-0.5 rounded-full font-medium">
+                        Tampilan di Web
+                      </span>
+                    </div>
+
+                    <div
+                      onClick={() => setPreviewPengurusModal({
+                        nama: formDataPengurus.nama || "Nama Lengkap Pengurus",
+                        jabatan: formDataPengurus.jabatan || "Jabatan Pengurus",
+                        kelompok: formDataPengurus.kelompok || "bph",
+                        foto: formDataPengurus.foto || (editingPengurusId ? pengurusList.find((p) => p.id === editingPengurusId)?.foto : ""),
+                        instagram: formDataPengurus.instagram,
+                        linkedin: formDataPengurus.linkedin,
+                        angkatan: "2023",
+                      })}
+                      className="w-full max-w-[270px] rounded-2xl overflow-hidden bg-[#073969] border border-accent/60 shadow-[0_10px_30px_rgba(0,0,0,0.5)] cursor-pointer hover:scale-102 transition-transform duration-300 text-left flex flex-col group"
                     >
-                      {KELOMPOK_OPTIONS.map((k) => (
-                        <option key={k.id} value={k.id}>{k.label}</option>
-                      ))}
-                    </select>
+                      <div className="aspect-[4/5] overflow-hidden bg-[#02182b] relative">
+                        {formDataPengurus.foto || (editingPengurusId && pengurusList.find((p) => p.id === editingPengurusId)?.foto) ? (
+                          <img
+                            src={formDataPengurus.foto || pengurusList.find((p) => p.id === editingPengurusId)?.foto}
+                            alt="Preview Pengurus"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center bg-linear-to-b from-[#04284d] to-[#073969] text-white/50">
+                            <div className="w-14 h-14 rounded-full bg-accent/15 border border-accent/30 flex items-center justify-center text-accent mb-2">
+                              <Users className="w-7 h-7" />
+                            </div>
+                            <span className="text-xs font-bold text-white/80">Foto Formal Pengurus</span>
+                            <span className="text-[10px] text-white/40 mt-1">Upload atau masukkan link foto</span>
+                          </div>
+                        )}
+                        <div className="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-full bg-[#04284d]/90 backdrop-blur-xs border border-white/15 text-[10px] font-bold text-accent uppercase tracking-wider shadow-sm">
+                          {formDataPengurus.kelompok.toUpperCase()}
+                        </div>
+                      </div>
+
+                      <div className="p-4 flex-1 flex flex-col justify-between bg-[#073969]">
+                        <div>
+                          <p className="text-sm font-bold text-white leading-snug group-hover:text-accent transition-colors">
+                            {formDataPengurus.nama || "Nama Lengkap Pengurus"}
+                          </p>
+                          <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-accent leading-snug">
+                            {formDataPengurus.jabatan || "Jabatan Pengurus"}
+                          </p>
+                        </div>
+                        <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between text-[11px]">
+                          <span className="text-white/50 text-[10px] font-medium">
+                            Angkatan 2023 • S1 SI
+                          </span>
+                          <div className="flex items-center gap-1.5 text-xs font-bold">
+                            <span className={formDataPengurus.instagram ? "text-pink-400" : "text-white/20"}>IG</span>
+                            <span className="text-white/20">•</span>
+                            <span className={formDataPengurus.linkedin ? "text-blue-400" : "text-white/20"}>LI</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="text-[11px] text-white/50 text-center mt-3">
+                      Klik kartu di atas untuk menguji popup detail anggota sebelum disimpan.
+                    </p>
                   </div>
-                  <div className="md:col-span-2">
-                    <ImageUploadField
-                      label="Foto Profil Formal Pengurus"
-                      value={formDataPengurus.foto}
-                      onChange={(val) => setFormDataPengurus({ ...formDataPengurus, foto: val })}
-                      placeholder="https://... atau klik tombol Upload Foto"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-white/70 mb-1">Instagram (Username atau URL)</label>
-                    <input
-                      type="text"
-                      placeholder="username atau https://instagram.com/..."
-                      value={formDataPengurus.instagram}
-                      onChange={(e) => setFormDataPengurus({ ...formDataPengurus, instagram: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-white/70 mb-1">LinkedIn (Username, slug, atau URL)</label>
-                    <input
-                      type="text"
-                      placeholder="username atau https://linkedin.com/in/..."
-                      value={formDataPengurus.linkedin}
-                      onChange={(e) => setFormDataPengurus({ ...formDataPengurus, linkedin: e.target.value })}
-                      className="w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm focus:border-accent"
-                    />
-                  </div>
-                  <div className="md:col-span-2 flex justify-end pt-4 border-t border-white/10">
-                    <button
-                      type="submit"
-                      className="px-6 py-2.5 bg-accent text-[#02182b] font-bold rounded-full hover:bg-[#ffcf33] text-sm shadow-md cursor-pointer"
-                    >
-                      {editingPengurusId ? "Simpan Perubahan Pengurus" : "Simpan Pengurus ke Database"}
-                    </button>
-                  </div>
-                </form>
+                </div>
               </section>
 
-              {/* Tabel Pengurus */}
+              {/* Daftar Pengurus: Mendukung Mode Grid Kartu Web dan Mode Tabel */}
               <section className="bg-[#073969] border border-[#164a78] rounded-3xl overflow-hidden shadow-2xl">
-                <div className="p-5 border-b border-[#164a78] flex justify-between items-center">
-                  <h3 className="font-bold text-white">Daftar Pengurus di Database</h3>
-                  <span className="text-xs text-accent font-bold px-3 py-1 bg-accent/10 border border-accent/20 rounded-full">
-                    {pengurusList.length} Pengurus
-                  </span>
+                <div className="p-5 border-b border-[#164a78] flex flex-wrap gap-3 justify-between items-center">
+                  <div>
+                    <h3 className="font-bold text-white text-base">Daftar Pengurus di Database</h3>
+                    <p className="text-xs text-white/50 mt-0.5">Semua profil pengurus yang aktif tampil di halaman web</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {/* Toggle View Mode */}
+                    <div className="flex items-center bg-[#04284d] border border-[#164a78] p-1 rounded-xl">
+                      <button
+                        type="button"
+                        onClick={() => setPengurusViewMode("cards")}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                          pengurusViewMode === "cards"
+                            ? "bg-accent text-[#043761] shadow-sm"
+                            : "text-white/70 hover:text-white"
+                        }`}
+                      >
+                        <Grid className="w-3.5 h-3.5" />
+                        <span>Grid Kartu</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPengurusViewMode("table")}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                          pengurusViewMode === "table"
+                            ? "bg-accent text-[#043761] shadow-sm"
+                            : "text-white/70 hover:text-white"
+                        }`}
+                      >
+                        <List className="w-3.5 h-3.5" />
+                        <span>Tabel</span>
+                      </button>
+                    </div>
+
+                    <span className="text-xs text-accent font-bold px-3 py-1 bg-accent/10 border border-accent/20 rounded-full">
+                      {pengurusList.length} Pengurus
+                    </span>
+                  </div>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="border-b border-white/10 text-white/50 text-xs">
-                        <th className="p-4">Nama & Jabatan</th>
-                        <th className="p-4">Kelompok</th>
-                        <th className="p-4">Media Sosial</th>
-                        <th className="p-4 text-right">Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                      {loadingPengurus ? (
-                        <tr><td colSpan="4" className="p-8 text-center text-white/40">Memuat pengurus...</td></tr>
-                      ) : pengurusList.length === 0 ? (
-                        <tr><td colSpan="4" className="p-8 text-center text-white/40">Belum ada data pengurus di database.</td></tr>
-                      ) : (
-                        pengurusList.map((item) => (
-                          <tr key={item.id} className="hover:bg-white/[0.03]">
-                            <td className="p-4 flex items-center gap-3">
-                              {item.foto ? (
-                                <img src={item.foto} alt={item.nama} className="w-9 h-9 rounded-full object-cover shrink-0 border border-white/20" />
-                              ) : (
-                                <div className="w-9 h-9 rounded-full bg-accent/20 text-accent font-bold flex items-center justify-center shrink-0">
-                                  {item.nama.charAt(0)}
-                                </div>
-                              )}
-                              <div>
-                                <p className="font-bold text-white">{item.nama}</p>
-                                <p className="text-xs text-accent font-semibold">{item.jabatan}</p>
+
+                {/* Mode 1: Grid Kartu Web (Sesuai Tampilan Asli Website) */}
+                {pengurusViewMode === "cards" && (
+                  <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {loadingPengurus ? (
+                      <div className="col-span-full py-12 text-center text-white/50">Memuat data pengurus...</div>
+                    ) : pengurusList.length === 0 ? (
+                      <div className="col-span-full py-12 text-center text-white/50">Belum ada data pengurus di database.</div>
+                    ) : (
+                      pengurusList.map((item) => (
+                        <div
+                          key={item.id}
+                          className="group rounded-2xl overflow-hidden bg-[#04284d]/80 border border-[#164a78] hover:border-accent/60 transition-all duration-300 shadow-lg flex flex-col justify-between"
+                        >
+                          <div className="aspect-[4/5] overflow-hidden bg-[#02182b] relative">
+                            {item.foto ? (
+                              <img
+                                src={item.foto}
+                                alt={item.nama}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex flex-col items-center justify-center p-3 text-center bg-linear-to-b from-[#04284d] to-[#073969] text-white/50">
+                                <Users className="w-8 h-8 text-accent/50 mb-1" />
+                                <span className="text-[11px] font-semibold text-white/70">Foto Belum Ada</span>
                               </div>
-                            </td>
-                            <td className="p-4 text-xs text-white/70 uppercase font-semibold">
-                              {item.kelompok}
-                            </td>
-                            <td className="p-4 text-xs text-white/60">
-                              <p>IG: {item.instagram || "-"}</p>
-                              <p>LI: {item.linkedin || "-"}</p>
-                            </td>
-                            <td className="p-4 text-right">
+                            )}
+                            <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-[#04284d]/90 backdrop-blur-xs border border-white/15 text-[10px] font-bold text-accent uppercase tracking-wider shadow-sm">
+                              {item.kelompok?.toUpperCase()}
+                            </div>
+                          </div>
+
+                          <div className="p-3.5 flex-1 flex flex-col justify-between">
+                            <div>
+                              <p className="text-sm font-bold text-white leading-snug line-clamp-1">
+                                {item.nama}
+                              </p>
+                              <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-accent leading-snug line-clamp-1">
+                                {item.jabatan}
+                              </p>
+                            </div>
+                            <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between">
                               <button
-                                onClick={() => {
-                                  setEditingPengurusId(item.id);
-                                  setFormDataPengurus({
-                                    nama: item.nama || "",
-                                    jabatan: item.jabatan || "",
-                                    kelompok: item.kelompok || "bph",
-                                    foto: item.foto || "",
-                                    instagram: item.instagram || "",
-                                    linkedin: item.linkedin || "",
-                                  });
-                                  window.scrollTo({ top: 0, behavior: "smooth" });
-                                }}
-                                className="text-xs text-accent hover:underline mr-3 font-semibold cursor-pointer"
+                                type="button"
+                                onClick={() => setPreviewPengurusModal(item)}
+                                className="text-[11px] text-white/70 hover:text-white flex items-center gap-1 font-semibold cursor-pointer"
                               >
-                                Edit
+                                <Eye className="w-3 h-3 text-accent" /> Detail
                               </button>
-                              <button
-                                onClick={() => handlePengurusDelete(item.id)}
-                                className="text-xs text-red-400 hover:underline font-semibold cursor-pointer"
-                              >
-                                Hapus
-                              </button>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingPengurusId(item.id);
+                                    setFormDataPengurus({
+                                      nama: item.nama || "",
+                                      jabatan: item.jabatan || "",
+                                      kelompok: item.kelompok || "bph",
+                                      foto: item.foto || "",
+                                      instagram: item.instagram || "",
+                                      linkedin: item.linkedin || "",
+                                    });
+                                    window.scrollTo({ top: 0, behavior: "smooth" });
+                                  }}
+                                  className="text-[11px] text-accent hover:underline font-bold cursor-pointer"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handlePengurusDelete(item.id)}
+                                  className="text-[11px] text-red-400 hover:underline font-bold cursor-pointer"
+                                >
+                                  Hapus
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+
+                {/* Mode 2: Tabel Pengurus Responsif dengan Thumbnail Foto Asli */}
+                {pengurusViewMode === "table" && (
+                  <div className="overflow-x-auto w-full">
+                    <table className="w-full text-left text-sm min-w-[650px]">
+                      <thead>
+                        <tr className="border-b border-white/10 text-white/50 text-xs">
+                          <th className="p-4">Foto & Nama</th>
+                          <th className="p-4">Kelompok</th>
+                          <th className="p-4">Media Sosial</th>
+                          <th className="p-4 text-right">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {loadingPengurus ? (
+                          <tr><td colSpan="4" className="p-8 text-center text-white/40">Memuat pengurus...</td></tr>
+                        ) : pengurusList.length === 0 ? (
+                          <tr><td colSpan="4" className="p-8 text-center text-white/40">Belum ada data pengurus di database.</td></tr>
+                        ) : (
+                          pengurusList.map((item) => (
+                            <tr key={item.id} className="hover:bg-white/[0.03]">
+                              <td className="p-4 flex items-center gap-3">
+                                {item.foto ? (
+                                  <img src={item.foto} alt={item.nama} className="w-10 h-10 rounded-xl object-cover shrink-0 border border-white/20 shadow-sm" />
+                                ) : (
+                                  <div className="w-10 h-10 rounded-xl bg-accent/20 text-accent font-bold flex items-center justify-center shrink-0">
+                                    {item.nama.charAt(0)}
+                                  </div>
+                                )}
+                                <div>
+                                  <p className="font-bold text-white">{item.nama}</p>
+                                  <p className="text-xs text-accent font-semibold">{item.jabatan}</p>
+                                </div>
+                              </td>
+                              <td className="p-4 text-xs text-white/70 uppercase font-semibold">
+                                {item.kelompok}
+                              </td>
+                              <td className="p-4 text-xs text-white/60">
+                                <p>IG: {item.instagram || "-"}</p>
+                                <p>LI: {item.linkedin || "-"}</p>
+                              </td>
+                              <td className="p-4 text-right">
+                                <button
+                                  type="button"
+                                  onClick={() => setPreviewPengurusModal(item)}
+                                  className="text-xs text-white/80 hover:text-white mr-3 font-semibold cursor-pointer inline-flex items-center gap-1"
+                                >
+                                  <Eye className="w-3 h-3 text-accent" /> Preview
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingPengurusId(item.id);
+                                    setFormDataPengurus({
+                                      nama: item.nama || "",
+                                      jabatan: item.jabatan || "",
+                                      kelompok: item.kelompok || "bph",
+                                      foto: item.foto || "",
+                                      instagram: item.instagram || "",
+                                      linkedin: item.linkedin || "",
+                                    });
+                                    window.scrollTo({ top: 0, behavior: "smooth" });
+                                  }}
+                                  className="text-xs text-accent hover:underline mr-3 font-semibold cursor-pointer"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handlePengurusDelete(item.id)}
+                                  className="text-xs text-red-400 hover:underline font-semibold cursor-pointer"
+                                >
+                                  Hapus
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </section>
+
+              {/* POPUP MODAL PREVIEW DETAIL PENGURUS (Identik dengan Web Publik) */}
+              {previewPengurusModal && (
+                <div
+                  className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+                  onClick={() => setPreviewPengurusModal(null)}
+                >
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    className="relative w-full max-w-[340px] bg-[#073969] border border-accent/40 rounded-2xl overflow-hidden shadow-2xl"
+                  >
+                    <button
+                      onClick={() => setPreviewPengurusModal(null)}
+                      type="button"
+                      className="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-black/70 hover:bg-black text-white/80 hover:text-white flex items-center justify-center border border-white/20 transition-all cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+
+                    <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#04284d]">
+                      {previewPengurusModal.foto ? (
+                        <img
+                          src={previewPengurusModal.foto}
+                          alt={previewPengurusModal.nama}
+                          className="w-full h-full object-cover block"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center bg-linear-to-b from-[#04284d] to-[#073969] text-white/50">
+                          <Users className="w-12 h-12 text-accent/50 mb-2" />
+                          <span className="text-xs font-bold text-white/80">Foto Belum Ditambahkan</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-4 sm:p-5 bg-[#073969]">
+                      <span className="text-[10px] font-bold text-accent uppercase tracking-wider block mb-1">
+                        Preview Modal Pengurus
+                      </span>
+                      <h3 className="text-lg font-bold text-white leading-tight">
+                        {previewPengurusModal.nama}
+                      </h3>
+                      <p className="mt-1 text-xs font-semibold text-accent leading-snug">
+                        {previewPengurusModal.jabatan} • <span className="text-white/70 font-normal uppercase">{previewPengurusModal.kelompok}</span>
+                      </p>
+                      <p className="mt-1 text-[11px] text-white/50">
+                        Angkatan 2023 • S1 Sistem Informasi
+                      </p>
+
+                      <div className="grid grid-cols-2 gap-2 mt-4 pt-3.5 border-t border-white/10">
+                        {previewPengurusModal.instagram ? (
+                          <a
+                            href={previewPengurusModal.instagram.startsWith("http") ? previewPengurusModal.instagram : `https://instagram.com/${previewPengurusModal.instagram.replace(/^@/, '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white text-xs font-semibold transition-all"
+                          >
+                            <span>Instagram</span>
+                            <ExternalLink className="w-3 h-3 text-white/50" />
+                          </a>
+                        ) : (
+                          <div className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white/30 text-xs font-medium cursor-not-allowed">
+                            <span>Instagram (-)</span>
+                          </div>
+                        )}
+
+                        {previewPengurusModal.linkedin ? (
+                          <a
+                            href={previewPengurusModal.linkedin.startsWith("http") ? previewPengurusModal.linkedin : `https://linkedin.com/in/${previewPengurusModal.linkedin}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white text-xs font-semibold transition-all"
+                          >
+                            <span>LinkedIn</span>
+                            <ExternalLink className="w-3 h-3 text-white/50" />
+                          </a>
+                        ) : (
+                          <div className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white/30 text-xs font-medium cursor-not-allowed">
+                            <span>LinkedIn (-)</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </main>
