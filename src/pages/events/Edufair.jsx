@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   Clock,
   Image as ImageIcon,
+  ZoomIn,
   Rocket,
   X,
   Briefcase,
@@ -31,6 +32,7 @@ import {
 import Imelvi from "../../assets/images/pengurus/divisiEdukasi/Imelvi.webp";
 
 // Import Foto Galeri Kegiatan (Baris 1)
+import EventGalleryModal from "../../components/EventGalleryModal.jsx";
 import FotoKegiatan1 from "../../assets/images/events/edufair/galeri1.webp";
 import FotoKegiatan2 from "../../assets/images/events/edufair/galeri2.webp";
 import FotoKegiatan3 from "../../assets/images/events/edufair/galeri3.webp";
@@ -375,11 +377,11 @@ export default function EdufairPage() {
                       alt={`Galeri Kegiatan 1 - Foto ${idx + 1}`}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                        Perbesar Foto
-                      </span>
-                    </div>
+                                          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                          <ZoomIn className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
                   </div>
                 ))}
               </div>
@@ -399,11 +401,11 @@ export default function EdufairPage() {
                       alt={`Galeri Kegiatan 1 - Foto Duplikat ${idx + 1}`}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                        Perbesar Foto
-                      </span>
-                    </div>
+                                          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                          <ZoomIn className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
                   </div>
                 ))}
               </div>
@@ -425,10 +427,10 @@ export default function EdufairPage() {
                         alt={`Galeri Kegiatan 2 - Foto ${idx + 1}`}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
-                      <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                          Perbesar Foto
-                        </span>
+                      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                          <ZoomIn className="w-6 h-6 text-white" />
+                        </div>
                       </div>
                     </div>
                   );
@@ -452,10 +454,10 @@ export default function EdufairPage() {
                         alt={`Galeri Kegiatan 2 - Foto Duplikat ${idx + 1}`}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
-                      <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                          Perbesar Foto
-                        </span>
+                      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                          <ZoomIn className="w-6 h-6 text-white" />
+                        </div>
                       </div>
                     </div>
                   );
@@ -621,75 +623,16 @@ export default function EdufairPage() {
         </section>
       </div>
 
-      {/* ================= MODAL LIGHTBOX (DIRENDER KE DOCUMENT.BODY) ================= */}
-      {createPortal(
-        <AnimatePresence>
-          {selectedIndex !== null && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="fixed inset-0 z-[999999] bg-[#02111d]/95 backdrop-blur-xl flex flex-col items-center justify-center p-4 sm:p-8"
-            >
-              {/* Tombol Close (Hanya tombol ini yang bisa keluar modal) */}
-              <button
-                onClick={() => setSelectedIndex(null)}
-                className="absolute top-8 right-8 sm:top-12 sm:right-12 z-[60] w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-accent hover:text-slate-900 hover:scale-110 transition-all cursor-pointer"
-              >
-                <X className="w-4 h-4 sm:w-5 sm:h-5" />
-              </button>
-
-              {/* Wrapper Konten Animasi Zoom In/Out */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
-                className="w-full flex-1 flex flex-col items-center justify-center"
-              >
-                {/* Kontainer Foto Murni (Tanpa BG Hitam Tambahan) */}
-                <div className="relative w-full max-w-6xl flex items-center justify-center">
-                  <AnimatePresence mode="wait">
-                    <motion.img
-                      key={selectedIndex}
-                      src={allGallery[selectedIndex]}
-                      alt={`Gallery ${selectedIndex + 1}`}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      transition={{ duration: 0.25, ease: "easeOut" }}
-                      className="max-w-full h-auto max-h-[75vh] object-contain rounded-xl shadow-2xl"
-                    />
-                  </AnimatePresence>
-                </div>
-
-                {/* Kontrol Navigasi Panah (Di Bawah Foto) */}
-                <div className="flex items-center justify-center gap-6 mt-8 z-50">
-                  <button
-                    onClick={handlePrev}
-                    className="w-8 h-8 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-accent hover:text-slate-900 hover:scale-110 transition-all cursor-pointer"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-
-                  <div className="px-5 py-1.5 rounded-xl bg-white/10 border border-white/20 text-white font-bold text-sm tracking-widest shadow-lg">
-                    {selectedIndex + 1} / {allGallery.length}
-                  </div>
-
-                  <button
-                    onClick={handleNext}
-                    className="w-8 h-8 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-accent hover:text-slate-900 hover:scale-110 transition-all cursor-pointer"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>,
-        document.body,
-      )}
+      {/* ================= MODAL LIGHTBOX ================= */}
+      <EventGalleryModal
+        isOpen={selectedIndex !== null}
+        currentIndex={selectedIndex}
+        images={allGallery}
+        category="EDUFAIR"
+        title="Edufair HIMSIKA 2026"
+        onClose={() => setSelectedIndex(null)}
+        onNavigate={(newIdx) => setSelectedIndex(newIdx)}
+      />
     </div>
   );
 }

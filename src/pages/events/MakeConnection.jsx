@@ -22,9 +22,11 @@ import {
   Compass,
   HeartHandshake,
   Network,
+  ZoomIn,
 } from "lucide-react";
 
 // --- SILAKAN IMPORT GAMBAR ASLI KAMU DI SINI ---
+import EventGalleryModal from "../../components/EventGalleryModal.jsx";
 import Gathan from "../../assets/images/pengurus/divisiRelasi/Gathan.webp";
 
 // Import Foto Galeri Kegiatan (Baris 1)
@@ -57,6 +59,8 @@ const galeriBaris2 = [
   FotoKegiatan9,
   FotoKegiatan10,
 ];
+
+const allGallery = [...galeriBaris1, ...galeriBaris2];
 
 // Data Timeline Make Connection
 const timelineData = [
@@ -141,7 +145,7 @@ const achievementsData = [
 
 export default function MakeConnectionPage() {
   // State untuk menyimpan gambar yang diklik (Lightbox)
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
 
   return (
     <div className="min-h-screen bg-linear-to-b from-[#043761] via-primary to-[#043761] font-primary pt-32 pb-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden selection:bg-accent selection:text-slate-900">
@@ -323,7 +327,7 @@ export default function MakeConnectionPage() {
                 {galeriBaris1.map((foto, idx) => (
                   <div
                     key={`row1-a-${idx}`}
-                    onClick={() => setSelectedImage(foto)}
+                    onClick={() => setSelectedIndex(idx)}
                     className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
                   >
                     <img
@@ -331,11 +335,11 @@ export default function MakeConnectionPage() {
                       alt={`Galeri Kegiatan 1 - Foto ${idx + 1}`}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                        Perbesar Foto
-                      </span>
-                    </div>
+                                          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                          <ZoomIn className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
                   </div>
                 ))}
               </div>
@@ -346,7 +350,7 @@ export default function MakeConnectionPage() {
                 {galeriBaris1.map((foto, idx) => (
                   <div
                     key={`row1-b-${idx}`}
-                    onClick={() => setSelectedImage(foto)}
+                    onClick={() => setSelectedIndex(idx)}
                     className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
                   >
                     <img
@@ -354,11 +358,11 @@ export default function MakeConnectionPage() {
                       alt={`Galeri Kegiatan 1 - Foto Duplikat ${idx + 1}`}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                        Perbesar Foto
-                      </span>
-                    </div>
+                                          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                          <ZoomIn className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
                   </div>
                 ))}
               </div>
@@ -370,7 +374,7 @@ export default function MakeConnectionPage() {
                 {galeriBaris2.map((foto, idx) => (
                   <div
                     key={`row2-a-${idx}`}
-                    onClick={() => setSelectedImage(foto)}
+                    onClick={() => setSelectedIndex(galeriBaris1.length + idx)}
                     className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
                   >
                     <img
@@ -378,11 +382,11 @@ export default function MakeConnectionPage() {
                       alt={`Galeri Kegiatan 2 - Foto ${idx + 1}`}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                        Perbesar Foto
-                      </span>
-                    </div>
+                                          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                          <ZoomIn className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
                   </div>
                 ))}
               </div>
@@ -393,7 +397,7 @@ export default function MakeConnectionPage() {
                 {galeriBaris2.map((foto, idx) => (
                   <div
                     key={`row2-b-${idx}`}
-                    onClick={() => setSelectedImage(foto)}
+                    onClick={() => setSelectedIndex(galeriBaris1.length + idx)}
                     className="w-[280px] sm:w-[350px] aspect-video rounded-2xl overflow-hidden bg-white/5 border border-white/10 cursor-pointer shrink-0 relative group"
                   >
                     <img
@@ -401,11 +405,11 @@ export default function MakeConnectionPage() {
                       alt={`Galeri Kegiatan 2 - Foto Duplikat ${idx + 1}`}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                        Perbesar Foto
-                      </span>
-                    </div>
+                                          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                          <ZoomIn className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
                   </div>
                 ))}
               </div>
@@ -555,40 +559,15 @@ export default function MakeConnectionPage() {
       </div>
 
       {/* ================= MODAL LIGHTBOX ================= */}
-      <AnimatePresence>
-        {selectedImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelectedImage(null)}
-            className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-8"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative max-w-5xl w-full flex flex-col items-center justify-center"
-            >
-              {/* Tombol Tutup (X) */}
-              <button
-                onClick={() => setSelectedImage(null)}
-                className="absolute -top-12 right-0 md:-right-12 z-10 w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-accent hover:text-slate-900 transition-all cursor-pointer"
-              >
-                <X className="w-6 h-6" />
-              </button>
-
-              {/* Gambar Full Size */}
-              <img
-                src={selectedImage}
-                alt="Full Size Gallery"
-                className="w-full h-auto max-h-[85vh] object-contain rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10"
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <EventGalleryModal
+        isOpen={selectedIndex !== null}
+        currentIndex={selectedIndex}
+        images={allGallery}
+        category="MAKE A CONNECTION"
+        title="Make a Connection HIMSIKA 2026"
+        onClose={() => setSelectedIndex(null)}
+        onNavigate={(newIdx) => setSelectedIndex(newIdx)}
+      />
     </div>
   );
 }

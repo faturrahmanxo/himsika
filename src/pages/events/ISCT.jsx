@@ -25,9 +25,11 @@ import {
   Network,
   ChevronLeft,
   ChevronRight,
+  ZoomIn,
 } from "lucide-react";
 
 // --- SILAKAN IMPORT GAMBAR ASLI KAMU DI SINI ---
+import EventGalleryModal from "../../components/EventGalleryModal.jsx";
 import Dillan from "../../assets/images/pengurus/divisiRelasi/Dillan.webp";
 
 // Import Foto Galeri Kegiatan (Baris 1)
@@ -366,11 +368,11 @@ export default function ISCTPage() {
                       alt={`Galeri Kegiatan 1 - Foto ${idx + 1}`}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                        Perbesar Foto
-                      </span>
-                    </div>
+                                          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                          <ZoomIn className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
                   </div>
                 ))}
               </div>
@@ -389,11 +391,11 @@ export default function ISCTPage() {
                       alt={`Galeri Kegiatan 1 - Foto Duplikat ${idx + 1}`}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                        Perbesar Foto
-                      </span>
-                    </div>
+                                          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                          <ZoomIn className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
                   </div>
                 ))}
               </div>
@@ -415,10 +417,10 @@ export default function ISCTPage() {
                         alt={`Galeri Kegiatan 2 - Foto ${idx + 1}`}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
-                      <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                          Perbesar Foto
-                        </span>
+                                            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                          <ZoomIn className="w-6 h-6 text-white" />
+                        </div>
                       </div>
                     </div>
                   );
@@ -441,10 +443,10 @@ export default function ISCTPage() {
                         alt={`Galeri Kegiatan 2 - Foto Duplikat ${idx + 1}`}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
-                      <div className="absolute inset-0 bg-[#043761]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <span className="px-4 py-2 bg-accent text-slate-900 rounded-full text-xs font-bold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
-                          Perbesar Foto
-                        </span>
+                                            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                          <ZoomIn className="w-6 h-6 text-white" />
+                        </div>
                       </div>
                     </div>
                   );
@@ -601,69 +603,16 @@ export default function ISCTPage() {
         </section>
       </div>
 
-      {/* ================= MODAL LIGHTBOX (DIRENDER KE DOCUMENT.BODY) ================= */}
-      {createPortal(
-        <AnimatePresence>
-          {selectedIndex !== null && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedIndex(null)}
-              className="fixed inset-0 z-[999999] bg-[#02111d]/95 backdrop-blur-xl flex items-center justify-center p-4 sm:p-8"
-            >
-              {/* Tombol Close */}
-              <button
-                onClick={() => setSelectedIndex(null)}
-                className="absolute top-6 right-6 sm:top-10 sm:right-10 z-50 w-12 h-12 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-accent hover:text-slate-900 transition-all cursor-pointer"
-              >
-                <X className="w-6 h-6" />
-              </button>
-
-              {/* Tombol Prev */}
-              <button
-                onClick={handlePrev}
-                className="absolute left-4 sm:left-10 z-50 w-12 h-12 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center hover:bg-accent hover:text-slate-900 hover:scale-110 transition-all cursor-pointer"
-              >
-                <ChevronLeft className="w-7 h-7" />
-              </button>
-
-              {/* Tombol Next */}
-              <button
-                onClick={handleNext}
-                className="absolute right-4 sm:right-10 z-50 w-12 h-12 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center hover:bg-accent hover:text-slate-900 hover:scale-110 transition-all cursor-pointer"
-              >
-                <ChevronRight className="w-7 h-7" />
-              </button>
-
-              {/* Counter Halaman */}
-              <div className="absolute bottom-6 sm:bottom-10 z-50 px-4 py-2 rounded-full bg-black/50 border border-white/20 text-white font-bold text-sm tracking-widest">
-                {selectedIndex + 1} / {allGallery.length}
-              </div>
-
-              {/* Container Gambar */}
-              <div
-                onClick={(e) => e.stopPropagation()}
-                className="relative max-w-6xl w-full flex items-center justify-center overflow-hidden"
-              >
-                <AnimatePresence mode="wait">
-                  <motion.img
-                    key={selectedIndex}
-                    src={allGallery[selectedIndex]}
-                    alt={`Full Size Gallery ${selectedIndex + 1}`}
-                    initial={{ opacity: 0, x: 50, scale: 0.95 }}
-                    animate={{ opacity: 1, x: 0, scale: 1 }}
-                    exit={{ opacity: 0, x: -50, scale: 0.95 }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
-                    className="w-full h-auto max-h-[85vh] object-contain rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/10"
-                  />
-                </AnimatePresence>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>,
-        document.body,
-      )}
+      {/* ================= MODAL LIGHTBOX ================= */}
+      <EventGalleryModal
+        isOpen={selectedIndex !== null}
+        currentIndex={selectedIndex}
+        images={allGallery}
+        category="ISCT"
+        title="Information System Care and Togetherness 2026"
+        onClose={() => setSelectedIndex(null)}
+        onNavigate={(newIdx) => setSelectedIndex(newIdx)}
+      />
     </div>
   );
 }

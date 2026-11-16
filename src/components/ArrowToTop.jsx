@@ -45,7 +45,7 @@ export default function ArrowToTop() {
           transition={{ duration: 0.3 }}
           onClick={scrollToTop}
           aria-label="Kembali ke atas"
-          className="fixed bottom-8 right-8 z-[99] flex items-center justify-center w-12 h-12 bg-info border-[3px] border-foreground rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:scale-110 hover:brightness-110 active:scale-95 transition-all duration-300"
+          className="fixed bottom-8 right-8 z-30 flex items-center justify-center w-12 h-12 bg-info border-[3px] border-foreground rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:scale-110 hover:brightness-110 active:scale-95 transition-all duration-300"
         >
           <ArrowUp className="w-6 h-6 text-foreground" strokeWidth={2.5} />
         </motion.button>
