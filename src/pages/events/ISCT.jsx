@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Link } from "react-router-dom";
 import {
@@ -148,44 +147,7 @@ const achievementsData = [
 ];
 
 export default function ISCTPage() {
-  // State untuk menyimpan INDEX gambar yang diklik (Lightbox Slider)
   const [selectedIndex, setSelectedIndex] = useState(null);
-
-  // Fungsi navigasi slider
-  const handleNext = (e) => {
-    e?.stopPropagation();
-    setSelectedIndex((prev) => (prev === allGallery.length - 1 ? 0 : prev + 1));
-  };
-
-  const handlePrev = (e) => {
-    e?.stopPropagation();
-    setSelectedIndex((prev) => (prev === 0 ? allGallery.length - 1 : prev - 1));
-  };
-
-  // Efek untuk navigasi menggunakan keyboard (Arrow Kanan, Kiri, dan Escape)
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (selectedIndex === null) return;
-      if (e.key === "ArrowRight") handleNext();
-      if (e.key === "ArrowLeft") handlePrev();
-      if (e.key === "Escape") setSelectedIndex(null);
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedIndex]);
-
-  // Hapus scroll background saat modal terbuka
-  useEffect(() => {
-    if (selectedIndex !== null) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [selectedIndex]);
 
   return (
     <div className="min-h-screen bg-linear-to-b from-[#043761] via-primary to-[#043761] font-primary pt-32 pb-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden selection:bg-accent selection:text-slate-900">
@@ -198,46 +160,73 @@ export default function ISCTPage() {
           style={{ animationDuration: "7s" }}
         ></div>
 
-        <div className="absolute top-24 left-10 sm:left-20 animate-[spin_8s_linear_infinite] text-accent/30">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
+        {/* Ornamen SVG Tambahan Modern */}
+        {/* 1. Sparkle Bintang 4 Sisi */}
+        <div className="absolute top-24 left-10 sm:left-20 animate-[spin_8s_linear_infinite] text-accent/30 pointer-events-none">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 0C12 6.62742 6.62742 12 0 12C6.62742 12 12 17.3726 12 24C12 17.3726 17.3726 12 24 12C17.3726 12 12 6.62742 12 0Z" />
           </svg>
         </div>
-        <div
-          className="absolute top-1/3 right-10 sm:right-24 animate-bounce text-white/10"
-          style={{ animationDuration: "5s" }}
-        >
-          <svg
-            width="40"
-            height="40"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-          >
-            <circle cx="12" cy="12" r="8" />
+
+        {/* 2. Dot Matrix Pattern */}
+        <div className="absolute top-1/4 right-8 lg:right-24 opacity-25 pointer-events-none text-accent">
+          <svg width="60" height="60" viewBox="0 0 60 60" fill="currentColor">
+            <circle cx="6" cy="6" r="1.5" /><circle cx="22" cy="6" r="1.5" /><circle cx="38" cy="6" r="1.5" /><circle cx="54" cy="6" r="1.5" />
+            <circle cx="6" cy="22" r="1.5" /><circle cx="22" cy="22" r="1.5" /><circle cx="38" cy="22" r="1.5" /><circle cx="54" cy="22" r="1.5" />
+            <circle cx="6" cy="38" r="1.5" /><circle cx="22" cy="38" r="1.5" /><circle cx="38" cy="38" r="1.5" /><circle cx="54" cy="38" r="1.5" />
+            <circle cx="6" cy="54" r="1.5" /><circle cx="22" cy="54" r="1.5" /><circle cx="38" cy="54" r="1.5" /><circle cx="54" cy="54" r="1.5" />
           </svg>
         </div>
+
+        {/* 3. Lingkaran Tech Ring */}
         <div
-          className="absolute bottom-1/4 left-10 sm:left-24 animate-pulse text-blue-400/20"
+          className="absolute top-1/3 right-10 sm:right-24 animate-bounce text-white/10 pointer-events-none"
+          style={{ animationDuration: "6s" }}
+        >
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <circle cx="12" cy="12" r="8" />
+            <circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.4" />
+          </svg>
+        </div>
+
+        {/* 4. Circuit Line & Node */}
+        <div className="absolute top-2/3 left-6 lg:left-16 opacity-20 pointer-events-none text-white">
+          <svg width="90" height="90" viewBox="0 0 90 90" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M10 25 L45 25 L60 40 L80 40" strokeDasharray="3 3" />
+            <circle cx="80" cy="40" r="3" fill="#ffc300" />
+            <path d="M20 60 L40 60 L50 72 L70 72" />
+            <circle cx="20" cy="60" r="2.5" fill="currentColor" />
+          </svg>
+        </div>
+
+        {/* 5. Cyber Hexagon */}
+        <div className="absolute bottom-1/3 right-8 lg:right-28 opacity-20 pointer-events-none text-accent animate-[spin_24s_linear_infinite]">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <polygon points="12,2 22,8 22,16 12,22 2,16 2,8" />
+          </svg>
+        </div>
+
+        {/* 6. Geometric Cross Plus */}
+        <div className="absolute top-1/2 left-12 lg:left-28 opacity-25 pointer-events-none text-accent">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 4v16m-8-8h16" strokeLinecap="round" />
+          </svg>
+        </div>
+
+        {/* 7. Zig-Zag Signal Wave */}
+        <div
+          className="absolute bottom-1/4 left-10 sm:left-24 animate-pulse text-blue-400/25 pointer-events-none"
           style={{ animationDuration: "4s" }}
         >
-          <svg
-            width="35"
-            height="35"
-            viewBox="0 0 44 22"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
+          <svg width="38" height="38" viewBox="0 0 44 22" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
             <path d="M2 11l7-9 11 18 13-16 9 11" />
           </svg>
         </div>
-        <div className="absolute bottom-20 right-20 animate-[spin_12s_linear_infinite_reverse] text-accent/30">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2v20M2 12h20" />
+
+        {/* 8. Star Plus Sparkle */}
+        <div className="absolute bottom-20 right-16 sm:right-24 animate-[spin_12s_linear_infinite_reverse] text-accent/35 pointer-events-none">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2v20M2 12h20" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
           </svg>
         </div>
       </div>
@@ -369,8 +358,8 @@ export default function ISCTPage() {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                                           <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                          <ZoomIn className="w-6 h-6 text-white" />
+                        <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-xs border border-white/30 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                          <ZoomIn className="w-4 h-4 text-white" />
                         </div>
                       </div>
                   </div>
@@ -392,8 +381,8 @@ export default function ISCTPage() {
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                                           <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                          <ZoomIn className="w-6 h-6 text-white" />
+                        <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-xs border border-white/30 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                          <ZoomIn className="w-4 h-4 text-white" />
                         </div>
                       </div>
                   </div>
@@ -418,8 +407,8 @@ export default function ISCTPage() {
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
                                             <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                          <ZoomIn className="w-6 h-6 text-white" />
+                        <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-xs border border-white/30 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                          <ZoomIn className="w-4 h-4 text-white" />
                         </div>
                       </div>
                     </div>
@@ -444,8 +433,8 @@ export default function ISCTPage() {
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
                                             <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                          <ZoomIn className="w-6 h-6 text-white" />
+                        <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-xs border border-white/30 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                          <ZoomIn className="w-4 h-4 text-white" />
                         </div>
                       </div>
                     </div>
