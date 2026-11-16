@@ -117,13 +117,44 @@ export default function Beranda() {
         const { data, error } = await supabase
           .from("artikel")
           .select("*")
-          .order("id", { ascending: false })
-          .limit(5);
+          .order("datetime", { ascending: false })
+          .order("id", { ascending: false });
 
         if (!error && data && data.length > 0) {
-          const dbIds = new Set(data.map((d) => d.id));
-          const remainingFallback = artikelData.filter((a) => !dbIds.has(a.id));
-          setArticles([...data, ...remainingFallback]);
+          const normalized = data.map((d) => {
+            const fallback =
+              artikelData.find((a) => String(a.id) === String(d.id)) ||
+              artikelData.find((a) => a.title === d.title);
+            return {
+              ...d,
+              image:
+                d.image && d.image.trim()
+                  ? d.image.trim()
+                  : fallback?.image || "",
+              category:
+                d.category ||
+                (Array.isArray(d.categories) && d.categories.length > 0
+                  ? d.categories[0]
+                  : fallback?.category || "Berita"),
+              date: d.date || fallback?.date || "",
+              excerpt: d.excerpt || fallback?.excerpt || "",
+            };
+          });
+
+          const dbIds = new Set(data.map((d) => String(d.id)));
+          const remainingFallback = artikelData.filter(
+            (a) => !dbIds.has(String(a.id)),
+          );
+
+          const combined = [...normalized, ...remainingFallback].sort(
+            (a, b) => {
+              const dateA = a.datetime || a.date || "";
+              const dateB = b.datetime || b.date || "";
+              return dateB.localeCompare(dateA);
+            },
+          );
+
+          setArticles(combined);
         }
       } catch (err) {
         console.warn("Menggunakan data artikel lokal di Beranda:", err.message);
