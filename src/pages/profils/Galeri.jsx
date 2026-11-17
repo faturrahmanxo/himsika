@@ -10,10 +10,15 @@ import supabase from "../../supabase-client";
 // Halaman Galeri Kegiatan.
 // Terintegrasi dengan database Supabase (tabel 'galeri') dengan fallback ke galeriDefault.
 
+// Pre-sort default galeri secara descending berdasarkan ID agar selaras dengan Supabase sejak frame pertama
+const sortedDefaultGaleri = [...galeriDefault].sort(
+  (a, b) => Number(b.id) - Number(a.id),
+);
+
 export default function Galeri() {
   const [album, setAlbum] = useState("Semua");
   const [selectedIndex, setSelectedIndex] = useState(null);
-  const [galeriList, setGaleriList] = useState(galeriDefault);
+  const [galeriList, setGaleriList] = useState(sortedDefaultGaleri);
 
   useEffect(() => {
     async function fetchGaleri() {
@@ -35,8 +40,19 @@ export default function Galeri() {
               albumSlug: d.album_slug || d.albumSlug || fallback?.albumSlug || "",
             };
           });
-          // Database adalah sumber utama agar foto yang dihapus di admin tidak muncul lagi.
-          setGaleriList(normalized);
+
+          // Cek kesamaan data: jika data sama persis, jangan picu re-render agar foto tidak berkedip
+          setGaleriList((prev) => {
+            const isSame =
+              prev.length === normalized.length &&
+              prev.every(
+                (item, i) =>
+                  String(item.id) === String(normalized[i].id) &&
+                  item.foto === normalized[i].foto &&
+                  item.album === normalized[i].album,
+              );
+            return isSame ? prev : normalized;
+          });
         }
       } catch (err) {
         console.warn("Menggunakan data galeri lokal:", err.message);

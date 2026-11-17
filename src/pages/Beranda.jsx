@@ -108,8 +108,18 @@ const AnimatedCounter = ({ end, duration = 2000 }) => {
   return <span ref={nodeRef}>{count}</span>;
 };
 
+// Urutkan artikel: prioritas Berita Hot di paling atas, lalu tanggal terbaru, lalu ID tertinggi
+const sortArticlesList = (list) =>
+  [...list].sort((a, b) => {
+    if (a.is_hot && !b.is_hot) return -1;
+    if (!a.is_hot && b.is_hot) return 1;
+    const dateA = a.datetime || "";
+    const dateB = b.datetime || "";
+    return dateB.localeCompare(dateA) || Number(b.id) - Number(a.id);
+  });
+
 export default function Beranda() {
-  const [articles, setArticles] = useState(artikelData);
+  const [articles, setArticles] = useState(() => sortArticlesList(artikelData));
 
   useEffect(() => {
     async function fetchLatestArticles() {
@@ -143,15 +153,21 @@ export default function Beranda() {
           });
 
           // Database adalah sumber utama: artikel yang dihapus di admin tidak muncul lagi dari data lokal.
-          const combined = [...normalized].sort(
-            (a, b) => {
-              const dateA = a.datetime || "";
-              const dateB = b.datetime || "";
-              return dateB.localeCompare(dateA) || Number(b.id) - Number(a.id);
-            },
-          );
+          const combined = sortArticlesList(normalized);
 
-          setArticles(combined);
+          // Cek kesamaan data: jika data sama persis, jangan picu re-render
+          setArticles((prev) => {
+            const isSame =
+              prev.length === combined.length &&
+              prev.every(
+                (art, i) =>
+                  String(art.id) === String(combined[i].id) &&
+                  art.title === combined[i].title &&
+                  art.image === combined[i].image &&
+                  Boolean(art.is_hot) === Boolean(combined[i].is_hot),
+              );
+            return isSame ? prev : combined;
+          });
         }
       } catch (err) {
         console.warn("Menggunakan data artikel lokal di Beranda:", err.message);

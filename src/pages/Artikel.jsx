@@ -5,10 +5,21 @@ import { motion } from "motion/react";
 import artikelData from "../data/artikel";
 import supabase from "../supabase-client";
 
+// Urutkan artikel: prioritas Berita Hot di paling atas, lalu tanggal terbaru, lalu ID tertinggi
+export const sortArticlesList = (list) =>
+  [...list].sort((a, b) => {
+    if (a.is_hot && !b.is_hot) return -1;
+    if (!a.is_hot && b.is_hot) return 1;
+    const dateA = a.datetime || "";
+    const dateB = b.datetime || "";
+    return dateB.localeCompare(dateA) || Number(b.id) - Number(a.id);
+  });
+
 export default function Artikel() {
   const [activeCategory, setActiveCategory] = useState("Semua");
   const [visibleCount, setVisibleCount] = useState(3);
-  const [articles, setArticles] = useState(artikelData);
+  // Inisialisasi data yang sudah tersortir sejak frame pertama agar tidak ada efek berkedip / bertukar posisi
+  const [articles, setArticles] = useState(() => sortArticlesList(artikelData));
   const [isLoading, setIsLoading] = useState(false);
   const categories = ["Semua", "Berita", "Kegiatan", "Opini", "Prestasi"];
 
@@ -29,6 +40,7 @@ export default function Artikel() {
               artikelData.find((a) => a.title === d.title);
             return {
               ...d,
+              is_hot: Boolean(d.is_hot),
               image:
                 d.image && d.image.trim()
                   ? d.image.trim()
@@ -44,16 +56,21 @@ export default function Artikel() {
           });
 
           // Database adalah sumber utama: artikel yang dihapus di admin tidak muncul lagi dari data lokal.
-          // Prioritaskan artikel hot di paling atas, lalu urutkan tanggal terbaru.
-          const combined = [...normalized].sort((a, b) => {
-            if (a.is_hot && !b.is_hot) return -1;
-            if (!a.is_hot && b.is_hot) return 1;
-            const dateA = a.datetime || "";
-            const dateB = b.datetime || "";
-            return dateB.localeCompare(dateA) || Number(b.id) - Number(a.id);
-          });
+          const combined = sortArticlesList(normalized);
 
-          setArticles(combined);
+          // Cek kesamaan data: jika urutan dan isi sudah sama, jangan picu re-render agar tidak ada kedipan
+          setArticles((prev) => {
+            const isSame =
+              prev.length === combined.length &&
+              prev.every(
+                (art, i) =>
+                  String(art.id) === String(combined[i].id) &&
+                  art.title === combined[i].title &&
+                  art.image === combined[i].image &&
+                  Boolean(art.is_hot) === Boolean(combined[i].is_hot),
+              );
+            return isSame ? prev : combined;
+          });
         }
       } catch (err) {
         console.warn("Menggunakan data artikel lokal:", err.message);

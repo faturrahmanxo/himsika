@@ -20,8 +20,10 @@ const parsePemenang = (p) => {
   return [];
 };
 
+const sortedDefaultPrestasi = [...PRESTASI_DATA].sort((a, b) => Number(b.id) - Number(a.id));
+
 export default function Prestasi() {
-  const [prestasiList, setPrestasiList] = useState(PRESTASI_DATA);
+  const [prestasiList, setPrestasiList] = useState(sortedDefaultPrestasi);
   const [sumberCadangan, setSumberCadangan] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -47,15 +49,20 @@ export default function Prestasi() {
               instagramUrl: d.instagram_url || d.instagramUrl || fallback?.instagramUrl || "https://www.instagram.com/himsika.unsika/",
             };
           });
-          setPrestasiList(normalized);
+          setPrestasiList((prev) => {
+            const isSame =
+              prev.length === normalized.length &&
+              prev.every((item, idx) => item.id === normalized[idx].id && item.judul === normalized[idx].judul);
+            return isSame ? prev : normalized;
+          });
           setSumberCadangan(false);
         } else {
-          setPrestasiList(PRESTASI_DATA);
+          setPrestasiList(sortedDefaultPrestasi);
           setSumberCadangan(true);
         }
       } catch (err) {
         console.warn("Menggunakan data prestasi lokal:", err.message);
-        setPrestasiList(PRESTASI_DATA);
+        setPrestasiList(sortedDefaultPrestasi);
         setSumberCadangan(true);
       } finally {
         setLoading(false);
