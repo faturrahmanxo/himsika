@@ -114,46 +114,54 @@ export default function Galeri() {
         </Reveal>
 
         {/* Petak foto */}
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence mode="wait">
           <motion.div
             key={album}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 auto-rows-[150px] sm:auto-rows-[190px]"
+            transition={{ duration: 0.25 }}
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 auto-rows-[160px] sm:auto-rows-[200px]"
           >
             {tampil.map((g, i) => (
-              <Reveal
-                key={g.id}
-                delay={Math.min(i * 0.02, 0.25)}
-                className={i % 7 === 0 ? "col-span-2 row-span-2" : ""}
+              <div
+                key={g.id || i}
+                className={`${
+                  i % 7 === 0 ? "col-span-2 row-span-2" : "col-span-1 row-span-1"
+                } w-full h-full`}
               >
                 <button
+                  type="button"
                   onClick={() => setSelectedIndex(i)}
                   aria-label={`Perbesar foto ${g.album}`}
-                  className="group relative w-full h-full rounded-2xl overflow-hidden bg-card border border-border hover:border-accent/60 transition-all shadow-md shadow-black/20 cursor-pointer"
+                  className="group relative w-full h-full rounded-2xl overflow-hidden bg-card border border-border hover:border-accent/60 transition-all shadow-md shadow-black/20 cursor-pointer block text-left"
                 >
                   <img
                     src={g.foto}
                     alt={`Dokumentasi ${g.album}`}
                     loading="lazy"
+                    onError={(e) => {
+                      const fallback = galeriDefault[i % galeriDefault.length]?.foto;
+                      if (fallback && e.currentTarget.src !== fallback) {
+                        e.currentTarget.src = fallback;
+                      }
+                    }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  {/* Overlay Kaca Pembesar (Persis seperti Event Pages) */}
-                  <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                  {/* Overlay Kaca Pembesar */}
+                  <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center pointer-events-none">
                     <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-xs border border-white/30 text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
                       <ZoomIn className="w-4 h-4 text-white" />
                     </div>
                   </div>
                   {/* Label Album di Bawah */}
-                  <span className="absolute inset-x-0 bottom-0 p-3 bg-linear-to-t from-black/85 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="absolute inset-x-0 bottom-0 p-3 bg-linear-to-t from-black/85 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                     <span className="text-xs font-semibold text-white">
                       {g.album}
                     </span>
                   </span>
                 </button>
-              </Reveal>
+              </div>
             ))}
           </motion.div>
         </AnimatePresence>

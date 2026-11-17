@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "motion/react";
 // IMPORT DATA UTAMA & SUPABASE
 import artikelData from "../data/artikel";
 import supabase from "../supabase-client";
@@ -43,13 +44,14 @@ export default function Artikel() {
           });
 
           // Database adalah sumber utama: artikel yang dihapus di admin tidak muncul lagi dari data lokal.
-          const combined = [...normalized].sort(
-            (a, b) => {
-              const dateA = a.datetime || "";
-              const dateB = b.datetime || "";
-              return dateB.localeCompare(dateA) || Number(b.id) - Number(a.id);
-            },
-          );
+          // Prioritaskan artikel hot di paling atas, lalu urutkan tanggal terbaru.
+          const combined = [...normalized].sort((a, b) => {
+            if (a.is_hot && !b.is_hot) return -1;
+            if (!a.is_hot && b.is_hot) return 1;
+            const dateA = a.datetime || "";
+            const dateB = b.datetime || "";
+            return dateB.localeCompare(dateA) || Number(b.id) - Number(a.id);
+          });
 
           setArticles(combined);
         }
@@ -86,11 +88,16 @@ export default function Artikel() {
   const displayedArticles = filteredArticles.slice(1, visibleCount + 1);
 
   return (
-    <main className="min-h-screen bg-linear-to-b from-[#043761] via-primary to-[#043761] font-primary pt-42 pb-20 relative overflow-hidden">
-      {/* Background (TETAP SAMA) */}
+    <motion.main
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className="min-h-screen bg-linear-to-b from-[#043761] via-primary to-[#043761] font-primary pt-32 sm:pt-36 pb-20 relative overflow-hidden"
+    >
+      {/* Background */}
       <div className="absolute inset-0 pointer-events-none z-0">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
-        <div className="absolute w-[30rem] h-[30rem] rounded-full blur-[120px] bg-accent/20 top-0 left-0 -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
+        <div className="absolute w-[30rem] h-[30rem] rounded-full blur-[140px] bg-accent/15 top-0 left-0 -translate-x-1/2 -translate-y-1/2"></div>
       </div>
 
       {/* TITLE */}
@@ -146,6 +153,12 @@ export default function Artikel() {
               <img
                 src={featuredArticle.image}
                 alt={featuredArticle.title}
+                onError={(e) => {
+                  const fallback = artikelData[0]?.image;
+                  if (fallback && e.currentTarget.src !== fallback) {
+                    e.currentTarget.src = fallback;
+                  }
+                }}
                 className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#043761]/80 via-transparent to-transparent opacity-60"></div>
@@ -199,6 +212,14 @@ export default function Artikel() {
                 <img
                   src={article.image}
                   alt={article.title}
+                  onError={(e) => {
+                    const fallback =
+                      artikelData.find((a) => String(a.id) === String(article.id))?.image ||
+                      artikelData[0]?.image;
+                    if (fallback && e.currentTarget.src !== fallback) {
+                      e.currentTarget.src = fallback;
+                    }
+                  }}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
                 <div className="absolute top-4 right-4 z-10">
@@ -242,6 +263,6 @@ export default function Artikel() {
           </div>
         )}
       </section>
-    </main>
+    </motion.main>
   );
 }

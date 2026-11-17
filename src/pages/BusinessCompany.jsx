@@ -153,7 +153,7 @@ export default function BusinessCompany() {
   };
 
   return (
-    <main className="min-h-screen bg-linear-to-b from-[#043761] via-primary to-[#043761] font-primary pt-42 pb-20 selection:bg-accent selection:text-slate-900 relative overflow-hidden">
+    <main className="min-h-screen bg-linear-to-b from-[#043761] via-primary to-[#043761] font-primary pt-32 sm:pt-36 pb-20 selection:bg-accent selection:text-slate-900 relative overflow-hidden">
       {/* =========================================
           BACKGROUND DEKORASI (MEMPHIS & TECH STYLE)
           ========================================= */}
@@ -162,10 +162,9 @@ export default function BusinessCompany() {
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
 
         {/* Glow Effects */}
-        <div className="absolute w-[30rem] h-[30rem] rounded-full blur-[120px] bg-accent/20 top-0 right-0 -translate-y-1/2 animate-pulse"></div>
+        <div className="absolute w-[30rem] h-[30rem] rounded-full blur-[120px] bg-accent/15 top-0 right-0 -translate-y-1/2"></div>
         <div
-          className="absolute w-[25rem] h-[25rem] rounded-full blur-[120px] bg-info/20 bottom-0 left-0 -translate-x-1/2 translate-y-1/3 animate-pulse"
-          style={{ animationDuration: "7s" }}
+          className="absolute w-[25rem] h-[25rem] rounded-full blur-[120px] bg-info/15 bottom-0 left-0 -translate-x-1/2 translate-y-1/3"
         ></div>
 
         {/* 1. Sparkle 4-Point (Kiri Atas) - Berputar Santai */}

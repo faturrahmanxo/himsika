@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Route, Routes, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import supabase from "./supabase-client";
 
 // Layouts
@@ -62,51 +62,63 @@ function PathNormalizer() {
 
 // Layout khusus halaman publik (agar Navbar & Footer tidak muncul di Admin)
 function PublicLayout() {
+  const location = useLocation();
+
   return (
     <>
       <Navbar />
-      <Routes>
-        <Route path="/" element={<Beranda />} />
-        <Route path="/education-fair" element={<Edufair />} />
-        <Route path="/isct" element={<ISCT />} />
-        <Route path="/make-connection" element={<MakeConnection />} />
-        <Route path="/lkmmpd" element={<LKMMPD />} />
-        <Route path="/isgath" element={<Isgath />} />
-        <Route path="/study-club" element={<StudyClub />} />
-        <Route path="/revoist" element={<Revoist />} />
-        <Route path="/aas" element={<AAS />} />
-        <Route path="/artikel" element={<Artikel />} />
-        <Route path="/aas/lomba-beasiswa" element={<LombaBeasiswa />} />
-        <Route path="/aas/prestasi" element={<Prestasi />} />
-        <Route path="/aas/sharing-session" element={<SharingSession />} />
-        <Route path="/aas/arsip-materi" element={<ArsipMateri />} />
-        <Route path="/business-company" element={<BusinessCompany />} />
-        <Route path="/logo" element={<Logo />} />
-        <Route path="/sejarah-himsika" element={<Sejarah />} />
-        <Route path="/visi-misi" element={<VisiMisi />} />
-        <Route path="/galeri-kegiatan" element={<Galeri />} />
-        <Route path="/struktur-organisasi" element={<StrukturOrganisasi />} />
-        <Route path="/kontak" element={<Kontak />} />
-        <Route path="/credit" element={<Credit />} />
-        <Route path="/artikel/:id" element={<DetailArtikel />} />
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={location.pathname}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.28, ease: "easeOut" }}
+        >
+          <Routes location={location}>
+            <Route path="/" element={<Beranda />} />
+            <Route path="/education-fair" element={<Edufair />} />
+            <Route path="/isct" element={<ISCT />} />
+            <Route path="/make-connection" element={<MakeConnection />} />
+            <Route path="/lkmmpd" element={<LKMMPD />} />
+            <Route path="/isgath" element={<Isgath />} />
+            <Route path="/study-club" element={<StudyClub />} />
+            <Route path="/revoist" element={<Revoist />} />
+            <Route path="/aas" element={<AAS />} />
+            <Route path="/artikel" element={<Artikel />} />
+            <Route path="/aas/lomba-beasiswa" element={<LombaBeasiswa />} />
+            <Route path="/aas/prestasi" element={<Prestasi />} />
+            <Route path="/aas/sharing-session" element={<SharingSession />} />
+            <Route path="/aas/arsip-materi" element={<ArsipMateri />} />
+            <Route path="/business-company" element={<BusinessCompany />} />
+            <Route path="/logo" element={<Logo />} />
+            <Route path="/sejarah-himsika" element={<Sejarah />} />
+            <Route path="/visi-misi" element={<VisiMisi />} />
+            <Route path="/galeri-kegiatan" element={<Galeri />} />
+            <Route path="/struktur-organisasi" element={<StrukturOrganisasi />} />
+            <Route path="/kontak" element={<Kontak />} />
+            <Route path="/credit" element={<Credit />} />
+            <Route path="/artikel/:id" element={<DetailArtikel />} />
 
-        {/* Alias Rute yang sering salah ketik */}
-        <Route path="/struktur" element={<Navigate to="/struktur-organisasi" replace />} />
-        <Route path="/pengurus" element={<Navigate to="/struktur-organisasi" replace />} />
-        <Route path="/galeri" element={<Navigate to="/galeri-kegiatan" replace />} />
-        <Route path="/sejarah" element={<Navigate to="/sejarah-himsika" replace />} />
-        <Route path="/visimisi" element={<Navigate to="/visi-misi" replace />} />
-        <Route path="/visi" element={<Navigate to="/visi-misi" replace />} />
-        <Route path="/misi" element={<Navigate to="/visi-misi" replace />} />
-        <Route path="/lomba" element={<Navigate to="/aas/lomba-beasiswa" replace />} />
-        <Route path="/beasiswa" element={<Navigate to="/aas/lomba-beasiswa" replace />} />
-        <Route path="/prestasi" element={<Navigate to="/aas/prestasi" replace />} />
-        <Route path="/berita" element={<Navigate to="/artikel" replace />} />
-        <Route path="/contact" element={<Navigate to="/kontak" replace />} />
+            {/* Alias Rute yang sering salah ketik */}
+            <Route path="/struktur" element={<Navigate to="/struktur-organisasi" replace />} />
+            <Route path="/pengurus" element={<Navigate to="/struktur-organisasi" replace />} />
+            <Route path="/galeri" element={<Navigate to="/galeri-kegiatan" replace />} />
+            <Route path="/sejarah" element={<Navigate to="/sejarah-himsika" replace />} />
+            <Route path="/visimisi" element={<Navigate to="/visi-misi" replace />} />
+            <Route path="/visi" element={<Navigate to="/visi-misi" replace />} />
+            <Route path="/misi" element={<Navigate to="/visi-misi" replace />} />
+            <Route path="/lomba" element={<Navigate to="/aas/lomba-beasiswa" replace />} />
+            <Route path="/beasiswa" element={<Navigate to="/aas/lomba-beasiswa" replace />} />
+            <Route path="/prestasi" element={<Navigate to="/aas/prestasi" replace />} />
+            <Route path="/berita" element={<Navigate to="/artikel" replace />} />
+            <Route path="/contact" element={<Navigate to="/kontak" replace />} />
 
-        {/* Halaman 404 jika rute tidak ditemukan */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+            {/* Halaman 404 jika rute tidak ditemukan */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </motion.div>
+      </AnimatePresence>
       <Footer />
       <ArrowToTop />
     </>
