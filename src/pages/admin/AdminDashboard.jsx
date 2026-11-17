@@ -97,6 +97,225 @@ function parsePemenang(p) {
   return [];
 }
 
+// ---------- Parser & Compiler Konten Artikel ----------
+function parseArticleContent(content) {
+  let blocks = [];
+  if (Array.isArray(content)) {
+    blocks = content;
+  } else if (typeof content === "string" && content.trim().startsWith("[")) {
+    try {
+      const parsed = JSON.parse(content);
+      if (Array.isArray(parsed)) blocks = parsed;
+    } catch {
+      // not json
+    }
+  }
+
+  // Jika bukan array blocks, anggap sebagai teks biasa
+  if (!blocks || blocks.length === 0) {
+    return {
+      galleryImages: [],
+      leadText: typeof content === "string" ? content : "",
+      sections: [],
+    };
+  }
+
+  const galleryImages = [];
+  let leadText = "";
+  const sections = [];
+  let currentSection = null;
+
+  for (const block of blocks) {
+    if (block.type === "gallery" && Array.isArray(block.images)) {
+      block.images.forEach((img) => {
+        const src = typeof img === "string" ? img : img.src;
+        if (src && src.trim()) galleryImages.push(src.trim());
+      });
+      continue;
+    }
+
+    if (block.type === "heading") {
+      if (currentSection) {
+        sections.push(currentSection);
+      }
+      currentSection = {
+        id: "sec_" + Math.random().toString(36).slice(2, 9),
+        title: block.text || "",
+        image: "",
+        caption: "",
+        text: "",
+      };
+      continue;
+    }
+
+    if (currentSection) {
+      if (block.type === "image") {
+        if (!currentSection.image) {
+          currentSection.image = block.image || "";
+          currentSection.caption = block.caption || "";
+        } else {
+          currentSection.text =
+            (currentSection.text ? currentSection.text + "\n\n" : "") +
+            (block.caption || block.image);
+        }
+      } else if (block.type === "paragraph") {
+        currentSection.text =
+          (currentSection.text ? currentSection.text + "\n\n" : "") + (block.text || "");
+      } else if (block.type === "list" && Array.isArray(block.items)) {
+        const listText = block.items.map((it) => "• " + it).join("\n");
+        currentSection.text =
+          (currentSection.text ? currentSection.text + "\n\n" : "") + listText;
+      }
+    } else {
+      if (block.type === "paragraph") {
+        leadText = (leadText ? leadText + "\n\n" : "") + (block.text || "");
+      } else if (block.type === "image") {
+        if (block.image) galleryImages.push(block.image);
+      }
+    }
+  }
+
+  if (currentSection) {
+    sections.push(currentSection);
+  }
+
+  return { galleryImages, leadText, sections };
+}
+
+function compileArticleContent({ galleryImages, leadText, sections }) {
+  const blocks = [];
+
+  // 1. Galeri Dokumentasi Utama (Landscape) di Bawah Judul
+  const validGallery = (galleryImages || [])
+    .map((g) => (typeof g === "string" ? g.trim() : g?.src?.trim()))
+    .filter(Boolean);
+  if (validGallery.length > 0) {
+    blocks.push({
+      type: "gallery",
+      images: validGallery.map((src) => ({ src, alt: "Dokumentasi Kegiatan" })),
+    });
+  }
+
+  // 2. Paragraf Pengantar
+  if (leadText && leadText.trim()) {
+    leadText
+      .split(/\n\n+/)
+      .map((p) => p.trim())
+      .filter(Boolean)
+      .forEach((text) => blocks.push({ type: "paragraph", text }));
+  }
+
+  // 3. Bagian-Bagian Artikel (Sub-Bab)
+  (sections || []).forEach((sec) => {
+    if (sec.title && sec.title.trim()) {
+      blocks.push({ type: "heading", text: sec.title.trim() });
+    }
+    if (sec.image && sec.image.trim()) {
+      blocks.push({
+        type: "image",
+        image: sec.image.trim(),
+        alt: sec.title || "Dokumentasi Bagian",
+        caption: sec.caption || "",
+      });
+    }
+    if (sec.text && sec.text.trim()) {
+      sec.text
+        .split(/\n\n+/)
+        .map((p) => p.trim())
+        .filter(Boolean)
+        .forEach((text) => blocks.push({ type: "paragraph", text }));
+    }
+  });
+
+  return blocks;
+}
+
+function TextFormatToolbar({ textareaRef, value, onChange }) {
+  const apply = (type) => {
+    const el = textareaRef?.current;
+    if (!el) return;
+    const start = el.selectionStart ?? 0;
+    const end = el.selectionEnd ?? 0;
+    const current = value || "";
+    const selected = current.slice(start, end);
+
+    let prefix = "";
+    let suffix = "";
+    if (type === "bold") {
+      prefix = "<b>";
+      suffix = "</b>";
+    } else if (type === "italic") {
+      prefix = "<i>";
+      suffix = "</i>";
+    } else if (type === "strike") {
+      prefix = "<s>";
+      suffix = "</s>";
+    } else if (type === "underline") {
+      prefix = "<u>";
+      suffix = "</u>";
+    } else if (type === "bullet") {
+      prefix = "\n• ";
+      suffix = "";
+    }
+
+    const replacement = selected ? `${prefix}${selected}${suffix}` : `${prefix}teks${suffix}`;
+    const nextVal = current.slice(0, start) + replacement + current.slice(end);
+    onChange(nextVal);
+
+    setTimeout(() => {
+      el.focus();
+      const cursor = start + prefix.length + (selected ? selected.length : 4);
+      el.setSelectionRange(cursor, cursor);
+    }, 15);
+  };
+
+  return (
+    <div className="flex flex-wrap items-center gap-1.5 mb-2 bg-[#02182b]/80 border border-[#164a78] px-2.5 py-1.5 rounded-lg text-xs">
+      <span className="text-[10px] font-bold text-accent uppercase tracking-wider mr-1">Format Teks:</span>
+      <button
+        type="button"
+        title="Tebal (Bold)"
+        onClick={() => apply("bold")}
+        className="px-2 py-0.5 font-black text-white hover:text-accent hover:bg-white/10 rounded transition-colors cursor-pointer"
+      >
+        B
+      </button>
+      <button
+        type="button"
+        title="Miring (Italic)"
+        onClick={() => apply("italic")}
+        className="px-2 py-0.5 italic font-bold text-white hover:text-accent hover:bg-white/10 rounded transition-colors cursor-pointer"
+      >
+        I
+      </button>
+      <button
+        type="button"
+        title="Coret (Strikethrough)"
+        onClick={() => apply("strike")}
+        className="px-2 py-0.5 line-through font-bold text-white hover:text-accent hover:bg-white/10 rounded transition-colors cursor-pointer"
+      >
+        S
+      </button>
+      <button
+        type="button"
+        title="Garis Bawah (Underline)"
+        onClick={() => apply("underline")}
+        className="px-2 py-0.5 underline font-bold text-white hover:text-accent hover:bg-white/10 rounded transition-colors cursor-pointer"
+      >
+        U
+      </button>
+      <button
+        type="button"
+        title="Poin List"
+        onClick={() => apply("bullet")}
+        className="px-2 py-0.5 font-bold text-white hover:text-accent hover:bg-white/10 rounded transition-colors cursor-pointer"
+      >
+        • List
+      </button>
+    </div>
+  );
+}
+
 // ---------- Komponen kecil ----------
 
 function CustomModal({ isOpen, type, title, message, confirmText, cancelText, onConfirm, onCancel }) {
@@ -242,6 +461,110 @@ function ImageUploadField({ label, value, onChange, onAlert }) {
           </button>
         </div>
       )}
+    </div>
+  );
+}
+
+// Editor item per bagian artikel (Sub-bab)
+function SectionEditorItem({ section, index, total, onChange, onMoveUp, onMoveDown, onDelete, onAlert }) {
+  const textareaRef = useRef(null);
+
+  return (
+    <div className="p-4 sm:p-5 bg-[#03203d] border border-[#164a78] rounded-2xl space-y-4 shadow-sm">
+      <div className="flex items-center justify-between border-b border-white/10 pb-3">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-5 bg-accent rounded-full inline-block"></span>
+          <span className="text-xs font-black text-white uppercase tracking-wider">
+            Bagian #{index + 1}
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            disabled={index === 0}
+            onClick={onMoveUp}
+            title="Pindah ke Atas"
+            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 text-white text-xs transition-colors cursor-pointer"
+          >
+            ▲
+          </button>
+          <button
+            type="button"
+            disabled={index === total - 1}
+            onClick={onMoveDown}
+            title="Pindah ke Bawah"
+            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 text-white text-xs transition-colors cursor-pointer"
+          >
+            ▼
+          </button>
+          <button
+            type="button"
+            onClick={onDelete}
+            title="Hapus Bagian"
+            className="px-2.5 py-1 rounded-lg bg-red-600/80 hover:bg-red-600 text-white text-xs font-bold transition-colors cursor-pointer ml-1"
+          >
+            ✕ Hapus
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <label className={labelCls}>Judul Bagian / Sub-Bab</label>
+        <input
+          type="text"
+          placeholder="Contoh: 1. Silogy Nexpo 2026: Edukasi dan Pameran Inovasi Digital"
+          value={section.title || ""}
+          onChange={(e) => onChange("title", e.target.value)}
+          className={inputCls}
+        />
+        <span className="block text-[10px] text-accent/80 mt-1">
+          Akan otomatis tampil dengan garis aksen kuning di sebelah kiri judul.
+        </span>
+      </div>
+
+      <div className="p-3 bg-[#02182b]/60 border border-[#164a78]/60 rounded-xl space-y-2.5">
+        <ImageUploadField
+          label="Foto Dokumentasi Bagian (Landscape)"
+          value={section.image || ""}
+          onChange={(val) => onChange("image", val)}
+          onAlert={onAlert}
+        />
+        {section.image && (
+          <div className="aspect-video w-full max-w-sm rounded-xl overflow-hidden border border-[#164a78] bg-[#02182b] relative">
+            <img src={section.image} alt="Preview Landscape" className="w-full h-full object-cover" />
+            <span className="absolute top-2 left-2 px-2 py-0.5 bg-black/70 text-[9px] font-bold text-accent rounded">
+              Landscape 16:9
+            </span>
+          </div>
+        )}
+        <div>
+          <label className={labelCls}>Keterangan Foto / Caption (Opsional)</label>
+          <input
+            type="text"
+            placeholder="Contoh: [Gambar 1. Pembukaan Edufair oleh Kepala Jurusan]"
+            value={section.caption || ""}
+            onChange={(e) => onChange("caption", e.target.value)}
+            className={inputCls}
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className={labelCls}>Isi Paragraf Bagian</label>
+        <TextFormatToolbar
+          textareaRef={textareaRef}
+          value={section.text || ""}
+          onChange={(val) => onChange("text", val)}
+        />
+        <textarea
+          ref={textareaRef}
+          rows="4"
+          placeholder="Tulis narasi untuk bagian ini. Pisahkan paragraf dengan baris baru (enter)..."
+          value={section.text || ""}
+          onChange={(e) => onChange("text", e.target.value)}
+          className={textareaCls}
+        />
+      </div>
     </div>
   );
 }
@@ -490,6 +813,15 @@ export default function AdminDashboard() {
   const [editingArtikelId, setEditingArtikelId] = useState(null);
   const [formDataArtikel, setFormDataArtikel] = useState(emptyArtikel);
 
+  // State Builder Khusus Artikel
+  const [builderGallery, setBuilderGallery] = useState([]);
+  const [builderLead, setBuilderLead] = useState("");
+  const [builderSections, setBuilderSections] = useState([]);
+  const [newGalleryInput, setNewGalleryInput] = useState("");
+  const [articleEditorTab, setArticleEditorTab] = useState("visual");
+  const [articlePreviewTab, setArticlePreviewTab] = useState("card");
+  const leadTextareaRef = useRef(null);
+
   // Prestasi
   const emptyPrestasi = { judul: "", peringkat: "Juara 1", pemenang: "", gambar: "", instagram_url: "" };
   const [prestasiList, setPrestasiList] = useState([]);
@@ -681,6 +1013,28 @@ export default function AdminDashboard() {
     const tanggal =
       formDataArtikel.date ||
       new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+
+    // Kompilasi konten dari builder visual atau mode raw
+    let finalContent;
+    if (articleEditorTab === "visual") {
+      finalContent = compileArticleContent({
+        galleryImages: builderGallery,
+        leadText: builderLead,
+        sections: builderSections,
+      });
+    } else {
+      const raw = formDataArtikel.content;
+      if (typeof raw === "string" && raw.trim().startsWith("[")) {
+        try {
+          finalContent = JSON.parse(raw);
+        } catch {
+          finalContent = raw;
+        }
+      } else {
+        finalContent = raw;
+      }
+    }
+
     const payload = {
       title: formDataArtikel.title,
       category: formDataArtikel.category,
@@ -690,7 +1044,7 @@ export default function AdminDashboard() {
       author: formDataArtikel.author,
       image: formDataArtikel.image,
       excerpt: formDataArtikel.excerpt,
-      content: formDataArtikel.content,
+      content: finalContent,
       is_hot: Boolean(formDataArtikel.is_hot),
     };
 
@@ -747,6 +1101,12 @@ export default function AdminDashboard() {
   const resetArtikelForm = () => {
     setEditingArtikelId(null);
     setFormDataArtikel(emptyArtikel);
+    setBuilderGallery([]);
+    setBuilderLead("");
+    setBuilderSections([]);
+    setNewGalleryInput("");
+    setArticleEditorTab("visual");
+    setArticlePreviewTab("card");
   };
 
   const editingArtikelIsHot = artikelList.find((a) => a.id === editingArtikelId)?.is_hot;
@@ -1134,36 +1494,144 @@ export default function AdminDashboard() {
                   editing={editingArtikelId}
                   onCancel={resetArtikelForm}
                   preview={
-                    <div className="rounded-2xl bg-[#073969] border border-[#164a78] overflow-hidden">
-                      <div className="aspect-[16/10] relative bg-[#03233f]">
-                        <Thumb
-                          src={formDataArtikel.image || artikelList.find((a) => a.id === editingArtikelId)?.thumb}
-                          alt="Sampul"
-                          className="w-full h-full"
-                          rounded="rounded-none"
-                        />
-                        <div className="absolute top-3 left-3 flex gap-1.5">
-                          <span className="px-3 py-1 bg-accent text-[#043761] text-[10px] font-bold uppercase rounded-lg">
-                            {formDataArtikel.category}
-                          </span>
-                          {formDataArtikel.is_hot && (
-                            <span className="px-2.5 py-1 bg-[#043761] text-accent border border-accent/50 text-[10px] font-extrabold uppercase rounded-lg">
-                              Hot
+                    <div className="space-y-3.5">
+                      {/* Toggle Tab Pratinjau */}
+                      <div className="flex bg-[#03203d] p-1 rounded-xl border border-[#164a78]">
+                        <button
+                          type="button"
+                          onClick={() => setArticlePreviewTab("card")}
+                          className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
+                            articlePreviewTab === "card"
+                              ? "bg-accent text-[#043761] shadow"
+                              : "text-white/60 hover:text-white"
+                          }`}
+                        >
+                          Kartu Beranda
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setArticlePreviewTab("page")}
+                          className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
+                            articlePreviewTab === "page"
+                              ? "bg-accent text-[#043761] shadow"
+                              : "text-white/60 hover:text-white"
+                          }`}
+                        >
+                          Halaman Baca Web
+                        </button>
+                      </div>
+
+                      {articlePreviewTab === "card" ? (
+                        <div className="rounded-2xl bg-[#073969] border border-[#164a78] overflow-hidden">
+                          <div className="aspect-[16/10] relative bg-[#03233f]">
+                            <Thumb
+                              src={formDataArtikel.image || artikelList.find((a) => a.id === editingArtikelId)?.thumb}
+                              alt="Sampul"
+                              className="w-full h-full"
+                              rounded="rounded-none"
+                            />
+                            <div className="absolute top-3 left-3 flex gap-1.5">
+                              <span className="px-3 py-1 bg-accent text-[#043761] text-[10px] font-bold uppercase rounded-lg">
+                                {formDataArtikel.category}
+                              </span>
+                              {formDataArtikel.is_hot && (
+                                <span className="px-2.5 py-1 bg-[#043761] text-accent border border-accent/50 text-[10px] font-extrabold uppercase rounded-lg">
+                                  Hot
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="p-5">
+                            <span className="text-accent text-[11px] font-bold uppercase tracking-wider">
+                              {formDataArtikel.date || "Tanggal terbit"}
                             </span>
+                            <h3 className="text-base font-extrabold leading-snug line-clamp-2 mt-1.5 mb-2">
+                              {formDataArtikel.title || "Judul Artikel"}
+                            </h3>
+                            <p className="text-xs text-white/70 line-clamp-3 leading-relaxed">
+                              {formDataArtikel.excerpt || "Ringkasan artikel tampil di sini."}
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="rounded-2xl bg-[#03203d] border border-[#164a78] p-4 text-white text-xs max-h-[550px] overflow-y-auto space-y-4 [scrollbar-width:thin]">
+                          <div className="border-b border-white/10 pb-3">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="px-2.5 py-0.5 bg-accent/15 border border-accent/30 text-accent font-bold text-[10px] rounded-full">
+                                {formDataArtikel.category}
+                              </span>
+                              <span className="text-white/50 text-[10px]">{formDataArtikel.date || "Hari Ini"}</span>
+                            </div>
+                            <h2 className="text-base font-black text-white leading-snug">
+                              {formDataArtikel.title || "Judul Artikel"}
+                            </h2>
+                            <p className="text-[10px] text-white/50 mt-1">Penulis: {formDataArtikel.author || "HIMSIKA"}</p>
+                          </div>
+
+                          {/* Preview Galeri Dokumentasi Landscape */}
+                          {builderGallery.length > 0 && (
+                            <div className="space-y-1.5">
+                              <span className="block text-[10px] font-black text-accent uppercase tracking-wider">
+                                Dokumentasi Utama ({builderGallery.length} Foto Landscape):
+                              </span>
+                              <div className="grid grid-cols-2 gap-1.5">
+                                {builderGallery.slice(0, 4).map((imgUrl, idx) => (
+                                  <div key={idx} className="aspect-video rounded-lg overflow-hidden border border-white/10 bg-[#02182b]">
+                                    <img src={imgUrl} alt="Dokum" className="w-full h-full object-cover" />
+                                  </div>
+                                ))}
+                              </div>
+                              {builderGallery.length > 4 && (
+                                <p className="text-[10px] text-white/40 italic">+ {builderGallery.length - 4} foto lainnya di galeri</p>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Preview Pengantar */}
+                          {builderLead && (
+                            <div
+                              className="text-white/80 leading-relaxed text-[11px]"
+                              dangerouslySetInnerHTML={{ __html: builderLead.replace(/\n\n+/g, "<br/><br/>") }}
+                            />
+                          )}
+
+                          {/* Preview Bagian-Bagian */}
+                          {builderSections.map((sec, idx) => (
+                            <div key={sec.id || idx} className="pt-2 border-t border-white/10 space-y-2">
+                              {sec.title && (
+                                <h4 className="text-xs font-black text-accent flex items-center gap-2">
+                                  <span className="w-1.5 h-4 bg-accent rounded-full inline-block"></span>
+                                  {sec.title}
+                                </h4>
+                              )}
+                              {sec.image && (
+                                <div className="rounded-xl overflow-hidden border border-white/10 bg-[#02182b]">
+                                  <div className="aspect-video">
+                                    <img src={sec.image} alt={sec.title || "Dokum"} className="w-full h-full object-cover" />
+                                  </div>
+                                  {sec.caption && (
+                                    <p className="text-[10px] text-white/50 italic text-center p-1.5 border-t border-white/5">
+                                      {sec.caption}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+                              {sec.text && (
+                                <div
+                                  className="text-white/80 leading-relaxed text-[11px]"
+                                  dangerouslySetInnerHTML={{ __html: sec.text.replace(/\n\n+/g, "<br/><br/>") }}
+                                />
+                              )}
+                            </div>
+                          ))}
+
+                          {builderSections.length === 0 && !builderLead && (
+                            <p className="text-white/40 text-center py-6 text-[11px] italic">
+                              Isi narasi atau bagian artikel untuk melihat simulasi halaman baca artikel.
+                            </p>
                           )}
                         </div>
-                      </div>
-                      <div className="p-5">
-                        <span className="text-accent text-[11px] font-bold uppercase tracking-wider">
-                          {formDataArtikel.date || "Tanggal terbit"}
-                        </span>
-                        <h3 className="text-base font-extrabold leading-snug line-clamp-2 mt-1.5 mb-2">
-                          {formDataArtikel.title || "Judul Artikel"}
-                        </h3>
-                        <p className="text-xs text-white/70 line-clamp-3 leading-relaxed">
-                          {formDataArtikel.excerpt || "Ringkasan artikel tampil di sini."}
-                        </p>
-                      </div>
+                      )}
                     </div>
                   }
                 >
@@ -1187,7 +1655,7 @@ export default function AdminDashboard() {
                       <input placeholder="Contoh: 10 November 2026 (kosongkan untuk hari ini)" value={formDataArtikel.date} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, date: e.target.value })} className={inputCls} />
                     </div>
                     <div className="md:col-span-2">
-                      <ImageUploadField label="Foto Sampul" value={formDataArtikel.image} onChange={(v) => setFormDataArtikel({ ...formDataArtikel, image: v })} onAlert={showAlert} />
+                      <ImageUploadField label="Foto Sampul Utama (Header)" value={formDataArtikel.image} onChange={(v) => setFormDataArtikel({ ...formDataArtikel, image: v })} onAlert={showAlert} />
                     </div>
                     <div className="md:col-span-2">
                       <label className={`flex items-start gap-3 p-3.5 bg-[#04284d] border border-[#164a78] rounded-xl select-none ${editingArtikelIsHot ? "opacity-70" : "cursor-pointer hover:border-accent/40"}`}>
@@ -1209,14 +1677,254 @@ export default function AdminDashboard() {
                       </label>
                     </div>
                     <div className="md:col-span-2">
-                      <label className={labelCls}>Ringkasan</label>
-                      <textarea rows="2" value={formDataArtikel.excerpt} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, excerpt: e.target.value })} className={textareaCls} />
+                      <label className={labelCls}>Ringkasan Singkat (Lead Excerpt)</label>
+                      <textarea rows="2" placeholder="Ringkasan 1-2 kalimat yang tampil di kartu luar..." value={formDataArtikel.excerpt} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, excerpt: e.target.value })} className={textareaCls} />
                     </div>
-                    <div className="md:col-span-2">
-                      <label className={labelCls}>Konten Artikel</label>
-                      <textarea rows="5" required value={formDataArtikel.content} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, content: e.target.value })} className={textareaCls} />
+
+                    {/* Pembatas Editor Konten Berstruktur */}
+                    <div className="md:col-span-2 space-y-4 pt-4 border-t border-white/10">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                          <span className="block text-sm font-black text-white">Penyusun Konten Artikel</span>
+                          <span className="block text-xs text-white/50">
+                            Atur dokumentasi kegiatan landscape, pengantar, dan bagian sub-bab dengan rapi.
+                          </span>
+                        </div>
+                        <div className="flex bg-[#03203d] p-1 rounded-xl border border-[#164a78] self-start sm:self-auto">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (articleEditorTab !== "visual") {
+                                const parsed = parseArticleContent(formDataArtikel.content);
+                                setBuilderGallery(parsed.galleryImages);
+                                setBuilderLead(parsed.leadText);
+                                setBuilderSections(parsed.sections);
+                                setArticleEditorTab("visual");
+                              }
+                            }}
+                            className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
+                              articleEditorTab === "visual" ? "bg-accent text-[#043761] shadow" : "text-white/60 hover:text-white"
+                            }`}
+                          >
+                            Mode Bagian (Visual)
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (articleEditorTab !== "raw") {
+                                const compiled = compileArticleContent({
+                                  galleryImages: builderGallery,
+                                  leadText: builderLead,
+                                  sections: builderSections,
+                                });
+                                setFormDataArtikel({
+                                  ...formDataArtikel,
+                                  content: JSON.stringify(compiled, null, 2),
+                                });
+                                setArticleEditorTab("raw");
+                              }
+                            }}
+                            className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
+                              articleEditorTab === "raw" ? "bg-accent text-[#043761] shadow" : "text-white/60 hover:text-white"
+                            }`}
+                          >
+                            Mode Mentah (JSON)
+                          </button>
+                        </div>
+                      </div>
+
+                      {articleEditorTab === "visual" ? (
+                        <div className="space-y-5">
+                          {/* 1. Galeri Dokumentasi Utama (Landscape) */}
+                          <div className="p-4 sm:p-5 bg-[#03203d] border border-[#164a78] rounded-2xl space-y-3.5 shadow-sm">
+                            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                              <div>
+                                <h4 className="text-xs font-black text-accent uppercase tracking-wider">
+                                  1. Dokumentasi Kegiatan Utama (Landscape)
+                                </h4>
+                                <p className="text-[11px] text-white/50">
+                                  Tampil dalam galeri foto landscape di bawah judul artikel (seperti di Education Fair / ISCT).
+                                </p>
+                              </div>
+                              <span className="text-xs font-bold text-accent bg-accent/10 border border-accent/20 px-2.5 py-1 rounded-lg">
+                                {builderGallery.length} Foto
+                              </span>
+                            </div>
+
+                            {builderGallery.length > 0 && (
+                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
+                                {builderGallery.map((imgUrl, gIdx) => (
+                                  <div key={gIdx} className="relative group aspect-video rounded-xl overflow-hidden border border-[#164a78] bg-[#02182b]">
+                                    <img src={imgUrl} alt={`Dokum ${gIdx + 1}`} className="w-full h-full object-cover" />
+                                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => setBuilderGallery((prev) => prev.filter((_, idx) => idx !== gIdx))}
+                                        className="px-2.5 py-1 bg-red-600/90 hover:bg-red-600 text-white font-bold text-[11px] rounded-lg transition-colors cursor-pointer shadow"
+                                      >
+                                        Hapus
+                                      </button>
+                                    </div>
+                                    <span className="absolute bottom-1 left-1.5 px-1.5 py-0.5 bg-black/70 text-[9px] font-bold text-white/80 rounded">
+                                      #{gIdx + 1}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            <div className="pt-2 border-t border-white/5">
+                              <ImageUploadField
+                                label="Tambah Foto ke Galeri Dokumentasi (Landscape)"
+                                value={newGalleryInput}
+                                onChange={(val) => {
+                                  if (val && val.trim()) {
+                                    setBuilderGallery((prev) => [...prev, val.trim()]);
+                                    setNewGalleryInput("");
+                                  }
+                                }}
+                                onAlert={showAlert}
+                              />
+                              <p className="text-[10px] text-white/40 mt-1 italic">
+                                Masukkan URL atau klik Upload Foto di atas, foto akan otomatis tersimpan ke daftar galeri.
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* 2. Paragraf Pengantar */}
+                          <div className="p-4 sm:p-5 bg-[#03203d] border border-[#164a78] rounded-2xl space-y-2.5 shadow-sm">
+                            <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                              <h4 className="text-xs font-black text-accent uppercase tracking-wider">
+                                2. Paragraf Pengantar / Pembuka
+                              </h4>
+                              <span className="text-[11px] text-white/40 italic">Muncul sebelum sub-bab pertama</span>
+                            </div>
+                            <TextFormatToolbar
+                              textareaRef={leadTextareaRef}
+                              value={builderLead}
+                              onChange={setBuilderLead}
+                            />
+                            <textarea
+                              ref={leadTextareaRef}
+                              rows="3"
+                              placeholder="Tulis narasi pembuka artikel di sini. Gunakan tombol format di atas untuk menebalkan teks, memiringkan, dsb..."
+                              value={builderLead}
+                              onChange={(e) => setBuilderLead(e.target.value)}
+                              className={textareaCls}
+                            />
+                          </div>
+
+                          {/* 3. Bagian-Bagian Artikel (Sub-Bab) */}
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between pt-1">
+                              <div>
+                                <h4 className="text-xs font-black text-accent uppercase tracking-wider">
+                                  3. Bagian-Bagian Artikel (Sub-Bab)
+                                </h4>
+                                <p className="text-[11px] text-white/50">
+                                  Tiap bagian memiliki judul bergaris kuning, dokumentasi landscape, dan narasi isi.
+                                </p>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const nextNum = builderSections.length + 1;
+                                  setBuilderSections((prev) => [
+                                    ...prev,
+                                    {
+                                      id: "sec_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+                                      title: `${nextNum}. `,
+                                      image: "",
+                                      caption: "",
+                                      text: "",
+                                    },
+                                  ]);
+                                }}
+                                className="px-3.5 py-2 bg-accent hover:bg-yellow-400 text-[#043761] font-bold text-xs rounded-xl transition-all cursor-pointer shadow flex items-center gap-1.5"
+                              >
+                                + Tambah Bagian
+                              </button>
+                            </div>
+
+                            {builderSections.map((sec, idx) => (
+                              <SectionEditorItem
+                                key={sec.id}
+                                section={sec}
+                                index={idx}
+                                total={builderSections.length}
+                                onChange={(field, val) => {
+                                  setBuilderSections((prev) =>
+                                    prev.map((s, i) => (i === idx ? { ...s, [field]: val } : s)),
+                                  );
+                                }}
+                                onMoveUp={() => {
+                                  if (idx === 0) return;
+                                  setBuilderSections((prev) => {
+                                    const copy = [...prev];
+                                    const temp = copy[idx - 1];
+                                    copy[idx - 1] = copy[idx];
+                                    copy[idx] = temp;
+                                    return copy;
+                                  });
+                                }}
+                                onMoveDown={() => {
+                                  if (idx === builderSections.length - 1) return;
+                                  setBuilderSections((prev) => {
+                                    const copy = [...prev];
+                                    const temp = copy[idx + 1];
+                                    copy[idx + 1] = copy[idx];
+                                    copy[idx] = temp;
+                                    return copy;
+                                  });
+                                }}
+                                onDelete={() => {
+                                  setBuilderSections((prev) => prev.filter((_, i) => i !== idx));
+                                }}
+                                onAlert={showAlert}
+                              />
+                            ))}
+
+                            {builderSections.length === 0 && (
+                              <div className="p-6 text-center border-2 border-dashed border-[#164a78] rounded-2xl bg-[#03203d]/40 text-white/50 space-y-2">
+                                <p className="text-xs">Belum ada bagian sub-bab yang ditambahkan.</p>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setBuilderSections([
+                                      {
+                                        id: "sec_" + Date.now(),
+                                        title: "1. ",
+                                        image: "",
+                                        caption: "",
+                                        text: "",
+                                      },
+                                    ]);
+                                  }}
+                                  className="px-4 py-2 bg-accent/20 hover:bg-accent text-accent hover:text-[#043761] border border-accent/40 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+                                >
+                                  + Tambah Bagian Pertama
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <label className={labelCls}>Data JSON Konten Mentah</label>
+                          <textarea
+                            rows="12"
+                            value={formDataArtikel.content}
+                            onChange={(e) => setFormDataArtikel({ ...formDataArtikel, content: e.target.value })}
+                            className={`${textareaCls} font-mono text-xs`}
+                            placeholder="[ { type: 'paragraph', text: '...' } ]"
+                          />
+                        </div>
+                      )}
                     </div>
-                    <SubmitBtn>{editingArtikelId ? "Simpan Perubahan" : "Terbitkan Artikel"}</SubmitBtn>
+
+                    <div className="md:col-span-2 pt-2">
+                      <SubmitBtn>{editingArtikelId ? "Simpan Perubahan" : "Terbitkan Artikel"}</SubmitBtn>
+                    </div>
                   </form>
                 </FormSection>
 
@@ -1275,6 +1983,7 @@ export default function AdminDashboard() {
                           <ActionBtn
                             onClick={() => {
                               setEditingArtikelId(i.id);
+                              const parsed = parseArticleContent(i.content);
                               setFormDataArtikel({
                                 title: i.title || "",
                                 category: i.category || "Berita",
@@ -1282,9 +1991,13 @@ export default function AdminDashboard() {
                                 author: i.author || "Divisi Kominfo",
                                 image: i.image || "",
                                 excerpt: i.excerpt || "",
-                                content: typeof i.content === "string" ? i.content : JSON.stringify(i.content),
+                                content: typeof i.content === "string" ? i.content : JSON.stringify(i.content, null, 2),
                                 is_hot: i.is_hot,
                               });
+                              setBuilderGallery(parsed.galleryImages);
+                              setBuilderLead(parsed.leadText);
+                              setBuilderSections(parsed.sections);
+                              setArticleEditorTab("visual");
                               scrollTop();
                             }}
                           >

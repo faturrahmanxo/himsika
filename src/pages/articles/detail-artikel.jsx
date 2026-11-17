@@ -305,7 +305,7 @@ function GalleryGrid({ images }) {
             key={i}
             type="button"
             onClick={() => setActive(i)}
-            className="group relative aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 bg-white/5 shadow-lg cursor-pointer"
+            className="group relative aspect-[16/10] sm:aspect-video rounded-2xl overflow-hidden border border-white/10 bg-white/5 shadow-lg cursor-pointer"
           >
             <img
               src={img.src}
