@@ -19,7 +19,13 @@ export default function Artikel() {
   const [activeCategory, setActiveCategory] = useState("Semua");
   const [visibleCount, setVisibleCount] = useState(3);
   // Inisialisasi data yang sudah tersortir sejak frame pertama agar tidak ada efek berkedip / bertukar posisi
-  const [articles, setArticles] = useState(() => sortArticlesList(artikelData));
+  const [articles, setArticles] = useState(() => {
+    const localHotId = typeof window !== "undefined" ? localStorage.getItem("himsika_hot_article_id") : null;
+    const initialList = localHotId
+      ? artikelData.map((a) => ({ ...a, is_hot: String(a.id) === String(localHotId) }))
+      : artikelData;
+    return sortArticlesList(initialList);
+  });
   const [isLoading, setIsLoading] = useState(false);
   const categories = ["Semua", "Berita", "Kegiatan", "Opini", "Prestasi"];
 
@@ -34,13 +40,14 @@ export default function Artikel() {
           .order("id", { ascending: false });
 
         if (!error && data && data.length > 0) {
+          const localHotId = typeof window !== "undefined" ? localStorage.getItem("himsika_hot_article_id") : null;
           const normalized = data.map((d) => {
             const fallback =
               artikelData.find((a) => String(a.id) === String(d.id)) ||
               artikelData.find((a) => a.title === d.title);
             return {
               ...d,
-              is_hot: Boolean(d.is_hot),
+              is_hot: localHotId ? String(d.id) === String(localHotId) : Boolean(d.is_hot),
               image:
                 d.image && d.image.trim()
                   ? d.image.trim()

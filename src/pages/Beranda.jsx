@@ -119,7 +119,13 @@ const sortArticlesList = (list) =>
   });
 
 export default function Beranda() {
-  const [articles, setArticles] = useState(() => sortArticlesList(artikelData));
+  const [articles, setArticles] = useState(() => {
+    const localHotId = typeof window !== "undefined" ? localStorage.getItem("himsika_hot_article_id") : null;
+    const initialList = localHotId
+      ? artikelData.map((a) => ({ ...a, is_hot: String(a.id) === String(localHotId) }))
+      : artikelData;
+    return sortArticlesList(initialList);
+  });
 
   useEffect(() => {
     async function fetchLatestArticles() {
@@ -131,13 +137,14 @@ export default function Beranda() {
           .order("id", { ascending: false });
 
         if (!error && data && data.length > 0) {
+          const localHotId = typeof window !== "undefined" ? localStorage.getItem("himsika_hot_article_id") : null;
           const normalized = data.map((d) => {
             const fallback =
               artikelData.find((a) => String(a.id) === String(d.id)) ||
               artikelData.find((a) => a.title === d.title);
             return {
               ...d,
-              is_hot: Boolean(d.is_hot),
+              is_hot: localHotId ? String(d.id) === String(localHotId) : Boolean(d.is_hot),
               image:
                 d.image && d.image.trim()
                   ? d.image.trim()

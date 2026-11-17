@@ -114,7 +114,7 @@ export default function DetailArtikel() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[40rem] h-[20rem] bg-accent/10 blur-[150px] rounded-full"></div>
       </div>
 
-      <article className="max-w-[50rem] mx-auto px-5 sm:px-6 lg:px-8 relative z-10 text-white">
+      <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-white w-full break-words">
         {/* Tombol Kembali (Gaya Pill/Kapsul Glassmorphism) */}
         <Link
           to="/artikel"
@@ -148,7 +148,7 @@ export default function DetailArtikel() {
             </time>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-[1.2] tracking-tight mb-8">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-[1.25] tracking-tight mb-8 break-words">
             {article.title}
           </h1>
 
@@ -177,7 +177,7 @@ export default function DetailArtikel() {
             prose-p:text-white/85 prose-p:leading-[1.8] sm:prose-p:leading-[2] prose-p:text-[1.05rem] sm:prose-p:text-[1.15rem] 
             prose-headings:text-white prose-headings:font-extrabold prose-headings:tracking-tight 
             prose-a:text-accent prose-a:no-underline hover:prose-a:underline prose-a:font-bold
-            prose-strong:text-white prose-strong:font-bold"
+            prose-strong:text-white prose-strong:font-bold prose-s:text-white/60 prose-u:underline prose-u:decoration-accent/60"
         >
           {/* Looping Konten Artikel */}
           {contentBlocks.map((block, index) => {
@@ -185,8 +185,7 @@ export default function DetailArtikel() {
               return (
                 <p
                   key={index}
-                  // Di HP rata kiri (agar tidak ada jarak aneh), di Layar besar rata kanan-kiri
-                  className="text-left sm:text-justify mb-8"
+                  className="text-left sm:text-justify mb-8 break-words [overflow-wrap:anywhere] [word-break:break-word] text-white/85 leading-relaxed sm:leading-loose text-[1.05rem] sm:text-[1.125rem]"
                   dangerouslySetInnerHTML={{ __html: block.text }}
                 />
               );
@@ -195,10 +194,10 @@ export default function DetailArtikel() {
               return (
                 <h3
                   key={index}
-                  className="text-2xl sm:text-3xl font-black mt-14 mb-6 text-accent flex items-center gap-3"
+                  className="text-2xl sm:text-3xl font-black mt-14 mb-6 text-accent flex items-center gap-3 break-words"
                 >
-                  <span className="w-2 h-8 bg-accent rounded-full inline-block"></span>
-                  {block.text}
+                  <span className="w-2 h-8 bg-accent rounded-full inline-block shrink-0"></span>
+                  <span>{block.text}</span>
                 </h3>
               );
             }
@@ -209,46 +208,27 @@ export default function DetailArtikel() {
                   key={index}
                   className={`my-8 pl-6 space-y-3 text-white/85 text-[1.05rem] sm:text-[1.15rem] leading-[1.8] ${
                     block.ordered ? "list-decimal" : "list-disc"
-                  } marker:text-accent`}
+                  } marker:text-accent break-words`}
                 >
                   {block.items.map((item, i) => (
-                    <li key={i} dangerouslySetInnerHTML={{ __html: item }} />
+                    <li key={i} className="break-words" dangerouslySetInnerHTML={{ __html: item }} />
                   ))}
                 </ListTag>
               );
             }
             if (block.type === "image") {
               return (
-                <figure key={index} className="my-12">
-                  <div className="w-full rounded-[2rem] overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] bg-white/5 relative group">
+                <figure key={index} className="my-10">
+                  <div className="w-full max-w-3xl mx-auto aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] bg-[#02182b] relative group">
                     <img
                       src={block.image}
                       alt={block.alt || "Gambar Artikel"}
-                      className="w-full h-auto object-cover transform group-hover:scale-[1.02] transition-transform duration-700 ease-out"
+                      className="w-full h-full object-cover transform group-hover:scale-[1.02] transition-transform duration-700 ease-out"
                     />
-                    <div className="absolute inset-0 border-2 border-white/5 rounded-[2rem] pointer-events-none"></div>
+                    <div className="absolute inset-0 border-2 border-white/5 rounded-2xl pointer-events-none"></div>
                   </div>
                   {block.caption && (
-                    <figcaption className="text-center text-sm sm:text-base text-white/50 italic mt-5 flex items-center justify-center gap-2">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
+                    <figcaption className="text-center text-sm sm:text-base text-white/50 italic mt-4 flex items-center justify-center gap-2 break-words px-4">
                       {block.caption}
                     </figcaption>
                   )}

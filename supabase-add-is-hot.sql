@@ -12,3 +12,4 @@ UPDATE public.artikel SET is_hot = true WHERE id = 6;
 
 -- 3. Muat ulang (reload) schema cache PostgREST agar API langsung mengenali kolom baru
 NOTIFY pgrst, 'reload schema';
+

@@ -6,16 +6,36 @@ import artikelData from "../../data/artikel";
 import galeriDefault from "../../data/galeriData";
 import { PRESTASI_DATA } from "../../data/prestasiData";
 import LogoHimsika from "../../assets/logo/HIMSIKA.png";
-// Ikon hanya dipakai untuk bottom menu bar.
-import { Trophy, FileText, Award, Image as ImageIcon, Users } from "lucide-react";
+import {
+  Trophy,
+  FileText,
+  Award,
+  Image as ImageIcon,
+  Users,
+  LogOut,
+  Menu as MenuIcon,
+  X as XIcon,
+  ChevronDown,
+  ExternalLink,
+} from "lucide-react";
 import { isLombaExpired, getLombaFinalTimestamp } from "../../utils/lombaDeadline";
 
 const MENU = [
-  { id: "lomba", label: "Lomba", title: "Lomba & Beasiswa", icon: Trophy },
-  { id: "artikel", label: "Artikel", title: "Artikel & Berita", icon: FileText },
-  { id: "prestasi", label: "Prestasi", title: "Prestasi Mahasiswa", icon: Award },
-  { id: "galeri", label: "Galeri", title: "Galeri Kegiatan", icon: ImageIcon },
-  { id: "pengurus", label: "Pengurus", title: "Profil & Pengurus", icon: Users },
+  { id: "lomba", label: "Kelola Lomba & Beasiswa", title: "Lomba & Beasiswa", icon: Trophy, countKey: "lomba" },
+  {
+    id: "artikel",
+    label: "Kelola Artikel & Berita",
+    title: "Artikel & Berita",
+    icon: FileText,
+    countKey: "artikel",
+    children: [
+      { id: "artikel-utama", label: "1. Data Utama & Daftar" },
+      { id: "artikel-bagian", label: "2. Penyusun Bagian & Dokum" },
+    ],
+  },
+  { id: "prestasi", label: "Kelola Prestasi Mahasiswa", title: "Prestasi Mahasiswa", icon: Award, countKey: "prestasi" },
+  { id: "galeri", label: "Kelola Galeri Kegiatan", title: "Galeri Kegiatan", icon: ImageIcon, countKey: "galeri" },
+  { id: "pengurus", label: "Kelola Profil & Pengurus", title: "Profil & Pengurus", icon: Users, countKey: "pengurus" },
 ];
 
 const KELOMPOK_OPTIONS = [
@@ -714,7 +734,7 @@ function ListSection({ title, items, loading, searchText, filters, filterOf, col
   );
 }
 
-function FormSection({ title, editing, onCancel, children, preview }) {
+function FormSection({ title, editing, onCancel, children, preview, previewTitle = "Live Preview Card" }) {
   return (
     <section className="bg-[#073969] border border-[#164a78] rounded-3xl p-5 sm:p-7 shadow-xl">
       <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
@@ -733,8 +753,7 @@ function FormSection({ title, editing, onCancel, children, preview }) {
         <div className="lg:col-span-7">{children}</div>
         <div className="lg:col-span-5 bg-[#04284d]/80 border border-[#164a78] rounded-2xl p-5 shadow-inner">
           <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
-            <span className="text-xs font-bold text-accent uppercase tracking-wider">Live Preview Card</span>
-            <span className="text-[11px] text-white/50">Tampilan Web</span>
+            <span className="text-xs font-bold text-accent uppercase tracking-wider">{previewTitle}</span>
           </div>
           {preview}
         </div>
@@ -773,7 +792,9 @@ export default function AdminDashboard() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [authLoading, setAuthLoading] = useState(false);
-  const [activeMenu, setActiveMenu] = useState("lomba");
+  const [activeMenu, setActiveMenu] = useState("artikel-utama");
+  const [builderArtikelId, setBuilderArtikelId] = useState(null);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const [modalConfig, setModalConfig] = useState({ isOpen: false });
   const closeModal = () => setModalConfig((p) => ({ ...p, isOpen: false }));
@@ -821,6 +842,71 @@ export default function AdminDashboard() {
   const [articleEditorTab, setArticleEditorTab] = useState("visual");
   const [articlePreviewTab, setArticlePreviewTab] = useState("card");
   const leadTextareaRef = useRef(null);
+
+  const selectedArtikelForBuilder = useMemo(() => {
+    return (
+      artikelList.find((a) => a.id === builderArtikelId) ||
+      artikelList[0] ||
+      null
+    );
+  }, [artikelList, builderArtikelId]);
+
+  useEffect(() => {
+    if (activeMenu === "artikel-bagian" && selectedArtikelForBuilder && (!builderArtikelId || builderArtikelId !== selectedArtikelForBuilder.id)) {
+      setBuilderArtikelId(selectedArtikelForBuilder.id);
+      const parsed = parseArticleContent(selectedArtikelForBuilder.content);
+      setBuilderGallery(parsed.galleryImages);
+      setBuilderLead(parsed.leadText);
+      setBuilderSections(parsed.sections);
+    }
+  }, [activeMenu, selectedArtikelForBuilder, builderArtikelId]);
+
+  const handleSelectArtikelForBuilder = (artId) => {
+    const art = artikelList.find((a) => String(a.id) === String(artId));
+    if (!art) return;
+    setBuilderArtikelId(art.id);
+    const parsed = parseArticleContent(art.content);
+    setBuilderGallery(parsed.galleryImages);
+    setBuilderLead(parsed.leadText);
+    setBuilderSections(parsed.sections);
+  };
+
+  const handleOpenBagianBuilder = (art) => {
+    setBuilderArtikelId(art.id);
+    const parsed = parseArticleContent(art.content);
+    setBuilderGallery(parsed.galleryImages);
+    setBuilderLead(parsed.leadText);
+    setBuilderSections(parsed.sections);
+    setActiveMenu("artikel-bagian");
+    scrollTop();
+  };
+
+  const handleSaveBagianArtikel = async () => {
+    if (!selectedArtikelForBuilder) return;
+    const compiled = compileArticleContent({
+      galleryImages: builderGallery,
+      leadText: builderLead,
+      sections: builderSections,
+    });
+
+    try {
+      const { error } = await supabase
+        .from("artikel")
+        .update({ content: compiled })
+        .eq("id", selectedArtikelForBuilder.id);
+
+      if (error) {
+        return showAlert("Gagal menyimpan bagian artikel: " + error.message, "Kendala Sistem");
+      }
+
+      setArtikelList((prev) =>
+        prev.map((a) => (a.id === selectedArtikelForBuilder.id ? { ...a, content: compiled } : a)),
+      );
+      showAlert(`Bagian dan dokumentasi untuk "${selectedArtikelForBuilder.title}" berhasil disimpan!`, "Berhasil Disimpan");
+    } catch (err) {
+      showAlert("Gagal menyimpan bagian artikel: " + err.message, "Kendala Sistem");
+    }
+  };
 
   // Prestasi
   const emptyPrestasi = { judul: "", peringkat: "Juara 1", pemenang: "", gambar: "", instagram_url: "" };
@@ -991,20 +1077,16 @@ export default function AdminDashboard() {
     }
     setArtikelList((prev) => prev.map((a) => ({ ...a, is_hot: a.id === item.id })));
     try {
-      const res = await supabase.from("artikel").update({ is_hot: false }).neq("id", item.id);
-      if (res.error && res.error.message?.toLowerCase().includes("is_hot")) {
-        showAlert(
-          "Kolom 'is_hot' belum terdaftar di database Supabase.\n\nSilakan salin dan jalankan script SQL berikut di Supabase SQL Editor:\nALTER TABLE public.artikel ADD COLUMN IF NOT EXISTS is_hot BOOLEAN DEFAULT false;\nNOTIFY pgrst, 'reload schema';",
-          "Perlu Update Kolom Database",
-        );
-        fetchArtikel();
-        return;
-      }
+      localStorage.setItem("himsika_hot_article_id", String(item.id));
+    } catch {}
+
+    try {
+      await supabase.from("artikel").update({ is_hot: false }).neq("id", item.id);
       await supabase.from("artikel").update({ is_hot: true }).eq("id", item.id);
-    } catch (err) {
-      showAlert("Gagal menyimpan Berita Hot: " + err.message, "Kendala Sistem");
-      fetchArtikel();
+    } catch (e) {
+      console.warn("syncHot notice:", e);
     }
+    showAlert(`"${item.title}" sekarang aktif sebagai Berita Hot di Beranda.`, "Berita Hot Berhasil Diatur");
   };
 
   const handleArtikelSubmit = async (e) => {
@@ -1013,27 +1095,6 @@ export default function AdminDashboard() {
     const tanggal =
       formDataArtikel.date ||
       new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
-
-    // Kompilasi konten dari builder visual atau mode raw
-    let finalContent;
-    if (articleEditorTab === "visual") {
-      finalContent = compileArticleContent({
-        galleryImages: builderGallery,
-        leadText: builderLead,
-        sections: builderSections,
-      });
-    } else {
-      const raw = formDataArtikel.content;
-      if (typeof raw === "string" && raw.trim().startsWith("[")) {
-        try {
-          finalContent = JSON.parse(raw);
-        } catch {
-          finalContent = raw;
-        }
-      } else {
-        finalContent = raw;
-      }
-    }
 
     const payload = {
       title: formDataArtikel.title,
@@ -1044,7 +1105,7 @@ export default function AdminDashboard() {
       author: formDataArtikel.author,
       image: formDataArtikel.image,
       excerpt: formDataArtikel.excerpt,
-      content: finalContent,
+      content: editingItem?.content || [],
       is_hot: Boolean(formDataArtikel.is_hot),
     };
 
@@ -1070,9 +1131,19 @@ export default function AdminDashboard() {
       if (error) return showAlert("Gagal menambahkan artikel: " + error.message, "Kendala Sistem");
       savedId = data?.[0]?.id;
     }
-    if (payload.is_hot && savedId) await syncHot(savedId);
+    if (payload.is_hot && savedId) {
+      await syncHot(savedId);
+      try {
+        localStorage.setItem("himsika_hot_article_id", String(savedId));
+      } catch {}
+    }
 
-    showAlert(editingArtikelId ? "Artikel berhasil diperbarui." : "Artikel baru berhasil diterbitkan.", "Berhasil");
+    showAlert(
+      editingArtikelId
+        ? "Data utama artikel berhasil diperbarui."
+        : "Artikel baru berhasil ditambahkan! Silakan buka anak menu 'Penyusun Bagian & Dokum' untuk menambahkan dokumentasi dan sub-babnya.",
+      "Berhasil",
+    );
     resetArtikelForm();
     fetchArtikel();
   };
@@ -1304,46 +1375,321 @@ export default function AdminDashboard() {
     );
   }
 
-  const activeInfo = MENU.find((m) => m.id === activeMenu);
+  const counts = {
+    lomba: lombaList.length,
+    artikel: artikelList.length,
+    prestasi: prestasiList.length,
+    galeri: galeriList.length,
+    pengurus: pengurusList.length,
+  };
+
+  const getActiveTitle = () => {
+    if (activeMenu === "lomba") return "Kelola Lomba & Beasiswa";
+    if (activeMenu === "artikel" || activeMenu === "artikel-utama") return "Kelola Artikel - Data Utama & Daftar";
+    if (activeMenu === "artikel-bagian") return "Kelola Artikel - Penyusun Bagian & Dokumentasi";
+    if (activeMenu === "prestasi") return "Kelola Prestasi Mahasiswa";
+    if (activeMenu === "galeri") return "Kelola Galeri Kegiatan";
+    if (activeMenu === "pengurus") return "Kelola Profil & Pengurus";
+    return "Dashboard";
+  };
 
   // ==================== DASHBOARD ====================
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="min-h-screen bg-linear-to-b from-[#043761] via-[#032d52] to-[#02182b] font-primary text-white"
-    >
-      {/* pb besar supaya konten tidak tertutup bottom bar */}
-      <main className="px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-32 max-w-7xl mx-auto">
-        <div className="flex items-center justify-between gap-4 mb-6">
-          <div className="flex items-center gap-3 min-w-0">
-            <img src={LogoHimsika} alt="Logo HIMSIKA" className="w-10 h-10 object-contain shrink-0" />
-            <div className="min-w-0">
-              <span className="block text-[11px] font-bold uppercase tracking-widest text-accent">HIMSIKA Admin</span>
-              <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight truncate">
-                Kelola <span className="text-accent">{activeInfo?.title}</span>
-              </h1>
-            </div>
+    <div className="min-h-screen bg-[#02182b] font-primary text-white flex flex-col lg:flex-row">
+      {/* Sidebar Desktop (Fixed Left) */}
+      <aside className="hidden lg:flex flex-col w-72 bg-[#02182b] border-r border-[#164a78] fixed left-0 top-0 bottom-0 z-40 overflow-y-auto">
+        {/* Header Brand */}
+        <div className="p-6 border-b border-[#164a78]/60 flex flex-col items-center text-center">
+          <div className="w-16 h-16 rounded-full bg-white p-2.5 shadow-xl flex items-center justify-center mb-3 border border-white/20">
+            <img src={LogoHimsika} alt="Logo HIMSIKA" className="w-full h-full object-contain" />
           </div>
+          <span className="text-lg font-black tracking-wider text-white">HIMSIKA</span>
+          <span className="text-[10px] font-extrabold tracking-widest text-accent uppercase mt-0.5">
+            DATABASE CONTROL
+          </span>
+        </div>
+
+        {/* Menu Navigasi */}
+        <nav className="p-4 flex-1 space-y-1.5 overflow-y-auto">
+          {MENU.map((m) => {
+            const Icon = m.icon;
+            const isArtikelGroup = m.id === "artikel";
+            const isArtikelActive = activeMenu === "artikel" || activeMenu === "artikel-utama" || activeMenu === "artikel-bagian";
+            const isActive = isArtikelGroup ? isArtikelActive : activeMenu === m.id;
+            const count = counts[m.countKey] ?? 0;
+
+            return (
+              <div key={m.id} className="space-y-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isArtikelGroup) {
+                      if (!isArtikelActive) setActiveMenu("artikel-utama");
+                    } else {
+                      setActiveMenu(m.id);
+                    }
+                    scrollTop();
+                  }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+                    isActive
+                      ? "bg-accent text-[#043761] shadow-lg shadow-accent/20"
+                      : "text-white/80 bg-[#073969]/40 hover:bg-[#073969] border border-[#164a78]/40 hover:text-white"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span className="truncate">{m.label}</span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                        isActive ? "bg-[#043761] text-accent" : "bg-white/10 text-white/70"
+                      }`}
+                    >
+                      {count}
+                    </span>
+                    {m.children && (
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform ${isArtikelActive ? "rotate-180" : ""}`}
+                      />
+                    )}
+                  </div>
+                </button>
+
+                {/* Anak Menu Khusus Artikel */}
+                {m.children && isArtikelActive && (
+                  <div className="pl-3 pr-1 py-1 space-y-1">
+                    {m.children.map((child) => {
+                      const isChildActive = activeMenu === child.id || (child.id === "artikel-utama" && activeMenu === "artikel");
+                      return (
+                        <button
+                          key={child.id}
+                          type="button"
+                          onClick={() => {
+                            setActiveMenu(child.id);
+                            scrollTop();
+                          }}
+                          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                            isChildActive
+                              ? "bg-[#0c4577] text-accent border border-accent/40 shadow-sm"
+                              : "text-white/60 hover:text-white hover:bg-white/5"
+                          }`}
+                        >
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                              isChildActive ? "bg-accent ring-2 ring-accent/30" : "bg-white/30"
+                            }`}
+                          />
+                          <span className="truncate">{child.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </nav>
+
+        {/* Tombol Keluar di Bawah Sidebar */}
+        <div className="p-4 border-t border-[#164a78]/60 space-y-2">
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            <span>Kunjungi Website</span>
+          </a>
           <button
             type="button"
             onClick={handleLogout}
-            className="shrink-0 px-4 py-2 rounded-xl text-xs font-bold text-red-300 border border-red-400/30 hover:bg-red-500/15 transition-colors cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-red-300 bg-red-950/30 hover:bg-red-900/40 border border-red-500/20 hover:border-red-500/40 transition-colors cursor-pointer"
           >
-            Keluar
+            <LogOut className="w-4 h-4" />
+            <span>Keluar Akun</span>
           </button>
         </div>
+      </aside>
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeMenu}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
-            className="space-y-8"
-          >
+      {/* Mobile Top Navbar (Layar Kecil) */}
+      <header className="lg:hidden flex items-center justify-between px-4 py-3 bg-[#02182b] border-b border-[#164a78] sticky top-0 z-30">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-full bg-white p-1">
+            <img src={LogoHimsika} alt="Logo" className="w-full h-full object-contain" />
+          </div>
+          <div>
+            <span className="block text-xs font-black text-white leading-none">HIMSIKA</span>
+            <span className="block text-[8px] font-bold text-accent uppercase tracking-wider">DATABASE CONTROL</span>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setMobileSidebarOpen(true)}
+          className="p-2 rounded-xl bg-white/5 border border-white/10 text-white cursor-pointer hover:bg-white/10"
+        >
+          <MenuIcon className="w-5 h-5" />
+        </button>
+      </header>
+
+      {/* Mobile Drawer */}
+      <AnimatePresence>
+        {mobileSidebarOpen && (
+          <div className="lg:hidden fixed inset-0 z-50 flex">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileSidebarOpen(false)}
+              className="fixed inset-0 bg-black/70 backdrop-blur-xs"
+            />
+            <motion.div
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "tween", duration: 0.25 }}
+              className="relative w-72 max-w-[80vw] bg-[#02182b] border-r border-[#164a78] h-full flex flex-col z-10"
+            >
+              <div className="p-4 border-b border-[#164a78] flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-white p-1">
+                    <img src={LogoHimsika} alt="Logo" className="w-full h-full object-contain" />
+                  </div>
+                  <span className="text-xs font-black text-white">MENU DATABASE</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setMobileSidebarOpen(false)}
+                  className="p-1 rounded-lg text-white/60 hover:text-white"
+                >
+                  <XIcon className="w-5 h-5" />
+                </button>
+              </div>
+
+              <nav className="p-4 flex-1 space-y-1.5 overflow-y-auto">
+                {MENU.map((m) => {
+                  const Icon = m.icon;
+                  const isArtikelGroup = m.id === "artikel";
+                  const isArtikelActive = activeMenu === "artikel" || activeMenu === "artikel-utama" || activeMenu === "artikel-bagian";
+                  const isActive = isArtikelGroup ? isArtikelActive : activeMenu === m.id;
+                  const count = counts[m.countKey] ?? 0;
+
+                  return (
+                    <div key={m.id} className="space-y-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (isArtikelGroup) {
+                            if (!isArtikelActive) setActiveMenu("artikel-utama");
+                          } else {
+                            setActiveMenu(m.id);
+                            setMobileSidebarOpen(false);
+                          }
+                          scrollTop();
+                        }}
+                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          isActive
+                            ? "bg-accent text-[#043761]"
+                            : "text-white/80 bg-[#073969]/40 hover:bg-[#073969] border border-[#164a78]/40"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <Icon className="w-4 h-4" />
+                          <span>{m.label}</span>
+                        </div>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${isActive ? "bg-[#043761] text-accent" : "bg-white/10 text-white/70"}`}>
+                          {count}
+                        </span>
+                      </button>
+
+                      {m.children && isArtikelActive && (
+                        <div className="pl-3 pr-1 py-1 space-y-1">
+                          {m.children.map((child) => {
+                            const isChildActive = activeMenu === child.id || (child.id === "artikel-utama" && activeMenu === "artikel");
+                            return (
+                              <button
+                                key={child.id}
+                                type="button"
+                                onClick={() => {
+                                  setActiveMenu(child.id);
+                                  setMobileSidebarOpen(false);
+                                  scrollTop();
+                                }}
+                                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                                  isChildActive
+                                    ? "bg-[#0c4577] text-accent border border-accent/40"
+                                    : "text-white/60 hover:text-white"
+                                }`}
+                              >
+                                <span className={`w-1.5 h-1.5 rounded-full ${isChildActive ? "bg-accent" : "bg-white/30"}`} />
+                                <span>{child.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </nav>
+
+              <div className="p-4 border-t border-[#164a78]/60">
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-red-300 bg-red-950/30 hover:bg-red-900/40 border border-red-500/20"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Keluar Akun</span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Konten Utama (Right Column) */}
+      <div className="flex-1 lg:pl-72 flex flex-col min-w-0 min-h-screen bg-linear-to-b from-[#043761] via-[#032d52] to-[#02182b]">
+        {/* Top Header Desktop */}
+        <header className="hidden lg:flex sticky top-0 z-30 bg-[#04284d]/90 backdrop-blur-md border-b border-[#164a78] px-8 py-4 items-center justify-between gap-4">
+          <div>
+            <span className="block text-[10px] font-black uppercase tracking-widest text-accent">HIMSIKA DATABASE CONTROL</span>
+            <h1 className="text-xl font-extrabold text-white">
+              {getActiveTitle()}
+            </h1>
+          </div>
+          <div className="flex items-center gap-3">
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 hover:text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Lihat Web</span>
+            </a>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="px-3.5 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-400/30 text-red-300 text-xs font-bold transition-colors cursor-pointer"
+            >
+              Keluar
+            </button>
+          </div>
+        </header>
+
+        {/* Isi Menu */}
+        <main className="p-4 sm:p-6 lg:p-8 flex-1 max-w-7xl w-full mx-auto space-y-8">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeMenu}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="space-y-8"
+            >
             {/* ================= LOMBA ================= */}
             {activeMenu === "lomba" && (
               <>
@@ -1486,152 +1832,44 @@ export default function AdminDashboard() {
               </>
             )}
 
-            {/* ================= ARTIKEL ================= */}
-            {activeMenu === "artikel" && (
+            {/* ================= ARTIKEL (ANAK MENU 1: DATA UTAMA & DAFTAR) ================= */}
+            {(activeMenu === "artikel" || activeMenu === "artikel-utama") && (
               <>
                 <FormSection
-                  title={editingArtikelId ? "Edit Artikel" : "Tulis Artikel Baru"}
+                  title={editingArtikelId ? "Edit Data Utama Artikel" : "Tulis Artikel Baru (Data Utama)"}
                   editing={editingArtikelId}
                   onCancel={resetArtikelForm}
                   preview={
-                    <div className="space-y-3.5">
-                      {/* Toggle Tab Pratinjau */}
-                      <div className="flex bg-[#03203d] p-1 rounded-xl border border-[#164a78]">
-                        <button
-                          type="button"
-                          onClick={() => setArticlePreviewTab("card")}
-                          className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
-                            articlePreviewTab === "card"
-                              ? "bg-accent text-[#043761] shadow"
-                              : "text-white/60 hover:text-white"
-                          }`}
-                        >
-                          Kartu Beranda
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setArticlePreviewTab("page")}
-                          className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
-                            articlePreviewTab === "page"
-                              ? "bg-accent text-[#043761] shadow"
-                              : "text-white/60 hover:text-white"
-                          }`}
-                        >
-                          Halaman Baca Web
-                        </button>
-                      </div>
-
-                      {articlePreviewTab === "card" ? (
-                        <div className="rounded-2xl bg-[#073969] border border-[#164a78] overflow-hidden">
-                          <div className="aspect-[16/10] relative bg-[#03233f]">
-                            <Thumb
-                              src={formDataArtikel.image || artikelList.find((a) => a.id === editingArtikelId)?.thumb}
-                              alt="Sampul"
-                              className="w-full h-full"
-                              rounded="rounded-none"
-                            />
-                            <div className="absolute top-3 left-3 flex gap-1.5">
-                              <span className="px-3 py-1 bg-accent text-[#043761] text-[10px] font-bold uppercase rounded-lg">
-                                {formDataArtikel.category}
-                              </span>
-                              {formDataArtikel.is_hot && (
-                                <span className="px-2.5 py-1 bg-[#043761] text-accent border border-accent/50 text-[10px] font-extrabold uppercase rounded-lg">
-                                  Hot
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <div className="p-5">
-                            <span className="text-accent text-[11px] font-bold uppercase tracking-wider">
-                              {formDataArtikel.date || "Tanggal terbit"}
+                    <div className="rounded-2xl bg-[#073969] border border-[#164a78] overflow-hidden">
+                      <div className="aspect-[16/10] relative bg-[#03233f]">
+                        <Thumb
+                          src={formDataArtikel.image || artikelList.find((a) => a.id === editingArtikelId)?.thumb}
+                          alt="Sampul"
+                          className="w-full h-full"
+                          rounded="rounded-none"
+                        />
+                        <div className="absolute top-3 left-3 flex gap-1.5">
+                          <span className="px-3 py-1 bg-accent text-[#043761] text-[10px] font-bold uppercase rounded-lg">
+                            {formDataArtikel.category}
+                          </span>
+                          {formDataArtikel.is_hot && (
+                            <span className="px-2.5 py-1 bg-[#043761] text-accent border border-accent/50 text-[10px] font-extrabold uppercase rounded-lg">
+                              Hot
                             </span>
-                            <h3 className="text-base font-extrabold leading-snug line-clamp-2 mt-1.5 mb-2">
-                              {formDataArtikel.title || "Judul Artikel"}
-                            </h3>
-                            <p className="text-xs text-white/70 line-clamp-3 leading-relaxed">
-                              {formDataArtikel.excerpt || "Ringkasan artikel tampil di sini."}
-                            </p>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="rounded-2xl bg-[#03203d] border border-[#164a78] p-4 text-white text-xs max-h-[550px] overflow-y-auto space-y-4 [scrollbar-width:thin]">
-                          <div className="border-b border-white/10 pb-3">
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="px-2.5 py-0.5 bg-accent/15 border border-accent/30 text-accent font-bold text-[10px] rounded-full">
-                                {formDataArtikel.category}
-                              </span>
-                              <span className="text-white/50 text-[10px]">{formDataArtikel.date || "Hari Ini"}</span>
-                            </div>
-                            <h2 className="text-base font-black text-white leading-snug">
-                              {formDataArtikel.title || "Judul Artikel"}
-                            </h2>
-                            <p className="text-[10px] text-white/50 mt-1">Penulis: {formDataArtikel.author || "HIMSIKA"}</p>
-                          </div>
-
-                          {/* Preview Galeri Dokumentasi Landscape */}
-                          {builderGallery.length > 0 && (
-                            <div className="space-y-1.5">
-                              <span className="block text-[10px] font-black text-accent uppercase tracking-wider">
-                                Dokumentasi Utama ({builderGallery.length} Foto Landscape):
-                              </span>
-                              <div className="grid grid-cols-2 gap-1.5">
-                                {builderGallery.slice(0, 4).map((imgUrl, idx) => (
-                                  <div key={idx} className="aspect-video rounded-lg overflow-hidden border border-white/10 bg-[#02182b]">
-                                    <img src={imgUrl} alt="Dokum" className="w-full h-full object-cover" />
-                                  </div>
-                                ))}
-                              </div>
-                              {builderGallery.length > 4 && (
-                                <p className="text-[10px] text-white/40 italic">+ {builderGallery.length - 4} foto lainnya di galeri</p>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Preview Pengantar */}
-                          {builderLead && (
-                            <div
-                              className="text-white/80 leading-relaxed text-[11px]"
-                              dangerouslySetInnerHTML={{ __html: builderLead.replace(/\n\n+/g, "<br/><br/>") }}
-                            />
-                          )}
-
-                          {/* Preview Bagian-Bagian */}
-                          {builderSections.map((sec, idx) => (
-                            <div key={sec.id || idx} className="pt-2 border-t border-white/10 space-y-2">
-                              {sec.title && (
-                                <h4 className="text-xs font-black text-accent flex items-center gap-2">
-                                  <span className="w-1.5 h-4 bg-accent rounded-full inline-block"></span>
-                                  {sec.title}
-                                </h4>
-                              )}
-                              {sec.image && (
-                                <div className="rounded-xl overflow-hidden border border-white/10 bg-[#02182b]">
-                                  <div className="aspect-video">
-                                    <img src={sec.image} alt={sec.title || "Dokum"} className="w-full h-full object-cover" />
-                                  </div>
-                                  {sec.caption && (
-                                    <p className="text-[10px] text-white/50 italic text-center p-1.5 border-t border-white/5">
-                                      {sec.caption}
-                                    </p>
-                                  )}
-                                </div>
-                              )}
-                              {sec.text && (
-                                <div
-                                  className="text-white/80 leading-relaxed text-[11px]"
-                                  dangerouslySetInnerHTML={{ __html: sec.text.replace(/\n\n+/g, "<br/><br/>") }}
-                                />
-                              )}
-                            </div>
-                          ))}
-
-                          {builderSections.length === 0 && !builderLead && (
-                            <p className="text-white/40 text-center py-6 text-[11px] italic">
-                              Isi narasi atau bagian artikel untuk melihat simulasi halaman baca artikel.
-                            </p>
                           )}
                         </div>
-                      )}
+                      </div>
+                      <div className="p-5">
+                        <span className="text-accent text-[11px] font-bold uppercase tracking-wider">
+                          {formDataArtikel.date || "Tanggal terbit"}
+                        </span>
+                        <h3 className="text-base font-extrabold leading-snug line-clamp-2 mt-1.5 mb-2">
+                          {formDataArtikel.title || "Judul Artikel"}
+                        </h3>
+                        <p className="text-xs text-white/70 line-clamp-3 leading-relaxed">
+                          {formDataArtikel.excerpt || "Ringkasan artikel tampil di sini."}
+                        </p>
+                      </div>
                     </div>
                   }
                 >
@@ -1681,249 +1919,8 @@ export default function AdminDashboard() {
                       <textarea rows="2" placeholder="Ringkasan 1-2 kalimat yang tampil di kartu luar..." value={formDataArtikel.excerpt} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, excerpt: e.target.value })} className={textareaCls} />
                     </div>
 
-                    {/* Pembatas Editor Konten Berstruktur */}
-                    <div className="md:col-span-2 space-y-4 pt-4 border-t border-white/10">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div>
-                          <span className="block text-sm font-black text-white">Penyusun Konten Artikel</span>
-                          <span className="block text-xs text-white/50">
-                            Atur dokumentasi kegiatan landscape, pengantar, dan bagian sub-bab dengan rapi.
-                          </span>
-                        </div>
-                        <div className="flex bg-[#03203d] p-1 rounded-xl border border-[#164a78] self-start sm:self-auto">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (articleEditorTab !== "visual") {
-                                const parsed = parseArticleContent(formDataArtikel.content);
-                                setBuilderGallery(parsed.galleryImages);
-                                setBuilderLead(parsed.leadText);
-                                setBuilderSections(parsed.sections);
-                                setArticleEditorTab("visual");
-                              }
-                            }}
-                            className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
-                              articleEditorTab === "visual" ? "bg-accent text-[#043761] shadow" : "text-white/60 hover:text-white"
-                            }`}
-                          >
-                            Mode Bagian (Visual)
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (articleEditorTab !== "raw") {
-                                const compiled = compileArticleContent({
-                                  galleryImages: builderGallery,
-                                  leadText: builderLead,
-                                  sections: builderSections,
-                                });
-                                setFormDataArtikel({
-                                  ...formDataArtikel,
-                                  content: JSON.stringify(compiled, null, 2),
-                                });
-                                setArticleEditorTab("raw");
-                              }
-                            }}
-                            className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
-                              articleEditorTab === "raw" ? "bg-accent text-[#043761] shadow" : "text-white/60 hover:text-white"
-                            }`}
-                          >
-                            Mode Mentah (JSON)
-                          </button>
-                        </div>
-                      </div>
-
-                      {articleEditorTab === "visual" ? (
-                        <div className="space-y-5">
-                          {/* 1. Galeri Dokumentasi Utama (Landscape) */}
-                          <div className="p-4 sm:p-5 bg-[#03203d] border border-[#164a78] rounded-2xl space-y-3.5 shadow-sm">
-                            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                              <div>
-                                <h4 className="text-xs font-black text-accent uppercase tracking-wider">
-                                  1. Dokumentasi Kegiatan Utama (Landscape)
-                                </h4>
-                                <p className="text-[11px] text-white/50">
-                                  Tampil dalam galeri foto landscape di bawah judul artikel (seperti di Education Fair / ISCT).
-                                </p>
-                              </div>
-                              <span className="text-xs font-bold text-accent bg-accent/10 border border-accent/20 px-2.5 py-1 rounded-lg">
-                                {builderGallery.length} Foto
-                              </span>
-                            </div>
-
-                            {builderGallery.length > 0 && (
-                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
-                                {builderGallery.map((imgUrl, gIdx) => (
-                                  <div key={gIdx} className="relative group aspect-video rounded-xl overflow-hidden border border-[#164a78] bg-[#02182b]">
-                                    <img src={imgUrl} alt={`Dokum ${gIdx + 1}`} className="w-full h-full object-cover" />
-                                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
-                                      <button
-                                        type="button"
-                                        onClick={() => setBuilderGallery((prev) => prev.filter((_, idx) => idx !== gIdx))}
-                                        className="px-2.5 py-1 bg-red-600/90 hover:bg-red-600 text-white font-bold text-[11px] rounded-lg transition-colors cursor-pointer shadow"
-                                      >
-                                        Hapus
-                                      </button>
-                                    </div>
-                                    <span className="absolute bottom-1 left-1.5 px-1.5 py-0.5 bg-black/70 text-[9px] font-bold text-white/80 rounded">
-                                      #{gIdx + 1}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-
-                            <div className="pt-2 border-t border-white/5">
-                              <ImageUploadField
-                                label="Tambah Foto ke Galeri Dokumentasi (Landscape)"
-                                value={newGalleryInput}
-                                onChange={(val) => {
-                                  if (val && val.trim()) {
-                                    setBuilderGallery((prev) => [...prev, val.trim()]);
-                                    setNewGalleryInput("");
-                                  }
-                                }}
-                                onAlert={showAlert}
-                              />
-                              <p className="text-[10px] text-white/40 mt-1 italic">
-                                Masukkan URL atau klik Upload Foto di atas, foto akan otomatis tersimpan ke daftar galeri.
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* 2. Paragraf Pengantar */}
-                          <div className="p-4 sm:p-5 bg-[#03203d] border border-[#164a78] rounded-2xl space-y-2.5 shadow-sm">
-                            <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                              <h4 className="text-xs font-black text-accent uppercase tracking-wider">
-                                2. Paragraf Pengantar / Pembuka
-                              </h4>
-                              <span className="text-[11px] text-white/40 italic">Muncul sebelum sub-bab pertama</span>
-                            </div>
-                            <TextFormatToolbar
-                              textareaRef={leadTextareaRef}
-                              value={builderLead}
-                              onChange={setBuilderLead}
-                            />
-                            <textarea
-                              ref={leadTextareaRef}
-                              rows="3"
-                              placeholder="Tulis narasi pembuka artikel di sini. Gunakan tombol format di atas untuk menebalkan teks, memiringkan, dsb..."
-                              value={builderLead}
-                              onChange={(e) => setBuilderLead(e.target.value)}
-                              className={textareaCls}
-                            />
-                          </div>
-
-                          {/* 3. Bagian-Bagian Artikel (Sub-Bab) */}
-                          <div className="space-y-4">
-                            <div className="flex items-center justify-between pt-1">
-                              <div>
-                                <h4 className="text-xs font-black text-accent uppercase tracking-wider">
-                                  3. Bagian-Bagian Artikel (Sub-Bab)
-                                </h4>
-                                <p className="text-[11px] text-white/50">
-                                  Tiap bagian memiliki judul bergaris kuning, dokumentasi landscape, dan narasi isi.
-                                </p>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const nextNum = builderSections.length + 1;
-                                  setBuilderSections((prev) => [
-                                    ...prev,
-                                    {
-                                      id: "sec_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
-                                      title: `${nextNum}. `,
-                                      image: "",
-                                      caption: "",
-                                      text: "",
-                                    },
-                                  ]);
-                                }}
-                                className="px-3.5 py-2 bg-accent hover:bg-yellow-400 text-[#043761] font-bold text-xs rounded-xl transition-all cursor-pointer shadow flex items-center gap-1.5"
-                              >
-                                + Tambah Bagian
-                              </button>
-                            </div>
-
-                            {builderSections.map((sec, idx) => (
-                              <SectionEditorItem
-                                key={sec.id}
-                                section={sec}
-                                index={idx}
-                                total={builderSections.length}
-                                onChange={(field, val) => {
-                                  setBuilderSections((prev) =>
-                                    prev.map((s, i) => (i === idx ? { ...s, [field]: val } : s)),
-                                  );
-                                }}
-                                onMoveUp={() => {
-                                  if (idx === 0) return;
-                                  setBuilderSections((prev) => {
-                                    const copy = [...prev];
-                                    const temp = copy[idx - 1];
-                                    copy[idx - 1] = copy[idx];
-                                    copy[idx] = temp;
-                                    return copy;
-                                  });
-                                }}
-                                onMoveDown={() => {
-                                  if (idx === builderSections.length - 1) return;
-                                  setBuilderSections((prev) => {
-                                    const copy = [...prev];
-                                    const temp = copy[idx + 1];
-                                    copy[idx + 1] = copy[idx];
-                                    copy[idx] = temp;
-                                    return copy;
-                                  });
-                                }}
-                                onDelete={() => {
-                                  setBuilderSections((prev) => prev.filter((_, i) => i !== idx));
-                                }}
-                                onAlert={showAlert}
-                              />
-                            ))}
-
-                            {builderSections.length === 0 && (
-                              <div className="p-6 text-center border-2 border-dashed border-[#164a78] rounded-2xl bg-[#03203d]/40 text-white/50 space-y-2">
-                                <p className="text-xs">Belum ada bagian sub-bab yang ditambahkan.</p>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setBuilderSections([
-                                      {
-                                        id: "sec_" + Date.now(),
-                                        title: "1. ",
-                                        image: "",
-                                        caption: "",
-                                        text: "",
-                                      },
-                                    ]);
-                                  }}
-                                  className="px-4 py-2 bg-accent/20 hover:bg-accent text-accent hover:text-[#043761] border border-accent/40 font-bold text-xs rounded-xl transition-colors cursor-pointer"
-                                >
-                                  + Tambah Bagian Pertama
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          <label className={labelCls}>Data JSON Konten Mentah</label>
-                          <textarea
-                            rows="12"
-                            value={formDataArtikel.content}
-                            onChange={(e) => setFormDataArtikel({ ...formDataArtikel, content: e.target.value })}
-                            className={`${textareaCls} font-mono text-xs`}
-                            placeholder="[ { type: 'paragraph', text: '...' } ]"
-                          />
-                        </div>
-                      )}
-                    </div>
-
                     <div className="md:col-span-2 pt-2">
-                      <SubmitBtn>{editingArtikelId ? "Simpan Perubahan" : "Terbitkan Artikel"}</SubmitBtn>
+                      <SubmitBtn>{editingArtikelId ? "Simpan Perubahan Data Utama" : "Terbitkan Data Utama"}</SubmitBtn>
                     </div>
                   </form>
                 </FormSection>
@@ -1972,7 +1969,7 @@ export default function AdminDashboard() {
                           <button
                             type="button"
                             onClick={() => handleSetHot(i)}
-                            className={`text-xs px-3 py-1 rounded-lg font-bold mr-1 transition-colors cursor-pointer ${
+                            className={`text-xs px-2.5 py-1 rounded-lg font-bold mr-1.5 transition-colors cursor-pointer ${
                               i.is_hot
                                 ? "bg-accent text-[#043761]"
                                 : "text-white/75 border border-white/15 hover:border-accent hover:text-accent"
@@ -1980,10 +1977,16 @@ export default function AdminDashboard() {
                           >
                             {i.is_hot ? "Hot Aktif" : "Set Hot"}
                           </button>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenBagianBuilder(i)}
+                            className="text-xs px-2.5 py-1 rounded-lg font-bold mr-1.5 bg-[#0c4577] text-accent border border-accent/40 hover:bg-accent hover:text-[#043761] transition-all cursor-pointer"
+                          >
+                            Susun Bagian →
+                          </button>
                           <ActionBtn
                             onClick={() => {
                               setEditingArtikelId(i.id);
-                              const parsed = parseArticleContent(i.content);
                               setFormDataArtikel({
                                 title: i.title || "",
                                 category: i.category || "Berita",
@@ -1994,10 +1997,6 @@ export default function AdminDashboard() {
                                 content: typeof i.content === "string" ? i.content : JSON.stringify(i.content, null, 2),
                                 is_hot: i.is_hot,
                               });
-                              setBuilderGallery(parsed.galleryImages);
-                              setBuilderLead(parsed.leadText);
-                              setBuilderSections(parsed.sections);
-                              setArticleEditorTab("visual");
                               scrollTop();
                             }}
                           >
@@ -2010,6 +2009,348 @@ export default function AdminDashboard() {
                   ]}
                 />
               </>
+            )}
+
+            {/* ================= ARTIKEL (ANAK MENU 2: PENYUSUN BAGIAN & DOKUMENTASI) ================= */}
+            {activeMenu === "artikel-bagian" && (
+              <section className="bg-[#073969] border border-[#164a78] rounded-3xl p-5 sm:p-7 shadow-xl space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-accent">Anak Menu Artikel</span>
+                    <h2 className="text-base sm:text-lg font-bold text-white">Penyusun Bagian & Dokumentasi Kegiatan</h2>
+                    <p className="text-xs text-white/60 mt-0.5">
+                      Kelola galeri dokumentasi kegiatan (landscape 16:9), paragraf pengantar, dan bagian-bagian sub-bab narasi.
+                    </p>
+                  </div>
+                  {selectedArtikelForBuilder && (
+                    <a
+                      href={`/artikel/${selectedArtikelForBuilder.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-accent text-xs font-bold flex items-center gap-1.5 self-start sm:self-auto transition-colors"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Buka Halaman Baca Publik</span>
+                    </a>
+                  )}
+                </div>
+
+                {artikelList.length === 0 ? (
+                  <div className="p-8 text-center text-white/50 border border-dashed border-[#164a78] rounded-2xl bg-[#04284d]/40">
+                    <p className="text-sm font-semibold mb-2">Belum ada artikel yang terdaftar.</p>
+                    <button
+                      type="button"
+                      onClick={() => setActiveMenu("artikel-utama")}
+                      className="px-4 py-2 bg-accent text-[#043761] font-bold text-xs rounded-xl hover:bg-accent-hover transition-colors cursor-pointer"
+                    >
+                      Buat Artikel di Menu Data Utama
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    {/* Selector Artikel Aktif */}
+                    <div className="bg-[#04284d] border border-[#164a78] rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                      <div className="flex-1">
+                        <label className="block text-xs font-bold text-accent uppercase tracking-wider mb-1.5">
+                          Pilih Artikel yang Disusun:
+                        </label>
+                        <select
+                          value={builderArtikelId || ""}
+                          onChange={(e) => handleSelectArtikelForBuilder(e.target.value)}
+                          className={`${inputCls} font-bold text-sm bg-[#02182b] border-accent/40`}
+                        >
+                          {artikelList.map((a) => (
+                            <option key={a.id} value={a.id}>
+                              {a.title} ({a.category} • {a.date})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="text-xs text-white/60 md:text-right shrink-0">
+                        <span className="block font-semibold text-white">Status Artikel:</span>
+                        <span className="text-accent">{selectedArtikelForBuilder?.category}</span> • {selectedArtikelForBuilder?.author || "HIMSIKA"}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
+                      {/* Kolom Kiri: Form Penyusun (7 Kolom) */}
+                      <div className="lg:col-span-7 space-y-6">
+                        {/* 1. Galeri Dokumentasi Utama (Landscape) */}
+                        <div className="p-4 sm:p-5 bg-[#03203d] border border-[#164a78] rounded-2xl space-y-3.5 shadow-sm">
+                          <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                            <div>
+                              <h4 className="text-xs font-black text-accent uppercase tracking-wider">
+                                1. Dokumentasi Kegiatan Utama (Landscape 16:9)
+                              </h4>
+                              <p className="text-[11px] text-white/50">
+                                Tampil dalam galeri foto landscape di bawah judul artikel.
+                              </p>
+                            </div>
+                            <span className="text-xs font-bold text-accent bg-accent/10 border border-accent/20 px-2.5 py-1 rounded-lg">
+                              {builderGallery.length} Foto
+                            </span>
+                          </div>
+
+                          {builderGallery.length > 0 && (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
+                              {builderGallery.map((imgUrl, gIdx) => (
+                                <div key={gIdx} className="relative group aspect-video rounded-xl overflow-hidden border border-[#164a78] bg-[#02182b]">
+                                  <img src={imgUrl} alt={`Dokum ${gIdx + 1}`} className="w-full h-full object-cover" />
+                                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => setBuilderGallery((prev) => prev.filter((_, idx) => idx !== gIdx))}
+                                      className="px-2.5 py-1 bg-red-600/90 hover:bg-red-600 text-white font-bold text-[11px] rounded-lg transition-colors cursor-pointer shadow"
+                                    >
+                                      Hapus
+                                    </button>
+                                  </div>
+                                  <span className="absolute bottom-1 left-1.5 px-1.5 py-0.5 bg-black/70 text-[9px] font-bold text-white/80 rounded">
+                                    #{gIdx + 1}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          <div className="pt-2 border-t border-white/5">
+                            <ImageUploadField
+                              label="Tambah Foto ke Galeri Dokumentasi (Landscape)"
+                              value={newGalleryInput}
+                              onChange={(val) => {
+                                if (val && val.trim()) {
+                                  setBuilderGallery((prev) => [...prev, val.trim()]);
+                                  setNewGalleryInput("");
+                                }
+                              }}
+                              onAlert={showAlert}
+                            />
+                            <p className="text-[10px] text-white/40 mt-1 italic">
+                              Upload atau tempel URL foto landscape di atas, otomatis masuk ke galeri kegiatan.
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* 2. Paragraf Pengantar */}
+                        <div className="p-4 sm:p-5 bg-[#03203d] border border-[#164a78] rounded-2xl space-y-2.5 shadow-sm">
+                          <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                            <h4 className="text-xs font-black text-accent uppercase tracking-wider">
+                              2. Paragraf Pengantar / Pembuka
+                            </h4>
+                            <span className="text-[11px] text-white/40 italic">Muncul sebelum sub-bab pertama</span>
+                          </div>
+                          <TextFormatToolbar
+                            textareaRef={leadTextareaRef}
+                            value={builderLead}
+                            onChange={setBuilderLead}
+                          />
+                          <textarea
+                            ref={leadTextareaRef}
+                            rows="3"
+                            placeholder="Tulis narasi pembuka artikel di sini. Gunakan tombol format di atas untuk tebal, miring, dsb..."
+                            value={builderLead}
+                            onChange={(e) => setBuilderLead(e.target.value)}
+                            className={textareaCls}
+                          />
+                        </div>
+
+                        {/* 3. Bagian-Bagian Sub-Bab */}
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between pt-1">
+                            <div>
+                              <h4 className="text-xs font-black text-accent uppercase tracking-wider">
+                                3. Bagian-Bagian Artikel (Sub-Bab)
+                              </h4>
+                              <p className="text-[11px] text-white/50">
+                                Tiap sub-bab memiliki judul aksen kuning, dokumentasi landscape, dan narasi isi.
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const nextNum = builderSections.length + 1;
+                                setBuilderSections((prev) => [
+                                  ...prev,
+                                  {
+                                    id: "sec_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+                                    title: `${nextNum}. `,
+                                    image: "",
+                                    caption: "",
+                                    text: "",
+                                  },
+                                ]);
+                              }}
+                              className="px-3.5 py-2 bg-accent hover:bg-yellow-400 text-[#043761] font-bold text-xs rounded-xl transition-all cursor-pointer shadow flex items-center gap-1.5"
+                            >
+                              + Tambah Bagian
+                            </button>
+                          </div>
+
+                          {builderSections.map((sec, idx) => (
+                            <SectionEditorItem
+                              key={sec.id}
+                              section={sec}
+                              index={idx}
+                              total={builderSections.length}
+                              onChange={(field, val) => {
+                                setBuilderSections((prev) =>
+                                  prev.map((s, i) => (i === idx ? { ...s, [field]: val } : s)),
+                                );
+                              }}
+                              onMoveUp={() => {
+                                if (idx === 0) return;
+                                setBuilderSections((prev) => {
+                                  const copy = [...prev];
+                                  const temp = copy[idx - 1];
+                                  copy[idx - 1] = copy[idx];
+                                  copy[idx] = temp;
+                                  return copy;
+                                });
+                              }}
+                              onMoveDown={() => {
+                                if (idx === builderSections.length - 1) return;
+                                setBuilderSections((prev) => {
+                                  const copy = [...prev];
+                                  const temp = copy[idx + 1];
+                                  copy[idx + 1] = copy[idx];
+                                  copy[idx] = temp;
+                                  return copy;
+                                });
+                              }}
+                              onDelete={() => {
+                                setBuilderSections((prev) => prev.filter((_, i) => i !== idx));
+                              }}
+                              onAlert={showAlert}
+                            />
+                          ))}
+
+                          {builderSections.length === 0 && (
+                            <div className="p-6 text-center border-2 border-dashed border-[#164a78] rounded-2xl bg-[#03203d]/40 text-white/50 space-y-2">
+                              <p className="text-xs">Belum ada bagian sub-bab yang ditambahkan.</p>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setBuilderSections([
+                                    {
+                                      id: "sec_" + Date.now(),
+                                      title: "1. ",
+                                      image: "",
+                                      caption: "",
+                                      text: "",
+                                    },
+                                  ]);
+                                }}
+                                className="px-4 py-2 bg-accent/20 hover:bg-accent text-accent hover:text-[#043761] border border-accent/40 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+                              >
+                                + Tambah Bagian Pertama
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Tombol Simpan Seluruh Bagian */}
+                        <div className="pt-4 border-t border-white/10">
+                          <button
+                            type="button"
+                            onClick={handleSaveBagianArtikel}
+                            className="w-full py-3.5 bg-accent hover:bg-yellow-400 text-[#043761] font-black rounded-2xl shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2 text-sm"
+                          >
+                            Simpan Seluruh Bagian & Dokumentasi
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Kolom Kanan: Live Reading Preview Web (5 Kolom) */}
+                      <div className="lg:col-span-5 bg-[#04284d]/90 border border-[#164a78] rounded-2xl p-5 shadow-inner sticky top-24 space-y-4">
+                        <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                          <span className="text-xs font-bold text-accent uppercase tracking-wider">
+                            Live Reading Preview
+                          </span>
+                          <span className="text-[10px] text-white/50">Simulasi Halaman Baca</span>
+                        </div>
+
+                        <div className="rounded-xl bg-[#02182b] border border-[#164a78] p-4 text-white text-xs max-h-[600px] overflow-y-auto space-y-4 [scrollbar-width:thin]">
+                          <div className="border-b border-white/10 pb-3">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="px-2.5 py-0.5 bg-accent/15 border border-accent/30 text-accent font-bold text-[10px] rounded-full">
+                                {selectedArtikelForBuilder?.category || "Berita"}
+                              </span>
+                              <span className="text-white/50 text-[10px]">{selectedArtikelForBuilder?.date || "Hari Ini"}</span>
+                            </div>
+                            <h2 className="text-base font-black text-white leading-snug break-words">
+                              {selectedArtikelForBuilder?.title || "Judul Artikel"}
+                            </h2>
+                            <p className="text-[10px] text-white/50 mt-1">Penulis: {selectedArtikelForBuilder?.author || "HIMSIKA"}</p>
+                          </div>
+
+                          {/* Preview Galeri Dokumentasi Landscape */}
+                          {builderGallery.length > 0 && (
+                            <div className="space-y-1.5">
+                              <span className="block text-[10px] font-black text-accent uppercase tracking-wider">
+                                Dokumentasi Utama ({builderGallery.length} Foto Landscape):
+                              </span>
+                              <div className="grid grid-cols-2 gap-1.5">
+                                {builderGallery.slice(0, 4).map((imgUrl, idx) => (
+                                  <div key={idx} className="aspect-video rounded-lg overflow-hidden border border-white/10 bg-[#02182b]">
+                                    <img src={imgUrl} alt="Dokum" className="w-full h-full object-cover" />
+                                  </div>
+                                ))}
+                              </div>
+                              {builderGallery.length > 4 && (
+                                <p className="text-[10px] text-white/40 italic">+ {builderGallery.length - 4} foto lainnya di galeri</p>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Preview Pengantar */}
+                          {builderLead && (
+                            <div
+                              className="text-white/80 leading-relaxed text-[11px] break-words"
+                              dangerouslySetInnerHTML={{ __html: builderLead.replace(/\n\n+/g, "<br/><br/>") }}
+                            />
+                          )}
+
+                          {/* Preview Bagian-Bagian */}
+                          {builderSections.map((sec, idx) => (
+                            <div key={sec.id || idx} className="pt-2 border-t border-white/10 space-y-2">
+                              {sec.title && (
+                                <h4 className="text-xs font-black text-accent flex items-center gap-2 break-words">
+                                  <span className="w-1.5 h-4 bg-accent rounded-full inline-block shrink-0"></span>
+                                  {sec.title}
+                                </h4>
+                              )}
+                              {sec.image && (
+                                <div className="rounded-xl overflow-hidden border border-white/10 bg-[#02182b]">
+                                  <div className="aspect-video">
+                                    <img src={sec.image} alt={sec.title || "Dokum"} className="w-full h-full object-cover" />
+                                  </div>
+                                  {sec.caption && (
+                                    <p className="text-[10px] text-white/50 italic text-center p-1.5 border-t border-white/5 break-words">
+                                      {sec.caption}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+                              {sec.text && (
+                                <div
+                                  className="text-white/80 leading-relaxed text-[11px] break-words"
+                                  dangerouslySetInnerHTML={{ __html: sec.text.replace(/\n\n+/g, "<br/><br/>") }}
+                                />
+                              )}
+                            </div>
+                          ))}
+
+                          {builderSections.length === 0 && !builderLead && builderGallery.length === 0 && (
+                            <p className="text-white/40 text-center py-6 text-[11px] italic">
+                              Tambahkan foto dokumentasi landscape, pengantar, atau bagian sub-bab untuk melihat live preview halaman baca.
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </section>
             )}
 
             {/* ================= PRESTASI ================= */}
@@ -2387,46 +2728,10 @@ export default function AdminDashboard() {
         )}
       </AnimatePresence>
 
-      {/* Bottom menu bar: menempel di bawah. Lingkaran hanya muncul saat hover atau di menu aktif. */}
-      <nav
-        aria-label="Menu admin"
-        className="fixed bottom-0 inset-x-0 z-50 bg-[#073969]/95 backdrop-blur-md border-t border-[#164a78] pb-[env(safe-area-inset-bottom)]"
-      >
-        <ul className="mx-auto max-w-xl grid grid-cols-5">
-          {MENU.map((m) => {
-            const Icon = m.icon;
-            const active = activeMenu === m.id;
-            return (
-              <li key={m.id}>
-                <button
-                  type="button"
-                  aria-current={active ? "page" : undefined}
-                  onClick={() => {
-                    setActiveMenu(m.id);
-                    scrollTop();
-                  }}
-                  className="group w-full flex flex-col items-center gap-0.5 py-2 cursor-pointer focus-visible:outline-none"
-                >
-                  <span
-                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200 ${
-                      active
-                        ? "bg-accent text-[#043761]"
-                        : "text-white/60 group-hover:bg-white/10 group-hover:text-white group-focus-visible:bg-white/10"
-                    }`}
-                  >
-                    <Icon className="w-5 h-5" />
-                  </span>
-                  <span className={`text-[11px] ${active ? "text-accent font-bold" : "text-white/60 group-hover:text-white"}`}>
-                    {m.label}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+      {/* Penutup Kolom Konten Utama Kanan */}
+      </div>
 
       {modal}
-    </motion.div>
+    </div>
   );
 }
