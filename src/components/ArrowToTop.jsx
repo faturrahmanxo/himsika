@@ -2,10 +2,16 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUp } from "lucide-react";
 import { useLenis } from "lenis/react";
+import { useLocation } from "react-router-dom";
 
 export default function ArrowToTop() {
   const [isVisible, setIsVisible] = useState(false);
   const lenis = useLenis();
+  const location = useLocation();
+
+  // Sembunyikan pada halaman isian artikel (detail artikel /artikel/:id)
+  const isIsianArtikel =
+    location.pathname.startsWith("/artikel/") && location.pathname !== "/artikel";
 
   // Fungsi untuk mengecek posisi scroll
   useEffect(() => {
@@ -34,6 +40,8 @@ export default function ArrowToTop() {
       });
     }
   };
+
+  if (isIsianArtikel) return null;
 
   return (
     <AnimatePresence>

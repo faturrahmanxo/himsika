@@ -120,7 +120,7 @@ function PublicLayout() {
         </motion.div>
       </AnimatePresence>
       <Footer />
-      <ArrowToTop />
+      {!location.pathname.startsWith("/artikel/") && <ArrowToTop />}
     </>
   );
 }
