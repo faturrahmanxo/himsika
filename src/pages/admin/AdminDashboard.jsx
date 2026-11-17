@@ -60,10 +60,10 @@ const ARTIKEL_CATEGORIES = ["Berita", "Kegiatan", "Opini", "Prestasi"];
 const PAGE_SIZE = 8;
 
 const inputCls =
-  "w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40 transition-colors";
+  "w-full bg-[#001f54] border border-[#163b70] rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-[#b3d2f5]/40 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40 transition-colors";
 const textareaCls =
-  "w-full bg-[#04284d] border border-[#164a78] rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40 transition-colors resize-none overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden";
-const labelCls = "block text-xs font-bold text-white/70 mb-1.5";
+  "w-full bg-[#001f54] border border-[#163b70] rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-[#b3d2f5]/40 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40 transition-colors resize-none overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden";
+const labelCls = "block text-xs font-bold text-[#b3d2f5] mb-1.5";
 
 // Urutan artikel: tanggal terbaru dulu. Pakai kolom datetime, kalau kosong baca teks "26 September 2026".
 const BULAN = {
@@ -290,7 +290,7 @@ function TextFormatToolbar({ textareaRef, value, onChange }) {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 mb-2 bg-[#02182b]/80 border border-[#164a78] px-2.5 py-1.5 rounded-lg text-xs">
+    <div className="flex flex-wrap items-center gap-1.5 mb-2 bg-[#02182b]/80 border border-[#163b70] px-2.5 py-1.5 rounded-lg text-xs">
       <span className="text-[10px] font-bold text-accent uppercase tracking-wider mr-1">Format Teks:</span>
       <button
         type="button"
@@ -357,10 +357,10 @@ function CustomModal({ isOpen, type, title, message, confirmText, cancelText, on
             transition={{ duration: 0.18 }}
             role="dialog"
             aria-modal="true"
-            className="w-full max-w-md bg-[#073969] border border-[#164a78] rounded-2xl p-6 shadow-2xl text-white"
+            className="w-full max-w-md bg-[#073969] border border-[#163b70] rounded-2xl p-6 shadow-2xl text-white"
           >
             <h3 className="text-base sm:text-lg font-bold mb-2">{title}</h3>
-            <p className="text-sm text-white/80 leading-relaxed mb-6 whitespace-pre-line">{message}</p>
+            <p className="text-sm text-[#b3d2f5] leading-relaxed mb-6 whitespace-pre-line">{message}</p>
             <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
               {type === "confirm" && (
                 <button
@@ -377,7 +377,7 @@ function CustomModal({ isOpen, type, title, message, confirmText, cancelText, on
                 className={`px-5 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
                   type === "confirm"
                     ? "bg-red-500 hover:bg-red-600 text-white"
-                    : "bg-accent hover:bg-accent-hover text-[#043761]"
+                    : "bg-accent hover:bg-accent-hover text-[#001f54]"
                 }`}
               >
                 {confirmText}
@@ -395,7 +395,7 @@ function Thumb({ src, alt, className = "w-12 h-12", rounded = "rounded-lg" }) {
   useEffect(() => setBroken(false), [src]);
   if (!src || broken) {
     return (
-      <div className={`${className} ${rounded} shrink-0 bg-[#04284d] border border-[#164a78] flex items-center justify-center text-[9px] font-bold text-white/30 uppercase`}>
+      <div className={`${className} ${rounded} shrink-0 bg-[#001f54] border border-[#163b70] flex items-center justify-center text-[9px] font-bold text-[#b3d2f5]/40 uppercase`}>
         Foto
       </div>
     );
@@ -406,7 +406,7 @@ function Thumb({ src, alt, className = "w-12 h-12", rounded = "rounded-lg" }) {
       alt={alt}
       loading="lazy"
       onError={() => setBroken(true)}
-      className={`${className} ${rounded} shrink-0 object-cover border border-[#164a78] bg-[#04284d]`}
+      className={`${className} ${rounded} shrink-0 object-cover border border-[#163b70] bg-[#001f54]`}
     />
   );
 }
@@ -469,9 +469,9 @@ function ImageUploadField({ label, value, onChange, onAlert }) {
         </button>
       </div>
       {value && (
-        <div className="mt-2 flex items-center gap-3 p-2 bg-[#04284d] border border-[#164a78] rounded-xl">
+        <div className="mt-2 flex items-center gap-3 p-2 bg-[#001f54] border border-[#163b70] rounded-xl">
           <Thumb src={value} alt="Pratinjau" className="w-10 h-10" />
-          <span className="text-[11px] text-white/50 truncate flex-1">{value}</span>
+          <span className="text-[11px] text-[#b3d2f5]/70 truncate flex-1">{value}</span>
           <button
             type="button"
             onClick={() => onChange("")}
@@ -490,7 +490,7 @@ function SectionEditorItem({ section, index, total, onChange, onMoveUp, onMoveDo
   const textareaRef = useRef(null);
 
   return (
-    <div className="p-4 sm:p-5 bg-[#03203d] border border-[#164a78] rounded-2xl space-y-4 shadow-sm">
+    <div className="p-4 sm:p-5 bg-[#001f54] border border-[#163b70] rounded-2xl space-y-4 shadow-sm">
       <div className="flex items-center justify-between border-b border-white/10 pb-3">
         <div className="flex items-center gap-2">
           <span className="w-2 h-5 bg-accent rounded-full inline-block"></span>
@@ -542,7 +542,7 @@ function SectionEditorItem({ section, index, total, onChange, onMoveUp, onMoveDo
         </span>
       </div>
 
-      <div className="p-3 bg-[#02182b]/60 border border-[#164a78]/60 rounded-xl space-y-2.5">
+      <div className="p-3 bg-[#02182b]/60 border border-[#163b70]/60 rounded-xl space-y-2.5">
         <ImageUploadField
           label="Foto Dokumentasi Bagian (Landscape)"
           value={section.image || ""}
@@ -550,7 +550,7 @@ function SectionEditorItem({ section, index, total, onChange, onMoveUp, onMoveDo
           onAlert={onAlert}
         />
         {section.image && (
-          <div className="aspect-video w-full max-w-sm rounded-xl overflow-hidden border border-[#164a78] bg-[#02182b] relative">
+          <div className="aspect-video w-full max-w-sm rounded-xl overflow-hidden border border-[#163b70] bg-[#02182b] relative">
             <img src={section.image} alt="Preview Landscape" className="w-full h-full object-cover" />
             <span className="absolute top-2 left-2 px-2 py-0.5 bg-black/70 text-[9px] font-bold text-accent rounded">
               Landscape 16:9
@@ -610,7 +610,7 @@ function ListSection({ title, items, loading, searchText, filters, filterOf, col
   const rows = filtered.slice(start, start + PAGE_SIZE);
 
   return (
-    <section className="bg-[#073969] border border-[#164a78] rounded-3xl p-4 sm:p-6 shadow-xl">
+    <section className="bg-[#073969] border border-[#163b70] rounded-3xl p-4 sm:p-6 shadow-xl">
       <div className="flex items-center justify-between gap-3 mb-4">
         <h2 className="font-bold text-white text-base">{title}</h2>
         <span className="text-xs text-accent font-bold px-3 py-1 bg-accent/10 border border-accent/20 rounded-full">
@@ -641,8 +641,8 @@ function ListSection({ title, items, loading, searchText, filters, filterOf, col
                 }}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
                   filter === f
-                    ? "bg-accent text-[#043761]"
-                    : "bg-[#04284d] text-white/70 hover:text-white border border-[#164a78]"
+                    ? "bg-accent text-[#001f54]"
+                    : "bg-[#001f54] text-[#b3d2f5] hover:text-white border border-[#163b70]"
                 }`}
               >
                 {f}
@@ -652,10 +652,10 @@ function ListSection({ title, items, loading, searchText, filters, filterOf, col
         )}
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-[#164a78]">
+      <div className="overflow-x-auto rounded-2xl border border-[#163b70]">
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
-            <tr className="bg-[#04284d]/70 text-white/50 text-xs">
+            <tr className="bg-[#001f54] text-[#b3d2f5] text-xs">
               {columns.map((c) => (
                 <th key={c.header} className={`p-3.5 font-semibold ${c.className || ""}`}>
                   {c.header}
@@ -666,19 +666,19 @@ function ListSection({ title, items, loading, searchText, filters, filterOf, col
           <tbody className="divide-y divide-white/5">
             {loading && items.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="p-8 text-center text-white/40">
+                <td colSpan={columns.length} className="p-8 text-center text-[#b3d2f5]/60">
                   Memuat data...
                 </td>
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="p-8 text-center text-white/40">
+                <td colSpan={columns.length} className="p-8 text-center text-[#b3d2f5]/60">
                   {search || filter !== "Semua" ? "Tidak ada data yang cocok." : emptyText}
                 </td>
               </tr>
             ) : (
               rows.map((item) => (
-                <tr key={item.id} className="hover:bg-white/[0.03] transition-colors">
+                <tr key={item.id} className="hover:bg-[#001f54]/50 transition-colors">
                   {columns.map((c) => (
                     <td key={c.header} className={`p-3.5 align-middle ${c.className || ""}`}>
                       {c.render(item)}
@@ -693,7 +693,7 @@ function ListSection({ title, items, loading, searchText, filters, filterOf, col
 
       {filtered.length > PAGE_SIZE && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 text-xs">
-          <span className="text-white/50">
+          <span className="text-[#b3d2f5]/70">
             {start + 1} - {Math.min(start + PAGE_SIZE, filtered.length)} dari {filtered.length}
           </span>
           <div className="flex items-center gap-1.5 flex-wrap justify-center">
@@ -701,7 +701,7 @@ function ListSection({ title, items, loading, searchText, filters, filterOf, col
               type="button"
               disabled={current <= 1}
               onClick={() => setPage(current - 1)}
-              className="px-3 py-1.5 rounded-lg bg-[#04284d] border border-[#164a78] text-white disabled:opacity-40 hover:bg-white/10 cursor-pointer disabled:cursor-not-allowed"
+              className="px-3 py-1.5 rounded-lg bg-[#001f54] border border-[#163b70] text-[#b3d2f5] hover:text-white disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
             >
               Sebelumnya
             </button>
@@ -712,8 +712,8 @@ function ListSection({ title, items, loading, searchText, filters, filterOf, col
                 onClick={() => setPage(n)}
                 className={`w-8 h-8 rounded-lg font-bold cursor-pointer ${
                   current === n
-                    ? "bg-accent text-[#043761]"
-                    : "bg-[#04284d] text-white/70 hover:text-white border border-[#164a78]"
+                    ? "bg-accent text-[#001f54]"
+                    : "bg-[#001f54] text-[#b3d2f5] hover:text-white border border-[#163b70]"
                 }`}
               >
                 {n}
@@ -723,7 +723,7 @@ function ListSection({ title, items, loading, searchText, filters, filterOf, col
               type="button"
               disabled={current >= totalPages}
               onClick={() => setPage(current + 1)}
-              className="px-3 py-1.5 rounded-lg bg-[#04284d] border border-[#164a78] text-white disabled:opacity-40 hover:bg-white/10 cursor-pointer disabled:cursor-not-allowed"
+              className="px-3 py-1.5 rounded-lg bg-[#001f54] border border-[#163b70] text-[#b3d2f5] hover:text-white disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
             >
               Selanjutnya
             </button>
@@ -736,14 +736,14 @@ function ListSection({ title, items, loading, searchText, filters, filterOf, col
 
 function FormSection({ title, editing, onCancel, children, preview, previewTitle = "Live Preview Card" }) {
   return (
-    <section className="bg-[#073969] border border-[#164a78] rounded-3xl p-5 sm:p-7 shadow-xl">
+    <section className="bg-[#073969] border border-[#163b70] rounded-3xl p-6 sm:p-7 shadow-xl">
       <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
         <h2 className="text-base sm:text-lg font-bold text-white">{title}</h2>
         {editing && (
           <button
             type="button"
             onClick={onCancel}
-            className="text-xs font-bold text-white/70 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full cursor-pointer transition-colors"
+            className="text-xs font-bold text-[#b3d2f5] hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full cursor-pointer transition-colors"
           >
             Batal Edit
           </button>
@@ -751,7 +751,7 @@ function FormSection({ title, editing, onCancel, children, preview, previewTitle
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
         <div className="lg:col-span-7">{children}</div>
-        <div className="lg:col-span-5 bg-[#04284d]/80 border border-[#164a78] rounded-2xl p-5 shadow-inner">
+        <div className="lg:col-span-5 bg-[#001f54] border border-[#163b70] rounded-2xl p-5 shadow-inner">
           <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
             <span className="text-xs font-bold text-accent uppercase tracking-wider">{previewTitle}</span>
           </div>
@@ -767,7 +767,7 @@ const ActionBtn = ({ onClick, children, tone = "accent" }) => (
     type="button"
     onClick={onClick}
     className={`text-xs font-semibold px-2 py-1 rounded-lg cursor-pointer transition-colors ${
-      tone === "danger" ? "text-red-300 hover:bg-red-500/15" : tone === "muted" ? "text-white/70 hover:bg-white/10" : "text-accent hover:bg-accent/10"
+      tone === "danger" ? "text-red-300 hover:bg-red-500/15" : tone === "muted" ? "text-[#b3d2f5] hover:bg-white/10" : "text-accent hover:bg-accent/10"
     }`}
   >
     {children}
@@ -778,7 +778,7 @@ const SubmitBtn = ({ children }) => (
   <div className="md:col-span-2 flex justify-end pt-4 border-t border-white/10">
     <button
       type="submit"
-      className="px-6 py-2.5 bg-accent text-[#043761] font-bold rounded-full hover:bg-accent-hover text-sm shadow-md cursor-pointer transition-colors"
+      className="px-6 py-2.5 bg-accent text-[#001f54] font-black rounded-full hover:bg-accent-hover text-sm shadow-md cursor-pointer transition-colors"
     >
       {children}
     </button>
@@ -1338,19 +1338,21 @@ export default function AdminDashboard() {
   // ==================== LOGIN ====================
   if (!session) {
     return (
-      <main className="min-h-screen bg-linear-to-b from-[#043761] via-[#032d52] to-[#02182b] flex items-center justify-center p-4 font-primary text-white">
+      <main className="min-h-screen bg-linear-to-b from-[#043761] via-[#02182b] to-[#001f54] flex items-center justify-center p-4 font-primary text-white">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: "easeOut" }}
-          className="w-full max-w-md bg-[#073969] border border-[#164a78] p-8 sm:p-10 rounded-3xl shadow-2xl"
+          className="w-full max-w-md bg-[#073969] border border-[#163b70] p-8 sm:p-10 rounded-3xl shadow-2xl"
         >
           <div className="text-center mb-8">
-            <img src={LogoHimsika} alt="Logo HIMSIKA" className="w-20 h-20 mx-auto mb-4 object-contain" />
+            <div className="w-20 h-20 mx-auto mb-4 p-2 bg-white rounded-2xl shadow-lg flex items-center justify-center border border-white/20">
+              <img src={LogoHimsika} alt="Logo HIMSIKA" className="w-full h-full object-contain" />
+            </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
               HIMSIKA <span className="text-accent">Admin</span>
             </h1>
-            <p className="text-xs text-white/60 mt-1.5">Masuk dengan akun email resmi pengurus HIMSIKA</p>
+            <p className="text-xs text-[#b3d2f5] mt-1.5">Masuk dengan akun email resmi pengurus HIMSIKA</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
@@ -1364,7 +1366,7 @@ export default function AdminDashboard() {
             <button
               type="submit"
               disabled={authLoading}
-              className="w-full py-3.5 bg-accent text-[#043761] font-bold rounded-xl hover:bg-accent-hover transition-colors mt-3 text-sm cursor-pointer disabled:opacity-50"
+              className="w-full py-3.5 bg-accent text-[#001f54] font-black rounded-xl hover:bg-accent-hover transition-colors mt-3 text-sm cursor-pointer disabled:opacity-50 shadow-md"
             >
               {authLoading ? "Memverifikasi..." : "Masuk ke Dashboard"}
             </button>
@@ -1397,19 +1399,21 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-[#02182b] font-primary text-white flex flex-col lg:flex-row">
       {/* Sidebar Desktop (Fixed Left) */}
-      <aside className="hidden lg:flex flex-col w-72 bg-[#02182b] border-r border-[#164a78] fixed left-0 top-0 bottom-0 z-40 overflow-y-auto">
-        {/* Header Brand */}
-        <div className="p-6 border-b border-[#164a78]/60 flex flex-col items-center text-center">
-          <div className="w-16 h-16 rounded-full bg-white p-2.5 shadow-xl flex items-center justify-center mb-3 border border-white/20">
+      <aside className="hidden lg:flex flex-col w-72 bg-[#02182b] border-r border-[#163b70] fixed left-0 top-0 bottom-0 z-40 overflow-y-auto">
+        {/* Header Brand Horizontal seperti Referensi SkillSet */}
+        <div className="p-6 border-b border-[#163b70] flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-white p-2 shadow-md flex items-center justify-center shrink-0 border border-white/20">
             <img src={LogoHimsika} alt="Logo HIMSIKA" className="w-full h-full object-contain" />
           </div>
-          <span className="text-lg font-black tracking-wider text-white">HIMSIKA</span>
-          <span className="text-[10px] font-extrabold tracking-widest text-accent uppercase mt-0.5">
-            DATABASE CONTROL
-          </span>
+          <div className="min-w-0">
+            <span className="text-base font-black tracking-wider text-white block truncate leading-tight">HIMSIKA</span>
+            <span className="text-[10px] font-extrabold tracking-widest text-accent uppercase block mt-0.5">
+              DATABASE CONTROL
+            </span>
+          </div>
         </div>
 
-        {/* Menu Navigasi */}
+        {/* Menu Navigasi Sesuai Referensi (Clean & Simpel) */}
         <nav className="p-4 flex-1 space-y-1.5 overflow-y-auto">
           {MENU.map((m) => {
             const Icon = m.icon;
@@ -1430,27 +1434,33 @@ export default function AdminDashboard() {
                     }
                     scrollTop();
                   }}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+                  className={`relative w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
                     isActive
-                      ? "bg-accent text-[#043761] shadow-lg shadow-accent/20"
-                      : "text-white/80 bg-[#073969]/40 hover:bg-[#073969] border border-[#164a78]/40 hover:text-white"
+                      ? "bg-[#073969] text-white border border-[#163b70] shadow-md"
+                      : "text-[#b3d2f5] hover:bg-[#073969]/40 hover:text-white"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <Icon className="w-4 h-4 shrink-0" />
+                  {/* Indikator vertikal kuning khas referensi di sisi kiri */}
+                  {isActive && (
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-accent rounded-r-full" />
+                  )}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-accent" : "text-[#b3d2f5]"}`} />
                     <span className="truncate">{m.label}</span>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <span
                       className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                        isActive ? "bg-[#043761] text-accent" : "bg-white/10 text-white/70"
+                        isActive
+                          ? "bg-accent text-[#001f54]"
+                          : "bg-[#001f54] text-[#b3d2f5] border border-[#163b70]"
                       }`}
                     >
                       {count}
                     </span>
                     {m.children && (
                       <ChevronDown
-                        className={`w-3.5 h-3.5 transition-transform ${isArtikelActive ? "rotate-180" : ""}`}
+                        className={`w-3.5 h-3.5 transition-transform ${isArtikelActive ? "rotate-180 text-accent" : "text-[#b3d2f5]"}`}
                       />
                     )}
                   </div>
@@ -1471,8 +1481,8 @@ export default function AdminDashboard() {
                           }}
                           className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                             isChildActive
-                              ? "bg-[#0c4577] text-accent border border-accent/40 shadow-sm"
-                              : "text-white/60 hover:text-white hover:bg-white/5"
+                              ? "bg-[#034078] text-accent border border-accent/40 shadow-sm"
+                              : "text-[#b3d2f5]/70 hover:text-white hover:bg-white/5"
                           }`}
                         >
                           <span
@@ -1491,32 +1501,43 @@ export default function AdminDashboard() {
           })}
         </nav>
 
-        {/* Tombol Keluar di Bawah Sidebar */}
-        <div className="p-4 border-t border-[#164a78]/60 space-y-2">
-          <a
-            href="/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white/70 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            <span>Kunjungi Website</span>
-          </a>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-red-300 bg-red-950/30 hover:bg-red-900/40 border border-red-500/20 hover:border-red-500/40 transition-colors cursor-pointer"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Keluar Akun</span>
-          </button>
+        {/* Mini Card Status & Tombol Keluar di Bawah Sidebar (seperti referensi) */}
+        <div className="p-4 border-t border-[#163b70] space-y-3">
+          <div className="p-3.5 rounded-2xl bg-[#001f54] border border-[#163b70] space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[11px] font-bold text-white">Database Online</span>
+            </div>
+            <p className="text-[10px] text-[#b3d2f5]/70 leading-relaxed">
+              Terhubung ke server Supabase HIMSIKA.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-[#b3d2f5] hover:text-white bg-[#001f54] hover:bg-[#034078] border border-[#163b70] transition-colors"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Web</span>
+            </a>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-red-300 bg-red-950/30 hover:bg-red-900/40 border border-red-500/20 hover:border-red-500/40 transition-colors cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Keluar</span>
+            </button>
+          </div>
         </div>
       </aside>
 
       {/* Mobile Top Navbar (Layar Kecil) */}
-      <header className="lg:hidden flex items-center justify-between px-4 py-3 bg-[#02182b] border-b border-[#164a78] sticky top-0 z-30">
+      <header className="lg:hidden flex items-center justify-between px-4 py-3 bg-[#02182b] border-b border-[#163b70] sticky top-0 z-30">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-white p-1">
+          <div className="w-8 h-8 rounded-xl bg-white p-1">
             <img src={LogoHimsika} alt="Logo" className="w-full h-full object-contain" />
           </div>
           <div>
@@ -1527,7 +1548,7 @@ export default function AdminDashboard() {
         <button
           type="button"
           onClick={() => setMobileSidebarOpen(true)}
-          className="p-2 rounded-xl bg-white/5 border border-white/10 text-white cursor-pointer hover:bg-white/10"
+          className="p-2 rounded-xl bg-[#001f54] border border-[#163b70] text-white cursor-pointer hover:bg-white/10"
         >
           <MenuIcon className="w-5 h-5" />
         </button>
@@ -1549,11 +1570,11 @@ export default function AdminDashboard() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "tween", duration: 0.25 }}
-              className="relative w-72 max-w-[80vw] bg-[#02182b] border-r border-[#164a78] h-full flex flex-col z-10"
+              className="relative w-72 max-w-[80vw] bg-[#02182b] border-r border-[#163b70] h-full flex flex-col z-10"
             >
-              <div className="p-4 border-b border-[#164a78] flex items-center justify-between">
+              <div className="p-4 border-b border-[#163b70] flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-white p-1">
+                  <div className="w-7 h-7 rounded-xl bg-white p-1">
                     <img src={LogoHimsika} alt="Logo" className="w-full h-full object-contain" />
                   </div>
                   <span className="text-xs font-black text-white">MENU DATABASE</span>
@@ -1590,15 +1611,15 @@ export default function AdminDashboard() {
                         }}
                         className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                           isActive
-                            ? "bg-accent text-[#043761]"
-                            : "text-white/80 bg-[#073969]/40 hover:bg-[#073969] border border-[#164a78]/40"
+                            ? "bg-[#073969] text-white border border-[#163b70]"
+                            : "text-[#b3d2f5] hover:bg-[#073969]/40 hover:text-white"
                         }`}
                       >
                         <div className="flex items-center gap-2.5">
-                          <Icon className="w-4 h-4" />
+                          <Icon className={`w-4 h-4 ${isActive ? "text-accent" : "text-[#b3d2f5]"}`} />
                           <span>{m.label}</span>
                         </div>
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${isActive ? "bg-[#043761] text-accent" : "bg-white/10 text-white/70"}`}>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${isActive ? "bg-accent text-[#001f54]" : "bg-[#001f54] text-[#b3d2f5] border border-[#163b70]"}`}>
                           {count}
                         </span>
                       </button>
@@ -1618,8 +1639,8 @@ export default function AdminDashboard() {
                                 }}
                                 className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                                   isChildActive
-                                    ? "bg-[#0c4577] text-accent border border-accent/40"
-                                    : "text-white/60 hover:text-white"
+                                    ? "bg-[#034078] text-accent border border-accent/40"
+                                    : "text-[#b3d2f5]/70 hover:text-white"
                                 }`}
                               >
                                 <span className={`w-1.5 h-1.5 rounded-full ${isChildActive ? "bg-accent" : "bg-white/30"}`} />
@@ -1634,7 +1655,7 @@ export default function AdminDashboard() {
                 })}
               </nav>
 
-              <div className="p-4 border-t border-[#164a78]/60">
+              <div className="p-4 border-t border-[#163b70]">
                 <button
                   type="button"
                   onClick={handleLogout}
@@ -1650,37 +1671,92 @@ export default function AdminDashboard() {
       </AnimatePresence>
 
       {/* Konten Utama (Right Column) */}
-      <div className="flex-1 lg:pl-72 flex flex-col min-w-0 min-h-screen bg-linear-to-b from-[#043761] via-[#032d52] to-[#02182b]">
-        {/* Top Header Desktop */}
-        <header className="hidden lg:flex sticky top-0 z-30 bg-[#04284d]/90 backdrop-blur-md border-b border-[#164a78] px-8 py-4 items-center justify-between gap-4">
+      <div className="flex-1 lg:pl-72 flex flex-col min-w-0 min-h-screen bg-linear-to-b from-[#043761] via-[#02182b] to-[#001f54]">
+        {/* Top Header Desktop (Mirip Referensi) */}
+        <header className="hidden lg:flex sticky top-0 z-30 bg-[#001f54]/90 backdrop-blur-md border-b border-[#163b70] px-8 py-4 items-center justify-between gap-4">
           <div>
-            <span className="block text-[10px] font-black uppercase tracking-widest text-accent">HIMSIKA DATABASE CONTROL</span>
-            <h1 className="text-xl font-extrabold text-white">
+            <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-widest text-[#b3d2f5]">
+              <span>HIMSIKA</span>
+              <span>/</span>
+              <span className="text-accent">DATABASE CONTROL</span>
+            </div>
+            <h1 className="text-xl font-extrabold text-white mt-0.5">
               {getActiveTitle()}
             </h1>
           </div>
           <div className="flex items-center gap-3">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Live System
+            </span>
             <a
               href="/"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 hover:text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
+              className="px-3.5 py-1.5 rounded-xl bg-[#073969] hover:bg-[#034078] border border-[#163b70] text-[#b3d2f5] hover:text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               <span>Lihat Web</span>
             </a>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="px-3.5 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-400/30 text-red-300 text-xs font-bold transition-colors cursor-pointer"
-            >
-              Keluar
-            </button>
+            <div className="flex items-center gap-2 pl-2 border-l border-[#163b70]">
+              <div className="w-8 h-8 rounded-full bg-[#034078] border border-accent flex items-center justify-center text-xs font-black text-accent shadow-sm">
+                AD
+              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                title="Keluar Akun"
+                className="p-1.5 rounded-lg text-[#b3d2f5] hover:text-red-300 hover:bg-white/5 transition-colors cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </header>
 
         {/* Isi Menu */}
         <main className="p-4 sm:p-6 lg:p-8 flex-1 max-w-7xl w-full mx-auto space-y-8">
+          {/* Welcome Banner Modular seperti Referensi Gambar */}
+          <section className="rounded-3xl p-6 sm:p-7 bg-linear-to-r from-[#034078] via-[#073969] to-[#001f54] border border-[#163b70] shadow-xl relative overflow-hidden">
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="max-w-xl space-y-1.5">
+                <span className="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-accent/20 text-accent border border-accent/30">
+                  Selamat Datang, Admin HIMSIKA
+                </span>
+                <h2 className="text-xl sm:text-2xl font-black text-white leading-tight">
+                  Pusat Kontrol Database Website HIMSIKA
+                </h2>
+                <p className="text-xs sm:text-sm text-[#b3d2f5] leading-relaxed">
+                  Kelola seluruh data lomba, artikel rilis pers, dokumentasi kegiatan berasio landscape 16:9, prestasi fungsionaris, hingga bagan kepengurusan.
+                </p>
+              </div>
+
+              {/* Quick Stat Chips (Modular seperti di referensi) */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 shrink-0">
+                <div className="p-3 rounded-2xl bg-[#001f54]/90 border border-[#163b70] text-center min-w-[95px] shadow-sm">
+                  <span className="block text-[10px] font-bold text-[#b3d2f5] uppercase tracking-wider">Lomba</span>
+                  <span className="text-lg font-black text-white">{counts.lomba}</span>
+                </div>
+                <div className="p-3 rounded-2xl bg-[#001f54]/90 border border-[#163b70] text-center min-w-[95px] shadow-sm">
+                  <span className="block text-[10px] font-bold text-[#b3d2f5] uppercase tracking-wider">Artikel</span>
+                  <span className="text-lg font-black text-accent">{counts.artikel}</span>
+                </div>
+                <div className="p-3 rounded-2xl bg-[#001f54]/90 border border-[#163b70] text-center min-w-[95px] shadow-sm">
+                  <span className="block text-[10px] font-bold text-[#b3d2f5] uppercase tracking-wider">Prestasi</span>
+                  <span className="text-lg font-black text-white">{counts.prestasi}</span>
+                </div>
+                <div className="p-3 rounded-2xl bg-[#001f54]/90 border border-[#163b70] text-center min-w-[95px] shadow-sm">
+                  <span className="block text-[10px] font-bold text-[#b3d2f5] uppercase tracking-wider">Galeri</span>
+                  <span className="text-lg font-black text-white">{counts.galeri}</span>
+                </div>
+                <div className="p-3 rounded-2xl bg-[#001f54]/90 border border-[#163b70] text-center min-w-[95px] col-span-2 sm:col-span-1 shadow-sm">
+                  <span className="block text-[10px] font-bold text-[#b3d2f5] uppercase tracking-wider">Pengurus</span>
+                  <span className="text-lg font-black text-white">{counts.pengurus}</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
           <AnimatePresence mode="wait">
             <motion.div
               key={activeMenu}
@@ -1698,13 +1774,13 @@ export default function AdminDashboard() {
                   editing={editingLombaId}
                   onCancel={resetLombaForm}
                   preview={
-                    <div className="rounded-2xl bg-[#021f3f] border border-[#1b4e80] p-5 shadow-lg">
+                    <div className="rounded-2xl bg-[#073969] border border-[#163b70] p-5 shadow-lg">
                       <div className="flex items-start justify-between gap-3 mb-2.5">
                         <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-accent/15 text-accent border border-accent/25">
                           Lomba & Beasiswa
                         </span>
                         {formDataLomba.deadline_pendaftaran && (
-                          <span className="text-[11px] font-semibold text-accent/90">
+                          <span className="text-[11px] font-semibold text-accent">
                             {formDataLomba.deadline_pendaftaran}
                           </span>
                         )}
@@ -1712,20 +1788,20 @@ export default function AdminDashboard() {
                       <h3 className="text-base font-bold text-white mb-1 line-clamp-2 leading-snug">
                         {formDataLomba.title || "Judul Kompetisi"}
                       </h3>
-                      <p className="text-xs font-medium text-white/70 mb-3">
+                      <p className="text-xs font-medium text-[#b3d2f5] mb-3">
                         {formDataLomba.organizer || "Penyelenggara"}
                       </p>
-                      <p className="text-xs text-white/60 line-clamp-3 mb-3 leading-relaxed">
+                      <p className="text-xs text-[#b3d2f5]/80 line-clamp-3 mb-3 leading-relaxed">
                         {formDataLomba.description || "Deskripsi kompetisi akan tampil di sini..."}
                       </p>
 
                       <div className="grid grid-cols-2 gap-2 text-xs mb-3">
-                        <div className="p-2.5 rounded-xl bg-[#032a50] border border-[#184877]">
-                          <span className="block text-[10px] font-medium text-white/50 uppercase tracking-wider mb-0.5">Pendaftaran</span>
+                        <div className="p-2.5 rounded-xl bg-[#001f54] border border-[#163b70]">
+                          <span className="block text-[10px] font-medium text-[#b3d2f5]/60 uppercase tracking-wider mb-0.5">Pendaftaran</span>
                           <span className="font-semibold text-white text-xs truncate block">{formDataLomba.deadline_pendaftaran || "-"}</span>
                         </div>
-                        <div className="p-2.5 rounded-xl bg-[#032a50] border border-[#184877]">
-                          <span className="block text-[10px] font-medium text-white/50 uppercase tracking-wider mb-0.5">Pengumpulan</span>
+                        <div className="p-2.5 rounded-xl bg-[#001f54] border border-[#163b70]">
+                          <span className="block text-[10px] font-medium text-[#b3d2f5]/60 uppercase tracking-wider mb-0.5">Pengumpulan</span>
                           <span className="font-semibold text-white text-xs truncate block">{formDataLomba.deadline_pengumpulan || "-"}</span>
                         </div>
                       </div>
@@ -1738,11 +1814,11 @@ export default function AdminDashboard() {
                       )}
 
                       <div className="flex gap-2 pt-2 border-t border-white/10">
-                        <div className="flex-1 py-2 text-center text-xs font-semibold rounded-lg bg-accent text-[#043761]">
+                        <div className="flex-1 py-2 text-center text-xs font-bold rounded-lg bg-accent text-[#001f54]">
                           Daftar Sekarang
                         </div>
                         {formDataLomba.guidebook_url && (
-                          <div className="px-3 py-2 text-center text-xs font-medium rounded-lg border border-[#1b4e80] text-white/80">
+                          <div className="px-3 py-2 text-center text-xs font-medium rounded-lg border border-[#163b70] text-[#b3d2f5]">
                             Guidebook
                           </div>
                         )}
@@ -1840,8 +1916,8 @@ export default function AdminDashboard() {
                   editing={editingArtikelId}
                   onCancel={resetArtikelForm}
                   preview={
-                    <div className="rounded-2xl bg-[#073969] border border-[#164a78] overflow-hidden">
-                      <div className="aspect-[16/10] relative bg-[#03233f]">
+                    <div className="rounded-2xl bg-[#073969] border border-[#163b70] overflow-hidden">
+                      <div className="aspect-[16/10] relative bg-[#02182b]">
                         <Thumb
                           src={formDataArtikel.image || artikelList.find((a) => a.id === editingArtikelId)?.thumb}
                           alt="Sampul"
@@ -1849,11 +1925,11 @@ export default function AdminDashboard() {
                           rounded="rounded-none"
                         />
                         <div className="absolute top-3 left-3 flex gap-1.5">
-                          <span className="px-3 py-1 bg-accent text-[#043761] text-[10px] font-bold uppercase rounded-lg">
+                          <span className="px-3 py-1 bg-accent text-[#001f54] text-[10px] font-bold uppercase rounded-lg">
                             {formDataArtikel.category}
                           </span>
                           {formDataArtikel.is_hot && (
-                            <span className="px-2.5 py-1 bg-[#043761] text-accent border border-accent/50 text-[10px] font-extrabold uppercase rounded-lg">
+                            <span className="px-2.5 py-1 bg-[#001f54] text-accent border border-accent/50 text-[10px] font-extrabold uppercase rounded-lg">
                               Hot
                             </span>
                           )}
@@ -1866,7 +1942,7 @@ export default function AdminDashboard() {
                         <h3 className="text-base font-extrabold leading-snug line-clamp-2 mt-1.5 mb-2">
                           {formDataArtikel.title || "Judul Artikel"}
                         </h3>
-                        <p className="text-xs text-white/70 line-clamp-3 leading-relaxed">
+                        <p className="text-xs text-[#b3d2f5]/80 line-clamp-3 leading-relaxed">
                           {formDataArtikel.excerpt || "Ringkasan artikel tampil di sini."}
                         </p>
                       </div>
@@ -1896,7 +1972,7 @@ export default function AdminDashboard() {
                       <ImageUploadField label="Foto Sampul Utama (Header)" value={formDataArtikel.image} onChange={(v) => setFormDataArtikel({ ...formDataArtikel, image: v })} onAlert={showAlert} />
                     </div>
                     <div className="md:col-span-2">
-                      <label className={`flex items-start gap-3 p-3.5 bg-[#04284d] border border-[#164a78] rounded-xl select-none ${editingArtikelIsHot ? "opacity-70" : "cursor-pointer hover:border-accent/40"}`}>
+                      <label className={`flex items-start gap-3 p-3.5 bg-[#001f54] border border-[#163b70] rounded-xl select-none ${editingArtikelIsHot ? "opacity-70" : "cursor-pointer hover:border-accent/40"}`}>
                         <input
                           type="checkbox"
                           disabled={editingArtikelIsHot}
@@ -1905,8 +1981,8 @@ export default function AdminDashboard() {
                           className="mt-0.5 w-4 h-4 accent-[#ffc300]"
                         />
                         <span>
-                          <span className="block text-xs font-bold">Jadikan Berita Hot di Beranda</span>
-                          <span className="block text-[11px] text-white/50 mt-0.5">
+                          <span className="block text-xs font-bold text-white">Jadikan Berita Hot di Beranda</span>
+                          <span className="block text-[11px] text-[#b3d2f5]/70 mt-0.5">
                             {editingArtikelIsHot
                               ? "Artikel ini sedang Hot. Ganti dengan klik Set Hot di artikel lain."
                               : "Hanya 1 artikel yang bisa Hot. Artikel Hot sebelumnya otomatis diganti."}
@@ -1944,7 +2020,7 @@ export default function AdminDashboard() {
                             <div className="flex items-center gap-2 mt-0.5">
                               <span className="text-[10px] font-bold text-accent uppercase">{i.category}</span>
                               {i.is_hot && (
-                                <span className="px-2 py-px rounded-full text-[10px] font-black bg-accent text-[#043761]">HOT</span>
+                                <span className="px-2 py-px rounded-full text-[10px] font-black bg-accent text-[#001f54]">HOT</span>
                               )}
                             </div>
                           </div>
@@ -1957,7 +2033,7 @@ export default function AdminDashboard() {
                       render: (i) => (
                         <>
                           <p className="text-white/85">{i.author}</p>
-                          <p className="text-white/45">{i.date}</p>
+                          <p className="text-[#b3d2f5]/60">{i.date}</p>
                         </>
                       ),
                     },
@@ -1971,8 +2047,8 @@ export default function AdminDashboard() {
                             onClick={() => handleSetHot(i)}
                             className={`text-xs px-2.5 py-1 rounded-lg font-bold mr-1.5 transition-colors cursor-pointer ${
                               i.is_hot
-                                ? "bg-accent text-[#043761]"
-                                : "text-white/75 border border-white/15 hover:border-accent hover:text-accent"
+                                ? "bg-accent text-[#001f54]"
+                                : "text-[#b3d2f5] border border-[#163b70] hover:border-accent hover:text-accent"
                             }`}
                           >
                             {i.is_hot ? "Hot Aktif" : "Set Hot"}
@@ -1980,7 +2056,7 @@ export default function AdminDashboard() {
                           <button
                             type="button"
                             onClick={() => handleOpenBagianBuilder(i)}
-                            className="text-xs px-2.5 py-1 rounded-lg font-bold mr-1.5 bg-[#0c4577] text-accent border border-accent/40 hover:bg-accent hover:text-[#043761] transition-all cursor-pointer"
+                            className="text-xs px-2.5 py-1 rounded-lg font-bold mr-1.5 bg-[#034078] text-accent border border-accent/40 hover:bg-accent hover:text-[#001f54] transition-all cursor-pointer"
                           >
                             Susun Bagian →
                           </button>
@@ -2013,12 +2089,12 @@ export default function AdminDashboard() {
 
             {/* ================= ARTIKEL (ANAK MENU 2: PENYUSUN BAGIAN & DOKUMENTASI) ================= */}
             {activeMenu === "artikel-bagian" && (
-              <section className="bg-[#073969] border border-[#164a78] rounded-3xl p-5 sm:p-7 shadow-xl space-y-6">
+              <section className="bg-[#073969] border border-[#163b70] rounded-3xl p-5 sm:p-7 shadow-xl space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
                   <div>
                     <span className="text-[10px] font-black uppercase tracking-wider text-accent">Anak Menu Artikel</span>
                     <h2 className="text-base sm:text-lg font-bold text-white">Penyusun Bagian & Dokumentasi Kegiatan</h2>
-                    <p className="text-xs text-white/60 mt-0.5">
+                    <p className="text-xs text-[#b3d2f5]/70 mt-0.5">
                       Kelola galeri dokumentasi kegiatan (landscape 16:9), paragraf pengantar, dan bagian-bagian sub-bab narasi.
                     </p>
                   </div>
@@ -2027,7 +2103,7 @@ export default function AdminDashboard() {
                       href={`/artikel/${selectedArtikelForBuilder.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-accent text-xs font-bold flex items-center gap-1.5 self-start sm:self-auto transition-colors"
+                      className="px-3.5 py-2 rounded-xl bg-[#001f54] hover:bg-[#034078] border border-[#163b70] text-accent text-xs font-bold flex items-center gap-1.5 self-start sm:self-auto transition-colors"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
                       <span>Buka Halaman Baca Publik</span>
@@ -2036,12 +2112,12 @@ export default function AdminDashboard() {
                 </div>
 
                 {artikelList.length === 0 ? (
-                  <div className="p-8 text-center text-white/50 border border-dashed border-[#164a78] rounded-2xl bg-[#04284d]/40">
+                  <div className="p-8 text-center text-[#b3d2f5]/60 border border-dashed border-[#163b70] rounded-2xl bg-[#001f54]/60">
                     <p className="text-sm font-semibold mb-2">Belum ada artikel yang terdaftar.</p>
                     <button
                       type="button"
                       onClick={() => setActiveMenu("artikel-utama")}
-                      className="px-4 py-2 bg-accent text-[#043761] font-bold text-xs rounded-xl hover:bg-accent-hover transition-colors cursor-pointer"
+                      className="px-4 py-2 bg-accent text-[#001f54] font-bold text-xs rounded-xl hover:bg-accent-hover transition-colors cursor-pointer"
                     >
                       Buat Artikel di Menu Data Utama
                     </button>
@@ -2049,7 +2125,7 @@ export default function AdminDashboard() {
                 ) : (
                   <>
                     {/* Selector Artikel Aktif */}
-                    <div className="bg-[#04284d] border border-[#164a78] rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div className="bg-[#001f54] border border-[#163b70] rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
                       <div className="flex-1">
                         <label className="block text-xs font-bold text-accent uppercase tracking-wider mb-1.5">
                           Pilih Artikel yang Disusun:
@@ -2066,7 +2142,7 @@ export default function AdminDashboard() {
                           ))}
                         </select>
                       </div>
-                      <div className="text-xs text-white/60 md:text-right shrink-0">
+                      <div className="text-xs text-[#b3d2f5]/70 md:text-right shrink-0">
                         <span className="block font-semibold text-white">Status Artikel:</span>
                         <span className="text-accent">{selectedArtikelForBuilder?.category}</span> • {selectedArtikelForBuilder?.author || "HIMSIKA"}
                       </div>
@@ -2076,13 +2152,13 @@ export default function AdminDashboard() {
                       {/* Kolom Kiri: Form Penyusun (7 Kolom) */}
                       <div className="lg:col-span-7 space-y-6">
                         {/* 1. Galeri Dokumentasi Utama (Landscape) */}
-                        <div className="p-4 sm:p-5 bg-[#03203d] border border-[#164a78] rounded-2xl space-y-3.5 shadow-sm">
+                        <div className="p-4 sm:p-5 bg-[#001f54] border border-[#163b70] rounded-2xl space-y-3.5 shadow-sm">
                           <div className="flex items-center justify-between border-b border-white/10 pb-3">
                             <div>
                               <h4 className="text-xs font-black text-accent uppercase tracking-wider">
                                 1. Dokumentasi Kegiatan Utama (Landscape 16:9)
                               </h4>
-                              <p className="text-[11px] text-white/50">
+                              <p className="text-[11px] text-[#b3d2f5]/70">
                                 Tampil dalam galeri foto landscape di bawah judul artikel.
                               </p>
                             </div>
@@ -2094,7 +2170,7 @@ export default function AdminDashboard() {
                           {builderGallery.length > 0 && (
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
                               {builderGallery.map((imgUrl, gIdx) => (
-                                <div key={gIdx} className="relative group aspect-video rounded-xl overflow-hidden border border-[#164a78] bg-[#02182b]">
+                                <div key={gIdx} className="relative group aspect-video rounded-xl overflow-hidden border border-[#163b70] bg-[#02182b]">
                                   <img src={imgUrl} alt={`Dokum ${gIdx + 1}`} className="w-full h-full object-cover" />
                                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
                                     <button
@@ -2125,19 +2201,19 @@ export default function AdminDashboard() {
                               }}
                               onAlert={showAlert}
                             />
-                            <p className="text-[10px] text-white/40 mt-1 italic">
+                            <p className="text-[10px] text-[#b3d2f5]/50 mt-1 italic">
                               Upload atau tempel URL foto landscape di atas, otomatis masuk ke galeri kegiatan.
                             </p>
                           </div>
                         </div>
 
                         {/* 2. Paragraf Pengantar */}
-                        <div className="p-4 sm:p-5 bg-[#03203d] border border-[#164a78] rounded-2xl space-y-2.5 shadow-sm">
+                        <div className="p-4 sm:p-5 bg-[#001f54] border border-[#163b70] rounded-2xl space-y-2.5 shadow-sm">
                           <div className="flex items-center justify-between border-b border-white/10 pb-2">
                             <h4 className="text-xs font-black text-accent uppercase tracking-wider">
                               2. Paragraf Pengantar / Pembuka
                             </h4>
-                            <span className="text-[11px] text-white/40 italic">Muncul sebelum sub-bab pertama</span>
+                            <span className="text-[11px] text-[#b3d2f5]/60 italic">Muncul sebelum sub-bab pertama</span>
                           </div>
                           <TextFormatToolbar
                             textareaRef={leadTextareaRef}
@@ -2161,8 +2237,8 @@ export default function AdminDashboard() {
                               <h4 className="text-xs font-black text-accent uppercase tracking-wider">
                                 3. Bagian-Bagian Artikel (Sub-Bab)
                               </h4>
-                              <p className="text-[11px] text-white/50">
-                                Tiap sub-bab memiliki judul aksen kuning, dokumentasi landscape, dan narasi isi.
+                              <p className="text-[11px] text-[#b3d2f5]/70">
+                                tiap sub-bab memiliki judul aksen kuning, dokumentasi landscape, dan narasi isi.
                               </p>
                             </div>
                             <button
@@ -2180,7 +2256,7 @@ export default function AdminDashboard() {
                                   },
                                 ]);
                               }}
-                              className="px-3.5 py-2 bg-accent hover:bg-yellow-400 text-[#043761] font-bold text-xs rounded-xl transition-all cursor-pointer shadow flex items-center gap-1.5"
+                              className="px-3.5 py-2 bg-accent hover:bg-yellow-400 text-[#001f54] font-bold text-xs rounded-xl transition-all cursor-pointer shadow flex items-center gap-1.5"
                             >
                               + Tambah Bagian
                             </button>
@@ -2225,7 +2301,7 @@ export default function AdminDashboard() {
                           ))}
 
                           {builderSections.length === 0 && (
-                            <div className="p-6 text-center border-2 border-dashed border-[#164a78] rounded-2xl bg-[#03203d]/40 text-white/50 space-y-2">
+                            <div className="p-6 text-center border-2 border-dashed border-[#163b70] rounded-2xl bg-[#001f54]/40 text-[#b3d2f5]/60 space-y-2">
                               <p className="text-xs">Belum ada bagian sub-bab yang ditambahkan.</p>
                               <button
                                 type="button"
@@ -2240,7 +2316,7 @@ export default function AdminDashboard() {
                                     },
                                   ]);
                                 }}
-                                className="px-4 py-2 bg-accent/20 hover:bg-accent text-accent hover:text-[#043761] border border-accent/40 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+                                className="px-4 py-2 bg-accent/20 hover:bg-accent text-accent hover:text-[#001f54] border border-accent/40 font-bold text-xs rounded-xl transition-colors cursor-pointer"
                               >
                                 + Tambah Bagian Pertama
                               </button>
@@ -2253,7 +2329,7 @@ export default function AdminDashboard() {
                           <button
                             type="button"
                             onClick={handleSaveBagianArtikel}
-                            className="w-full py-3.5 bg-accent hover:bg-yellow-400 text-[#043761] font-black rounded-2xl shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2 text-sm"
+                            className="w-full py-3.5 bg-accent hover:bg-yellow-400 text-[#001f54] font-black rounded-2xl shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2 text-sm"
                           >
                             Simpan Seluruh Bagian & Dokumentasi
                           </button>
@@ -2261,26 +2337,26 @@ export default function AdminDashboard() {
                       </div>
 
                       {/* Kolom Kanan: Live Reading Preview Web (5 Kolom) */}
-                      <div className="lg:col-span-5 bg-[#04284d]/90 border border-[#164a78] rounded-2xl p-5 shadow-inner sticky top-24 space-y-4">
+                      <div className="lg:col-span-5 bg-[#001f54]/95 border border-[#163b70] rounded-2xl p-5 shadow-inner sticky top-24 space-y-4">
                         <div className="flex items-center justify-between pb-3 border-b border-white/10">
                           <span className="text-xs font-bold text-accent uppercase tracking-wider">
                             Live Reading Preview
                           </span>
-                          <span className="text-[10px] text-white/50">Simulasi Halaman Baca</span>
+                          <span className="text-[10px] text-[#b3d2f5]/60">Simulasi Halaman Baca</span>
                         </div>
 
-                        <div className="rounded-xl bg-[#02182b] border border-[#164a78] p-4 text-white text-xs max-h-[600px] overflow-y-auto space-y-4 [scrollbar-width:thin]">
+                        <div className="rounded-xl bg-[#02182b] border border-[#163b70] p-4 text-white text-xs max-h-[600px] overflow-y-auto space-y-4 [scrollbar-width:thin]">
                           <div className="border-b border-white/10 pb-3">
                             <div className="flex items-center gap-2 mb-2">
                               <span className="px-2.5 py-0.5 bg-accent/15 border border-accent/30 text-accent font-bold text-[10px] rounded-full">
                                 {selectedArtikelForBuilder?.category || "Berita"}
                               </span>
-                              <span className="text-white/50 text-[10px]">{selectedArtikelForBuilder?.date || "Hari Ini"}</span>
+                              <span className="text-[#b3d2f5]/60 text-[10px]">{selectedArtikelForBuilder?.date || "Hari Ini"}</span>
                             </div>
                             <h2 className="text-base font-black text-white leading-snug break-words">
                               {selectedArtikelForBuilder?.title || "Judul Artikel"}
                             </h2>
-                            <p className="text-[10px] text-white/50 mt-1">Penulis: {selectedArtikelForBuilder?.author || "HIMSIKA"}</p>
+                            <p className="text-[10px] text-[#b3d2f5]/60 mt-1">Penulis: {selectedArtikelForBuilder?.author || "HIMSIKA"}</p>
                           </div>
 
                           {/* Preview Galeri Dokumentasi Landscape */}
@@ -2297,7 +2373,7 @@ export default function AdminDashboard() {
                                 ))}
                               </div>
                               {builderGallery.length > 4 && (
-                                <p className="text-[10px] text-white/40 italic">+ {builderGallery.length - 4} foto lainnya di galeri</p>
+                                <p className="text-[10px] text-[#b3d2f5]/50 italic">+ {builderGallery.length - 4} foto lainnya di galeri</p>
                               )}
                             </div>
                           )}
@@ -2325,7 +2401,7 @@ export default function AdminDashboard() {
                                     <img src={sec.image} alt={sec.title || "Dokum"} className="w-full h-full object-cover" />
                                   </div>
                                   {sec.caption && (
-                                    <p className="text-[10px] text-white/50 italic text-center p-1.5 border-t border-white/5 break-words">
+                                    <p className="text-[10px] text-[#b3d2f5]/60 italic text-center p-1.5 border-t border-white/5 break-words">
                                       {sec.caption}
                                     </p>
                                   )}
@@ -2341,7 +2417,7 @@ export default function AdminDashboard() {
                           ))}
 
                           {builderSections.length === 0 && !builderLead && builderGallery.length === 0 && (
-                            <p className="text-white/40 text-center py-6 text-[11px] italic">
+                            <p className="text-[#b3d2f5]/50 text-center py-6 text-[11px] italic">
                               Tambahkan foto dokumentasi landscape, pengantar, atau bagian sub-bab untuk melihat live preview halaman baca.
                             </p>
                           )}
@@ -2361,24 +2437,24 @@ export default function AdminDashboard() {
                   editing={editingPrestasiId}
                   onCancel={resetPrestasiForm}
                   preview={
-                    <div className="rounded-2xl bg-[#073969] border border-[#164a78] overflow-hidden">
-                      <div className="aspect-[16/10] relative bg-[#03233f]">
+                    <div className="rounded-2xl bg-[#073969] border border-[#163b70] overflow-hidden">
+                      <div className="aspect-[16/10] relative bg-[#02182b]">
                         <Thumb
                           src={formDataPrestasi.gambar || prestasiList.find((p) => p.id === editingPrestasiId)?.thumb}
                           alt="Prestasi"
                           className="w-full h-full"
                           rounded="rounded-none"
                         />
-                        <span className="absolute top-3 left-3 px-3 py-1 bg-accent text-[#043761] text-[10px] font-black uppercase rounded-full">
+                        <span className="absolute top-3 left-3 px-3 py-1 bg-accent text-[#001f54] text-[10px] font-black uppercase rounded-full">
                           {formDataPrestasi.peringkat || "Juara 1"}
                         </span>
                       </div>
                       <div className="p-5">
                         <h3 className="text-base font-bold leading-snug mb-2">{formDataPrestasi.judul || "Nama Kompetisi"}</h3>
-                        <div className="space-y-1 text-xs text-white/75">
+                        <div className="space-y-1 text-xs text-[#b3d2f5]/80">
                           {formDataPrestasi.pemenang
                             ? formDataPrestasi.pemenang.split("\n").filter(Boolean).map((n, idx) => <p key={idx}>{n}</p>)
-                            : <p className="text-white/40">Nama pemenang</p>}
+                            : <p className="text-[#b3d2f5]/50">Nama pemenang</p>}
                         </div>
                       </div>
                     </div>
@@ -2429,7 +2505,7 @@ export default function AdminDashboard() {
                     },
                     {
                       header: "Pemenang",
-                      className: "text-xs text-white/70 max-w-xs",
+                      className: "text-xs text-[#b3d2f5]/70 max-w-xs",
                       render: (i) => <p className="line-clamp-2">{i.pemenang.join(", ")}</p>,
                     },
                     {
@@ -2469,15 +2545,15 @@ export default function AdminDashboard() {
                   editing={editingGaleriId}
                   onCancel={resetGaleriForm}
                   preview={
-                    <div className="rounded-2xl border border-[#164a78] overflow-hidden aspect-[4/3] relative bg-[#03233f]">
+                    <div className="rounded-2xl border border-[#163b70] overflow-hidden aspect-[4/3] relative bg-[#02182b]">
                       <Thumb
                         src={formDataGaleri.foto || galeriList.find((g) => g.id === editingGaleriId)?.thumb}
                         alt="Dokumentasi"
                         className="w-full h-full"
                         rounded="rounded-none"
                       />
-                      <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-[#02182b]/90 to-transparent p-4">
-                        <span className="px-2.5 py-0.5 rounded-md bg-accent text-[#043761] text-[10px] font-bold uppercase">
+                      <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-[#02182b]/95 to-transparent p-4">
+                        <span className="px-2.5 py-0.5 rounded-md bg-accent text-[#001f54] text-[10px] font-bold uppercase">
                           {formDataGaleri.album}
                         </span>
                         <p className="text-xs text-white/90 mt-1.5 line-clamp-2">{formDataGaleri.caption || "Keterangan foto"}</p>
@@ -2519,12 +2595,12 @@ export default function AdminDashboard() {
                           <Thumb src={i.thumb} alt={i.album} className="w-16 h-12" />
                           <div className="min-w-0">
                             <p className="font-bold text-white line-clamp-1">{i.album}</p>
-                            <p className="text-xs text-white/55 line-clamp-1">{i.caption || "-"}</p>
+                            <p className="text-xs text-[#b3d2f5]/60 line-clamp-1">{i.caption || "-"}</p>
                           </div>
                         </div>
                       ),
                     },
-                    { header: "ID", className: "text-xs text-white/50 whitespace-nowrap", render: (i) => `#${i.id}` },
+                    { header: "ID", className: "text-xs text-[#b3d2f5]/50 whitespace-nowrap", render: (i) => `#${i.id}` },
                     {
                       header: "Aksi",
                       className: "text-right whitespace-nowrap",
@@ -2566,7 +2642,7 @@ export default function AdminDashboard() {
                           thumb: formDataPengurus.foto || pengurusList.find((p) => p.id === editingPengurusId)?.thumb,
                         })
                       }
-                      className="w-full max-w-[260px] mx-auto block rounded-2xl overflow-hidden bg-[#073969] border border-accent/50 text-left hover:-translate-y-0.5 transition-transform cursor-pointer"
+                      className="w-full max-w-[260px] mx-auto block rounded-2xl overflow-hidden bg-[#073969] border border-[#163b70] text-left hover:-translate-y-0.5 transition-transform cursor-pointer"
                     >
                       <div className="aspect-[4/5] relative bg-[#02182b]">
                         <Thumb
@@ -2575,14 +2651,14 @@ export default function AdminDashboard() {
                           className="w-full h-full"
                           rounded="rounded-none"
                         />
-                        <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-[#04284d]/90 text-[10px] font-bold text-accent uppercase">
+                        <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-[#001f54]/90 text-[10px] font-bold text-accent uppercase">
                           {formDataPengurus.kelompok}
                         </span>
                       </div>
                       <div className="p-4">
                         <p className="text-sm font-bold">{formDataPengurus.nama || "Nama Pengurus"}</p>
                         <p className="mt-1 text-[11px] font-semibold uppercase text-accent">{formDataPengurus.jabatan || "Jabatan"}</p>
-                        <p className="mt-2 text-[10px] text-white/45">Klik untuk uji popup detail</p>
+                        <p className="mt-2 text-[10px] text-[#b3d2f5]/60">Klik untuk uji popup detail</p>
                       </div>
                     </button>
                   }
@@ -2638,7 +2714,7 @@ export default function AdminDashboard() {
                         </div>
                       ),
                     },
-                    { header: "Kelompok", className: "text-xs text-white/70 uppercase font-semibold whitespace-nowrap", render: (i) => i.kelompok },
+                    { header: "Kelompok", className: "text-xs text-[#b3d2f5]/70 uppercase font-semibold whitespace-nowrap", render: (i) => i.kelompok },
                     {
                       header: "Aksi",
                       className: "text-right whitespace-nowrap",
@@ -2689,37 +2765,37 @@ export default function AdminDashboard() {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 8, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-[340px] bg-[#073969] border border-accent/40 rounded-2xl overflow-hidden shadow-2xl"
+              className="relative w-full max-w-[340px] bg-[#073969] border border-[#163b70] rounded-2xl overflow-hidden shadow-2xl"
             >
               <button
                 type="button"
                 onClick={() => setPreviewPengurus(null)}
-                className="absolute top-3 right-3 z-10 px-3 py-1 rounded-full bg-[#02182b]/80 text-white/85 hover:text-white text-xs font-bold cursor-pointer"
+                className="absolute top-3 right-3 z-10 px-3 py-1 rounded-full bg-[#02182b]/80 text-[#b3d2f5] hover:text-white text-xs font-bold cursor-pointer"
               >
                 Tutup
               </button>
-              <div className="aspect-[4/5] bg-[#04284d]">
+              <div className="aspect-[4/5] bg-[#02182b]">
                 <Thumb src={previewPengurus.thumb} alt={previewPengurus.nama} className="w-full h-full" rounded="rounded-none" />
               </div>
               <div className="p-5">
                 <h3 className="text-lg font-bold leading-tight">{previewPengurus.nama}</h3>
                 <p className="mt-1 text-xs font-semibold text-accent">
-                  {previewPengurus.jabatan} <span className="text-white/60 font-normal uppercase">/ {previewPengurus.kelompok}</span>
+                  {previewPengurus.jabatan} <span className="text-[#b3d2f5]/70 font-normal uppercase">/ {previewPengurus.kelompok}</span>
                 </p>
                 <div className="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-white/10">
                   {previewPengurus.instagram ? (
-                    <a href={socialUrl(previewPengurus.instagram, "https://instagram.com/")} target="_blank" rel="noopener noreferrer" className="text-center px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-xs font-semibold">
+                    <a href={socialUrl(previewPengurus.instagram, "https://instagram.com/")} target="_blank" rel="noopener noreferrer" className="text-center px-3 py-2 rounded-xl bg-[#001f54] hover:bg-[#034078] border border-[#163b70] text-[#b3d2f5] hover:text-white text-xs font-semibold transition-colors">
                       Instagram
                     </a>
                   ) : (
-                    <span className="text-center px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white/30 text-xs">Instagram -</span>
+                    <span className="text-center px-3 py-2 rounded-xl bg-[#001f54]/40 border border-[#163b70]/40 text-[#b3d2f5]/30 text-xs">Instagram -</span>
                   )}
                   {previewPengurus.linkedin ? (
-                    <a href={socialUrl(previewPengurus.linkedin, "https://linkedin.com/in/")} target="_blank" rel="noopener noreferrer" className="text-center px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-xs font-semibold">
+                    <a href={socialUrl(previewPengurus.linkedin, "https://linkedin.com/in/")} target="_blank" rel="noopener noreferrer" className="text-center px-3 py-2 rounded-xl bg-[#001f54] hover:bg-[#034078] border border-[#163b70] text-[#b3d2f5] hover:text-white text-xs font-semibold transition-colors">
                       LinkedIn
                     </a>
                   ) : (
-                    <span className="text-center px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white/30 text-xs">LinkedIn -</span>
+                    <span className="text-center px-3 py-2 rounded-xl bg-[#001f54]/40 border border-[#163b70]/40 text-[#b3d2f5]/30 text-xs">LinkedIn -</span>
                   )}
                 </div>
               </div>
