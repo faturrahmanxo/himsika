@@ -16,26 +16,40 @@ import {
   Menu as MenuIcon,
   X as XIcon,
   ChevronDown,
+  ChevronRight,
+  ChevronsUpDown,
   ExternalLink,
 } from "lucide-react";
 import { isLombaExpired, getLombaFinalTimestamp } from "../../utils/lombaDeadline";
 
-const MENU = [
-  { id: "lomba", label: "Kelola Lomba & Beasiswa", title: "Lomba & Beasiswa", icon: Trophy, countKey: "lomba" },
+const MENU_GROUPS = [
   {
-    id: "artikel",
-    label: "Kelola Artikel & Berita",
-    title: "Artikel & Berita",
-    icon: FileText,
-    countKey: "artikel",
-    children: [
-      { id: "artikel-utama", label: "1. Data Utama & Daftar" },
-      { id: "artikel-bagian", label: "2. Penyusun Bagian & Dokum" },
+    id: "beranda",
+    title: "Beranda",
+    items: [
+      { id: "lomba", label: "Dashboard Lomba", title: "Lomba & Beasiswa", icon: Trophy, countKey: "lomba" },
     ],
   },
-  { id: "prestasi", label: "Kelola Prestasi Mahasiswa", title: "Prestasi Mahasiswa", icon: Award, countKey: "prestasi" },
-  { id: "galeri", label: "Kelola Galeri Kegiatan", title: "Galeri Kegiatan", icon: ImageIcon, countKey: "galeri" },
-  { id: "pengurus", label: "Kelola Profil & Pengurus", title: "Profil & Pengurus", icon: Users, countKey: "pengurus" },
+  {
+    id: "administrasi",
+    title: "Administrasi",
+    items: [
+      {
+        id: "artikel",
+        label: "Artikel & Berita",
+        title: "Artikel & Berita",
+        icon: FileText,
+        countKey: "artikel",
+        children: [
+          { id: "artikel-utama", label: "Data Utama & Daftar" },
+          { id: "artikel-bagian", label: "Penyusun Bagian & Dokum" },
+        ],
+      },
+      { id: "galeri", label: "Dokumentasi Galeri", title: "Galeri Kegiatan", icon: ImageIcon, countKey: "galeri" },
+      { id: "prestasi", label: "Prestasi Mahasiswa", title: "Prestasi Mahasiswa", icon: Award, countKey: "prestasi" },
+      { id: "pengurus", label: "Data Pengurus", title: "Profil & Pengurus", icon: Users, countKey: "pengurus" },
+    ],
+  },
 ];
 
 const KELOMPOK_OPTIONS = [
@@ -795,6 +809,15 @@ export default function AdminDashboard() {
   const [activeMenu, setActiveMenu] = useState("artikel-utama");
   const [builderArtikelId, setBuilderArtikelId] = useState(null);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [openGroups, setOpenGroups] = useState({
+    beranda: true,
+    administrasi: true,
+  });
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+
+  const toggleGroup = (groupId) => {
+    setOpenGroups((prev) => ({ ...prev, [groupId]: !prev[groupId] }));
+  };
 
   const [modalConfig, setModalConfig] = useState({ isOpen: false });
   const closeModal = () => setModalConfig((p) => ({ ...p, isOpen: false }));
@@ -1398,100 +1421,132 @@ export default function AdminDashboard() {
   // ==================== DASHBOARD ====================
   return (
     <div className="min-h-screen bg-[#02182b] font-primary text-white flex flex-col lg:flex-row">
-      {/* Sidebar Desktop (Fixed Left) */}
-      <aside className="hidden lg:flex flex-col w-72 bg-[#02182b] border-r border-[#163b70] fixed left-0 top-0 bottom-0 z-40 overflow-y-auto">
-        {/* Header Brand Horizontal seperti Referensi SkillSet */}
-        <div className="p-6 border-b border-[#163b70] flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-2xl bg-white p-2 shadow-md flex items-center justify-center shrink-0 border border-white/20">
+      {/* Sidebar Desktop (Fixed Left) - Desain Simple Sesuai Referensi Portal KKN */}
+      <aside className="hidden lg:flex flex-col w-72 bg-[#034078] border-r border-[#045091] fixed left-0 top-0 bottom-0 z-40">
+        {/* Header Brand Simple Horizontal (Logo + Brand Text) */}
+        <div className="p-5 border-b border-[#045091] flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-white p-1.5 shadow flex items-center justify-center shrink-0">
             <img src={LogoHimsika} alt="Logo HIMSIKA" className="w-full h-full object-contain" />
           </div>
           <div className="min-w-0">
-            <span className="text-base font-black tracking-wider text-white block truncate leading-tight">HIMSIKA</span>
-            <span className="text-[10px] font-extrabold tracking-widest text-accent uppercase block mt-0.5">
-              DATABASE CONTROL
+            <span className="text-sm font-black tracking-wide text-white block truncate leading-tight">
+              HIMSIKA UNSIKA
+            </span>
+            <span className="text-[10px] font-bold tracking-wider text-accent uppercase block mt-0.5">
+              PORTAL DATABASE
             </span>
           </div>
         </div>
 
-        {/* Menu Navigasi Sesuai Referensi (Clean & Simpel) */}
-        <nav className="p-4 flex-1 space-y-1.5 overflow-y-auto">
-          {MENU.map((m) => {
-            const Icon = m.icon;
-            const isArtikelGroup = m.id === "artikel";
-            const isArtikelActive = activeMenu === "artikel" || activeMenu === "artikel-utama" || activeMenu === "artikel-bagian";
-            const isActive = isArtikelGroup ? isArtikelActive : activeMenu === m.id;
-            const count = counts[m.countKey] ?? 0;
+        {/* Menu Navigasi Berkelompok dengan Chevron Expand/Collapse Sesuai Referensi */}
+        <nav className="p-3.5 flex-1 space-y-4 overflow-y-auto [scrollbar-width:thin]">
+          {MENU_GROUPS.map((group) => {
+            const isGroupOpen = openGroups[group.id] !== false;
 
             return (
-              <div key={m.id} className="space-y-1">
+              <div key={group.id} className="space-y-1">
+                {/* Header Kategori dengan Chevron Dropdown */}
                 <button
                   type="button"
-                  onClick={() => {
-                    if (isArtikelGroup) {
-                      if (!isArtikelActive) setActiveMenu("artikel-utama");
-                    } else {
-                      setActiveMenu(m.id);
-                    }
-                    scrollTop();
-                  }}
-                  className={`relative w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
-                    isActive
-                      ? "bg-[#073969] text-white border border-[#163b70] shadow-md"
-                      : "text-[#b3d2f5] hover:bg-[#073969]/40 hover:text-white"
-                  }`}
+                  onClick={() => toggleGroup(group.id)}
+                  className="w-full flex items-center justify-between px-3 py-1.5 text-xs font-bold text-[#b3d2f5] hover:text-white transition-colors cursor-pointer select-none rounded-lg hover:bg-white/5"
                 >
-                  {/* Indikator vertikal kuning khas referensi di sisi kiri */}
-                  {isActive && (
-                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-accent rounded-r-full" />
+                  <span className="tracking-wide">{group.title}</span>
+                  {isGroupOpen ? (
+                    <ChevronDown className="w-3.5 h-3.5 text-[#b3d2f5]" />
+                  ) : (
+                    <ChevronRight className="w-3.5 h-3.5 text-[#b3d2f5]" />
                   )}
-                  <div className="flex items-center gap-3 min-w-0">
-                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-accent" : "text-[#b3d2f5]"}`} />
-                    <span className="truncate">{m.label}</span>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                        isActive
-                          ? "bg-accent text-[#001f54]"
-                          : "bg-[#001f54] text-[#b3d2f5] border border-[#163b70]"
-                      }`}
-                    >
-                      {count}
-                    </span>
-                    {m.children && (
-                      <ChevronDown
-                        className={`w-3.5 h-3.5 transition-transform ${isArtikelActive ? "rotate-180 text-accent" : "text-[#b3d2f5]"}`}
-                      />
-                    )}
-                  </div>
                 </button>
 
-                {/* Anak Menu Khusus Artikel */}
-                {m.children && isArtikelActive && (
-                  <div className="pl-3 pr-1 py-1 space-y-1">
-                    {m.children.map((child) => {
-                      const isChildActive = activeMenu === child.id || (child.id === "artikel-utama" && activeMenu === "artikel");
+                {/* Daftar Item Kategori */}
+                {isGroupOpen && (
+                  <div className="space-y-1 pt-0.5">
+                    {group.items.map((item) => {
+                      const Icon = item.icon;
+                      const isArtikelGroup = item.id === "artikel";
+                      const isArtikelActive =
+                        activeMenu === "artikel" ||
+                        activeMenu === "artikel-utama" ||
+                        activeMenu === "artikel-bagian";
+                      const isActive = isArtikelGroup ? isArtikelActive : activeMenu === item.id;
+                      const count = counts[item.countKey] ?? 0;
+
                       return (
-                        <button
-                          key={child.id}
-                          type="button"
-                          onClick={() => {
-                            setActiveMenu(child.id);
-                            scrollTop();
-                          }}
-                          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                            isChildActive
-                              ? "bg-[#034078] text-accent border border-accent/40 shadow-sm"
-                              : "text-[#b3d2f5]/70 hover:text-white hover:bg-white/5"
-                          }`}
-                        >
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                              isChildActive ? "bg-accent ring-2 ring-accent/30" : "bg-white/30"
+                        <div key={item.id} className="space-y-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (isArtikelGroup) {
+                                if (!isArtikelActive) setActiveMenu("artikel-utama");
+                              } else {
+                                setActiveMenu(item.id);
+                              }
+                              scrollTop();
+                            }}
+                            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                              isActive
+                                ? "bg-[#001f54] text-white border border-accent/40 shadow-sm"
+                                : "text-white/85 hover:bg-[#045091] hover:text-white"
                             }`}
-                          />
-                          <span className="truncate">{child.label}</span>
-                        </button>
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-accent" : "text-[#b3d2f5]"}`} />
+                              <span className="truncate">{item.label}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                                  isActive
+                                    ? "bg-accent text-[#001f54]"
+                                    : "bg-[#001f54]/60 text-[#b3d2f5] border border-white/10"
+                                }`}
+                              >
+                                {count}
+                              </span>
+                              {item.children && (
+                                <ChevronDown
+                                  className={`w-3.5 h-3.5 transition-transform ${
+                                    isArtikelActive ? "rotate-180 text-accent" : "text-[#b3d2f5]"
+                                  }`}
+                                />
+                              )}
+                            </div>
+                          </button>
+
+                          {/* Sub-menu jika memiliki anak menu (seperti Artikel) */}
+                          {item.children && isArtikelActive && (
+                            <div className="pl-6 pr-1 py-1 space-y-1">
+                              {item.children.map((child) => {
+                                const isChildActive =
+                                  activeMenu === child.id ||
+                                  (child.id === "artikel-utama" && activeMenu === "artikel");
+                                return (
+                                  <button
+                                    key={child.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setActiveMenu(child.id);
+                                      scrollTop();
+                                    }}
+                                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                                      isChildActive
+                                        ? "bg-[#001f54] text-accent font-bold border border-accent/30 shadow-xs"
+                                        : "text-[#b3d2f5] hover:text-white hover:bg-[#045091]/50"
+                                    }`}
+                                  >
+                                    <span
+                                      className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                                        isChildActive ? "bg-accent ring-2 ring-accent/30" : "bg-white/40"
+                                      }`}
+                                    />
+                                    <span className="truncate">{child.label}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
                       );
                     })}
                   </div>
@@ -1501,48 +1556,78 @@ export default function AdminDashboard() {
           })}
         </nav>
 
-        {/* Mini Card Status & Tombol Keluar di Bawah Sidebar (seperti referensi) */}
-        <div className="p-4 border-t border-[#163b70] space-y-3">
-          <div className="p-3.5 rounded-2xl bg-[#001f54] border border-[#163b70] space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[11px] font-bold text-white">Database Online</span>
-            </div>
-            <p className="text-[10px] text-[#b3d2f5]/70 leading-relaxed">
-              Terhubung ke server Supabase HIMSIKA.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <a
-              href="/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-[#b3d2f5] hover:text-white bg-[#001f54] hover:bg-[#034078] border border-[#163b70] transition-colors"
-            >
-              <ExternalLink className="w-3.5 h-3.5" />
-              <span>Web</span>
-            </a>
+        {/* User Profile Bar di Bawah Sidebar Persis Seperti Referensi */}
+        <div className="p-3 border-t border-[#045091] mt-auto bg-[#034078]">
+          <div className="relative">
             <button
               type="button"
-              onClick={handleLogout}
-              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-red-300 bg-red-950/30 hover:bg-red-900/40 border border-red-500/20 hover:border-red-500/40 transition-colors cursor-pointer"
+              onClick={() => setProfileMenuOpen((prev) => !prev)}
+              className="w-full flex items-center justify-between p-2.5 rounded-2xl bg-[#001f54] hover:bg-[#001f54]/90 border border-[#163b70] transition-colors cursor-pointer text-left group"
             >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Keluar</span>
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-full bg-accent text-[#001f54] font-black text-xs flex items-center justify-center shrink-0 shadow-sm">
+                  HF
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-white truncate group-hover:text-accent transition-colors">
+                    HABIB IQBAL FATUR...
+                  </p>
+                  <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    Online
+                  </span>
+                </div>
+              </div>
+              <ChevronsUpDown className="w-4 h-4 text-[#b3d2f5] shrink-0" />
             </button>
+
+            {/* Popover Menu Profil & Aksi Cepat */}
+            <AnimatePresence>
+              {profileMenuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 6, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 6, scale: 0.96 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute bottom-full left-0 right-0 mb-2 p-2 rounded-2xl bg-[#001f54] border border-[#163b70] shadow-2xl z-50 space-y-1"
+                >
+                  <div className="px-3 py-2 border-b border-white/10 text-xs">
+                    <p className="font-bold text-white">Habib Iqbal Faturrahman</p>
+                    <p className="text-[10px] text-[#b3d2f5]">Admin Portal HIMSIKA</p>
+                  </div>
+                  <a
+                    href="/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-[#b3d2f5] hover:bg-[#034078] hover:text-white transition-colors"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>Lihat Web Publik</span>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-red-300 hover:bg-red-950/40 hover:text-red-200 transition-colors cursor-pointer"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>Keluar Akun</span>
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </aside>
 
       {/* Mobile Top Navbar (Layar Kecil) */}
-      <header className="lg:hidden flex items-center justify-between px-4 py-3 bg-[#02182b] border-b border-[#163b70] sticky top-0 z-30">
+      <header className="lg:hidden flex items-center justify-between px-4 py-3 bg-[#034078] border-b border-[#045091] sticky top-0 z-30">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-white p-1">
+          <div className="w-8 h-8 rounded-xl bg-white p-1 shadow-sm">
             <img src={LogoHimsika} alt="Logo" className="w-full h-full object-contain" />
           </div>
           <div>
-            <span className="block text-xs font-black text-white leading-none">HIMSIKA</span>
-            <span className="block text-[8px] font-bold text-accent uppercase tracking-wider">DATABASE CONTROL</span>
+            <span className="block text-xs font-black text-white leading-none">HIMSIKA UNSIKA</span>
+            <span className="block text-[8px] font-bold text-accent uppercase tracking-wider mt-0.5">PORTAL DATABASE</span>
           </div>
         </div>
         <button
@@ -1554,7 +1639,7 @@ export default function AdminDashboard() {
         </button>
       </header>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer (Layar Kecil) Sesuai Referensi */}
       <AnimatePresence>
         {mobileSidebarOpen && (
           <div className="lg:hidden fixed inset-0 z-50 flex">
@@ -1570,82 +1655,127 @@ export default function AdminDashboard() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "tween", duration: 0.25 }}
-              className="relative w-72 max-w-[80vw] bg-[#02182b] border-r border-[#163b70] h-full flex flex-col z-10"
+              className="relative w-72 max-w-[80vw] bg-[#034078] border-r border-[#045091] h-full flex flex-col z-10"
             >
-              <div className="p-4 border-b border-[#163b70] flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-xl bg-white p-1">
+              <div className="p-4 border-b border-[#045091] flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-white p-1 shadow-sm">
                     <img src={LogoHimsika} alt="Logo" className="w-full h-full object-contain" />
                   </div>
-                  <span className="text-xs font-black text-white">MENU DATABASE</span>
+                  <div>
+                    <span className="text-xs font-black text-white block">HIMSIKA UNSIKA</span>
+                    <span className="text-[8px] font-bold text-accent uppercase tracking-wider block">PORTAL DATABASE</span>
+                  </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setMobileSidebarOpen(false)}
-                  className="p-1 rounded-lg text-white/60 hover:text-white"
+                  className="p-1 rounded-lg text-white/70 hover:text-white"
                 >
                   <XIcon className="w-5 h-5" />
                 </button>
               </div>
 
-              <nav className="p-4 flex-1 space-y-1.5 overflow-y-auto">
-                {MENU.map((m) => {
-                  const Icon = m.icon;
-                  const isArtikelGroup = m.id === "artikel";
-                  const isArtikelActive = activeMenu === "artikel" || activeMenu === "artikel-utama" || activeMenu === "artikel-bagian";
-                  const isActive = isArtikelGroup ? isArtikelActive : activeMenu === m.id;
-                  const count = counts[m.countKey] ?? 0;
+              <nav className="p-3.5 flex-1 space-y-3.5 overflow-y-auto [scrollbar-width:thin]">
+                {MENU_GROUPS.map((group) => {
+                  const isGroupOpen = openGroups[group.id] !== false;
 
                   return (
-                    <div key={m.id} className="space-y-1">
+                    <div key={group.id} className="space-y-1">
                       <button
                         type="button"
-                        onClick={() => {
-                          if (isArtikelGroup) {
-                            if (!isArtikelActive) setActiveMenu("artikel-utama");
-                          } else {
-                            setActiveMenu(m.id);
-                            setMobileSidebarOpen(false);
-                          }
-                          scrollTop();
-                        }}
-                        className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                          isActive
-                            ? "bg-[#073969] text-white border border-[#163b70]"
-                            : "text-[#b3d2f5] hover:bg-[#073969]/40 hover:text-white"
-                        }`}
+                        onClick={() => toggleGroup(group.id)}
+                        className="w-full flex items-center justify-between px-3 py-1.5 text-xs font-bold text-[#b3d2f5] hover:text-white transition-colors cursor-pointer select-none rounded-lg hover:bg-white/5"
                       >
-                        <div className="flex items-center gap-2.5">
-                          <Icon className={`w-4 h-4 ${isActive ? "text-accent" : "text-[#b3d2f5]"}`} />
-                          <span>{m.label}</span>
-                        </div>
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${isActive ? "bg-accent text-[#001f54]" : "bg-[#001f54] text-[#b3d2f5] border border-[#163b70]"}`}>
-                          {count}
-                        </span>
+                        <span className="tracking-wide">{group.title}</span>
+                        {isGroupOpen ? (
+                          <ChevronDown className="w-3.5 h-3.5 text-[#b3d2f5]" />
+                        ) : (
+                          <ChevronRight className="w-3.5 h-3.5 text-[#b3d2f5]" />
+                        )}
                       </button>
 
-                      {m.children && isArtikelActive && (
-                        <div className="pl-3 pr-1 py-1 space-y-1">
-                          {m.children.map((child) => {
-                            const isChildActive = activeMenu === child.id || (child.id === "artikel-utama" && activeMenu === "artikel");
+                      {isGroupOpen && (
+                        <div className="space-y-1 pt-0.5">
+                          {group.items.map((item) => {
+                            const Icon = item.icon;
+                            const isArtikelGroup = item.id === "artikel";
+                            const isArtikelActive =
+                              activeMenu === "artikel" ||
+                              activeMenu === "artikel-utama" ||
+                              activeMenu === "artikel-bagian";
+                            const isActive = isArtikelGroup ? isArtikelActive : activeMenu === item.id;
+                            const count = counts[item.countKey] ?? 0;
+
                             return (
-                              <button
-                                key={child.id}
-                                type="button"
-                                onClick={() => {
-                                  setActiveMenu(child.id);
-                                  setMobileSidebarOpen(false);
-                                  scrollTop();
-                                }}
-                                className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                                  isChildActive
-                                    ? "bg-[#034078] text-accent border border-accent/40"
-                                    : "text-[#b3d2f5]/70 hover:text-white"
-                                }`}
-                              >
-                                <span className={`w-1.5 h-1.5 rounded-full ${isChildActive ? "bg-accent" : "bg-white/30"}`} />
-                                <span>{child.label}</span>
-                              </button>
+                              <div key={item.id} className="space-y-1">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (isArtikelGroup) {
+                                      if (!isArtikelActive) setActiveMenu("artikel-utama");
+                                    } else {
+                                      setActiveMenu(item.id);
+                                      setMobileSidebarOpen(false);
+                                    }
+                                    scrollTop();
+                                  }}
+                                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                                    isActive
+                                      ? "bg-[#001f54] text-white border border-accent/40 shadow-sm"
+                                      : "text-white/85 hover:bg-[#045091] hover:text-white"
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2.5 min-w-0">
+                                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-accent" : "text-[#b3d2f5]"}`} />
+                                    <span className="truncate">{item.label}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5 shrink-0">
+                                    <span
+                                      className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                                        isActive
+                                          ? "bg-accent text-[#001f54]"
+                                          : "bg-[#001f54]/60 text-[#b3d2f5] border border-white/10"
+                                      }`}
+                                    >
+                                      {count}
+                                    </span>
+                                  </div>
+                                </button>
+
+                                {item.children && isArtikelActive && (
+                                  <div className="pl-6 pr-1 py-1 space-y-1">
+                                    {item.children.map((child) => {
+                                      const isChildActive =
+                                        activeMenu === child.id ||
+                                        (child.id === "artikel-utama" && activeMenu === "artikel");
+                                      return (
+                                        <button
+                                          key={child.id}
+                                          type="button"
+                                          onClick={() => {
+                                            setActiveMenu(child.id);
+                                            setMobileSidebarOpen(false);
+                                            scrollTop();
+                                          }}
+                                          className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                                            isChildActive
+                                              ? "bg-[#001f54] text-accent font-bold border border-accent/30 shadow-xs"
+                                              : "text-[#b3d2f5] hover:text-white hover:bg-[#045091]/50"
+                                          }`}
+                                        >
+                                          <span
+                                            className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                                              isChildActive ? "bg-accent ring-2 ring-accent/30" : "bg-white/40"
+                                            }`}
+                                          />
+                                          <span className="truncate">{child.label}</span>
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
                             );
                           })}
                         </div>
@@ -1655,11 +1785,20 @@ export default function AdminDashboard() {
                 })}
               </nav>
 
-              <div className="p-4 border-t border-[#163b70]">
+              <div className="p-4 border-t border-[#045091] space-y-2 bg-[#034078]">
+                <a
+                  href="/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-[#b3d2f5] bg-[#001f54] hover:bg-[#001f54]/80 border border-[#163b70] transition-colors"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  <span>Lihat Web Publik</span>
+                </a>
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-red-300 bg-red-950/30 hover:bg-red-900/40 border border-red-500/20"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-red-300 bg-red-950/40 hover:bg-red-900/50 border border-red-500/20"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Keluar Akun</span>
@@ -1672,8 +1811,8 @@ export default function AdminDashboard() {
 
       {/* Konten Utama (Right Column) */}
       <div className="flex-1 lg:pl-72 flex flex-col min-w-0 min-h-screen bg-linear-to-b from-[#043761] via-[#02182b] to-[#001f54]">
-        {/* Top Header Desktop (Mirip Referensi) */}
-        <header className="hidden lg:flex sticky top-0 z-30 bg-[#001f54]/90 backdrop-blur-md border-b border-[#163b70] px-8 py-4 items-center justify-between gap-4">
+        {/* Top Header Desktop (Biru #034078 Sesuai Permintaan) */}
+        <header className="hidden lg:flex sticky top-0 z-30 bg-[#034078] border-b border-[#045091] px-8 py-4 items-center justify-between gap-4 shadow-sm">
           <div>
             <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-widest text-[#b3d2f5]">
               <span>HIMSIKA</span>
@@ -1693,14 +1832,14 @@ export default function AdminDashboard() {
               href="/"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3.5 py-1.5 rounded-xl bg-[#073969] hover:bg-[#034078] border border-[#163b70] text-[#b3d2f5] hover:text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
+              className="px-3.5 py-1.5 rounded-xl bg-[#001f54] hover:bg-[#001f54]/80 border border-[#163b70] text-[#b3d2f5] hover:text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               <span>Lihat Web</span>
             </a>
-            <div className="flex items-center gap-2 pl-2 border-l border-[#163b70]">
-              <div className="w-8 h-8 rounded-full bg-[#034078] border border-accent flex items-center justify-center text-xs font-black text-accent shadow-sm">
-                AD
+            <div className="flex items-center gap-2 pl-2 border-l border-[#045091]">
+              <div className="w-8 h-8 rounded-full bg-accent text-[#001f54] flex items-center justify-center text-xs font-black shadow-sm">
+                HF
               </div>
               <button
                 type="button"
