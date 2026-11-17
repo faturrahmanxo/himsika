@@ -75,6 +75,8 @@ const PAGE_SIZE = 8;
 
 const inputCls =
   "w-full bg-[#001f54] border border-[#163b70] rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-[#b3d2f5]/40 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40 transition-colors";
+const selectCls =
+  "w-full bg-[#001f54] border border-[#163b70] rounded-xl pl-4 pr-12 py-2.5 text-white text-sm appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%23b3d2f5%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M5.23%207.21a.75.75%200%20011.06.02L10%2011.168l3.71-3.938a.75.75%200%20111.08%201.04l-4.25%204.5a.75.75%200%2001-1.08%200l-4.25-4.5a.75.75%200%2001.02-1.06z%22%20clip-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_1.25rem_center] bg-no-repeat focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40 transition-colors cursor-pointer";
 const textareaCls =
   "w-full bg-[#001f54] border border-[#163b70] rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-[#b3d2f5]/40 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40 transition-colors resize-none overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden";
 const labelCls = "block text-xs font-bold text-[#b3d2f5] mb-1.5";
@@ -2095,7 +2097,7 @@ export default function AdminDashboard() {
                     </div>
                     <div>
                       <label className={labelCls}>Kategori</label>
-                      <select value={formDataArtikel.category} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, category: e.target.value })} className={inputCls}>
+                      <select value={formDataArtikel.category} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, category: e.target.value })} className={selectCls}>
                         {ARTIKEL_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                       </select>
                     </div>
@@ -2272,7 +2274,7 @@ export default function AdminDashboard() {
                         <select
                           value={builderArtikelId || ""}
                           onChange={(e) => handleSelectArtikelForBuilder(e.target.value)}
-                          className={`${inputCls} font-bold text-sm bg-[#02182b] border-accent/40`}
+                          className={`${selectCls} font-bold text-sm bg-[#02182b] border-accent/40`}
                         >
                           {artikelList.map((a) => (
                             <option key={a.id} value={a.id}>
@@ -2703,7 +2705,7 @@ export default function AdminDashboard() {
                   <form onSubmit={handleGaleriSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
                       <label className={labelCls}>Album / Divisi</label>
-                      <select value={formDataGaleri.album} onChange={(e) => setFormDataGaleri({ ...formDataGaleri, album: e.target.value })} className={inputCls}>
+                      <select value={formDataGaleri.album} onChange={(e) => setFormDataGaleri({ ...formDataGaleri, album: e.target.value })} className={selectCls}>
                         {ALBUM_OPTIONS.map((a) => <option key={a} value={a}>{a}</option>)}
                       </select>
                     </div>
@@ -2813,7 +2815,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="md:col-span-2">
                       <label className={labelCls}>Kelompok</label>
-                      <select value={formDataPengurus.kelompok} onChange={(e) => setFormDataPengurus({ ...formDataPengurus, kelompok: e.target.value })} className={inputCls}>
+                      <select value={formDataPengurus.kelompok} onChange={(e) => setFormDataPengurus({ ...formDataPengurus, kelompok: e.target.value })} className={selectCls}>
                         {KELOMPOK_OPTIONS.map((k) => <option key={k.id} value={k.id}>{k.label}</option>)}
                       </select>
                     </div>
