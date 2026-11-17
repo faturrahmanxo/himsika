@@ -282,4 +282,7 @@ SELECT setval(pg_get_serial_sequence('public.pengurus', 'id'), COALESCE((SELECT 
 SELECT setval(pg_get_serial_sequence('public.galeri', 'id'), COALESCE((SELECT MAX(id) FROM public.galeri), 1));
 SELECT setval(pg_get_serial_sequence('public.artikel', 'id'), COALESCE((SELECT MAX(id) FROM public.artikel), 1));
 
+-- Reload schema cache Supabase API
+NOTIFY pgrst, 'reload schema';
+
 -- SELESAI

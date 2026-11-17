@@ -641,8 +641,12 @@ export default function AdminDashboard() {
   };
 
   const syncHot = async (hotId) => {
-    await supabase.from("artikel").update({ is_hot: false }).neq("id", hotId);
-    await supabase.from("artikel").update({ is_hot: true }).eq("id", hotId);
+    try {
+      await supabase.from("artikel").update({ is_hot: false }).neq("id", hotId);
+      await supabase.from("artikel").update({ is_hot: true }).eq("id", hotId);
+    } catch (e) {
+      console.warn("syncHot notice:", e);
+    }
   };
 
   const handleSetHot = async (item) => {
@@ -655,7 +659,16 @@ export default function AdminDashboard() {
     }
     setArtikelList((prev) => prev.map((a) => ({ ...a, is_hot: a.id === item.id })));
     try {
-      await syncHot(item.id);
+      const res = await supabase.from("artikel").update({ is_hot: false }).neq("id", item.id);
+      if (res.error && res.error.message?.toLowerCase().includes("is_hot")) {
+        showAlert(
+          "Kolom 'is_hot' belum terdaftar di database Supabase.\n\nSilakan salin dan jalankan script SQL berikut di Supabase SQL Editor:\nALTER TABLE public.artikel ADD COLUMN IF NOT EXISTS is_hot BOOLEAN DEFAULT false;\nNOTIFY pgrst, 'reload schema';",
+          "Perlu Update Kolom Database",
+        );
+        fetchArtikel();
+        return;
+      }
+      await supabase.from("artikel").update({ is_hot: true }).eq("id", item.id);
     } catch (err) {
       showAlert("Gagal menyimpan Berita Hot: " + err.message, "Kendala Sistem");
       fetchArtikel();
@@ -683,10 +696,23 @@ export default function AdminDashboard() {
 
     let savedId = editingArtikelId;
     if (editingArtikelId) {
-      const { error } = await supabase.from("artikel").update(payload).eq("id", editingArtikelId);
+      let { error } = await supabase.from("artikel").update(payload).eq("id", editingArtikelId);
+      // Fallback toleran jika kolom is_hot belum dieksekusi di database Supabase
+      if (error && error.message && error.message.toLowerCase().includes("is_hot")) {
+        const { is_hot: _ignored, ...payloadWithoutHot } = payload;
+        const retry = await supabase.from("artikel").update(payloadWithoutHot).eq("id", editingArtikelId);
+        error = retry.error;
+      }
       if (error) return showAlert("Gagal memperbarui artikel: " + error.message, "Kendala Sistem");
     } else {
-      const { data, error } = await supabase.from("artikel").insert([payload]).select();
+      let { data, error } = await supabase.from("artikel").insert([payload]).select();
+      // Fallback toleran jika kolom is_hot belum dieksekusi di database Supabase
+      if (error && error.message && error.message.toLowerCase().includes("is_hot")) {
+        const { is_hot: _ignored, ...payloadWithoutHot } = payload;
+        const retry = await supabase.from("artikel").insert([payloadWithoutHot]).select();
+        data = retry.data;
+        error = retry.error;
+      }
       if (error) return showAlert("Gagal menambahkan artikel: " + error.message, "Kendala Sistem");
       savedId = data?.[0]?.id;
     }
