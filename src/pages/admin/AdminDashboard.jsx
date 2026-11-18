@@ -20,7 +20,6 @@ import {
   X as XIcon,
   ChevronDown,
   ChevronRight,
-  ChevronsUpDown,
   ExternalLink,
   Mail,
   Lock,
@@ -903,7 +902,6 @@ export default function AdminDashboard() {
     beranda: true,
     administrasi: true,
   });
-  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [currentHeroSlide, setCurrentHeroSlide] = useState(0);
   const [builderPickerOpen, setBuilderPickerOpen] = useState(false);
@@ -1659,10 +1657,10 @@ export default function AdminDashboard() {
           </div>
           <div className="min-w-0">
             <span className="text-sm font-black tracking-wide text-white block truncate leading-tight">
-              HIMSIKA UNSIKA
+              HIMSIKA
             </span>
             <span className="text-[10px] font-bold tracking-wider text-accent uppercase block mt-0.5">
-              PORTAL DATABASE
+              PORTAL ADMIN
             </span>
           </div>
         </div>
@@ -1774,66 +1772,20 @@ export default function AdminDashboard() {
           })}
         </nav>
 
-        {/* User Profile Bar di Bawah Sidebar Persis Seperti Referensi */}
-        <div className="p-3 border-t border-[#045091] mt-auto bg-[#034078]">
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setProfileMenuOpen((prev) => !prev)}
-              className="w-full flex items-center justify-between p-2.5 rounded-2xl bg-[#001f54] hover:bg-[#001f54]/90 border border-[#163b70] transition-colors cursor-pointer text-left group"
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-full bg-accent text-[#001f54] font-black text-xs flex items-center justify-center shrink-0 shadow-sm">
-                  HF
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs font-bold text-white truncate group-hover:text-accent transition-colors">
-                    HABIB IQBAL FATUR...
-                  </p>
-                  <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    Online
-                  </span>
-                </div>
-              </div>
-              <ChevronsUpDown className="w-4 h-4 text-[#b3d2f5] shrink-0" />
-            </button>
-
-            {/* Popover Menu Profil & Aksi Cepat */}
-            <AnimatePresence>
-              {profileMenuOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 6, scale: 0.96 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 6, scale: 0.96 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute bottom-full left-0 right-0 mb-2 p-2 rounded-2xl bg-[#001f54] border border-[#163b70] shadow-2xl z-50 space-y-1"
-                >
-                  <div className="px-3 py-2 border-b border-white/10 text-xs">
-                    <p className="font-bold text-white">Habib Iqbal Faturrahman</p>
-                    <p className="text-[10px] text-[#b3d2f5]">Admin Portal HIMSIKA</p>
-                  </div>
-                  <a
-                    href="/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-[#b3d2f5] hover:bg-[#034078] hover:text-white transition-colors"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    <span>Lihat Web Publik</span>
-                  </a>
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-red-300 hover:bg-red-950/40 hover:text-red-200 transition-colors cursor-pointer"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    <span>Keluar Akun</span>
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+        {/* Footer Admin & Logout di Bawah Sidebar */}
+        <div className="p-3 border-t border-[#045091] mt-auto bg-[#034078] space-y-2">
+          <div className="px-3 py-2 rounded-xl bg-[#001f54] border border-[#163b70] flex items-center justify-between">
+            <span className="text-xs font-bold text-white tracking-wide">Portal Admin</span>
+            <span className="text-[10px] font-bold text-accent uppercase tracking-wider">HIMSIKA</span>
           </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-red-300 bg-red-950/40 hover:bg-red-900/60 border border-red-500/25 transition-all cursor-pointer shadow-xs"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Keluar Akun</span>
+          </button>
         </div>
       </aside>
 
@@ -1844,8 +1796,8 @@ export default function AdminDashboard() {
             <img src={LogoHimsika} alt="Logo" className="w-full h-full object-contain" />
           </div>
           <div>
-            <span className="block text-xs font-black text-white leading-none">HIMSIKA UNSIKA</span>
-            <span className="block text-[8px] font-bold text-accent uppercase tracking-wider mt-0.5">PORTAL DATABASE</span>
+            <span className="block text-xs font-black text-white leading-none">HIMSIKA</span>
+            <span className="block text-[8px] font-bold text-accent uppercase tracking-wider mt-0.5">PORTAL ADMIN</span>
           </div>
         </div>
         <button
@@ -1881,8 +1833,8 @@ export default function AdminDashboard() {
                     <img src={LogoHimsika} alt="Logo" className="w-full h-full object-contain" />
                   </div>
                   <div>
-                    <span className="text-xs font-black text-white block">HIMSIKA UNSIKA</span>
-                    <span className="text-[8px] font-bold text-accent uppercase tracking-wider block">PORTAL DATABASE</span>
+                    <span className="text-xs font-black text-white block">HIMSIKA</span>
+                    <span className="text-[8px] font-bold text-accent uppercase tracking-wider block">PORTAL ADMIN</span>
                   </div>
                 </div>
                 <button
@@ -2000,19 +1952,14 @@ export default function AdminDashboard() {
               </nav>
 
               <div className="p-4 border-t border-[#045091] space-y-2 bg-[#034078]">
-                <a
-                  href="/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-[#b3d2f5] bg-[#001f54] hover:bg-[#001f54]/80 border border-[#163b70] transition-colors"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  <span>Lihat Web Publik</span>
-                </a>
+                <div className="px-3 py-2 rounded-xl bg-[#001f54] border border-[#163b70] flex items-center justify-between">
+                  <span className="text-xs font-bold text-white tracking-wide">Portal Admin</span>
+                  <span className="text-[10px] font-bold text-accent uppercase tracking-wider">HIMSIKA</span>
+                </div>
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-red-300 bg-red-950/40 hover:bg-red-900/50 border border-red-500/20"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-red-300 bg-red-950/40 hover:bg-red-900/60 border border-red-500/25 transition-all cursor-pointer shadow-xs"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Keluar Akun</span>
@@ -2031,37 +1978,31 @@ export default function AdminDashboard() {
             <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-widest text-[#b3d2f5]">
               <span>HIMSIKA</span>
               <span>/</span>
-              <span className="text-accent">DATABASE CONTROL</span>
+              <span className="text-accent">PORTAL ADMIN</span>
             </div>
             <h1 className="text-xl font-extrabold text-white mt-0.5">
               {getActiveTitle()}
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Live System
-            </span>
             <a
               href="/"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3.5 py-1.5 rounded-xl bg-[#001f54] hover:bg-[#001f54]/80 border border-[#163b70] text-[#b3d2f5] hover:text-white text-xs font-bold flex items-center gap-1.5 transition-colors"
+              className="px-3.5 py-1.5 rounded-xl bg-[#001f54] hover:bg-[#001f54]/80 border border-[#163b70] text-[#b3d2f5] hover:text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               <span>Lihat Web</span>
             </a>
-            <div className="flex items-center gap-2 pl-2 border-l border-[#045091]">
-              <div className="w-8 h-8 rounded-full bg-accent text-[#001f54] flex items-center justify-center text-xs font-black shadow-sm">
-                HF
-              </div>
+            <div className="flex items-center pl-2 border-l border-[#045091]">
               <button
                 type="button"
                 onClick={handleLogout}
                 title="Keluar Akun"
-                className="p-1.5 rounded-lg text-[#b3d2f5] hover:text-red-300 hover:bg-white/5 transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-500/25 text-red-300 text-xs font-bold transition-all cursor-pointer shadow-xs"
               >
                 <LogOut className="w-4 h-4" />
+                <span>Keluar</span>
               </button>
             </div>
           </div>
@@ -2110,12 +2051,12 @@ export default function AdminDashboard() {
             </div>
           </section>
 
-          {/* Tampilan Tab Aktif dengan Transisi Cepat & Ringan */}
+          {/* Tampilan Tab Aktif dengan Transisi Halus & Tidak Kaku */}
           <motion.div
             key={activeMenu}
-            initial={{ opacity: 0.8 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.1, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 14, scale: 0.995 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
             className="space-y-8"
           >
             {/* ================= LOMBA ================= */}
