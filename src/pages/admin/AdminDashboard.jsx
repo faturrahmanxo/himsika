@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback, useDeferredValue } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import supabase from "../../supabase-client";
 import pengurusData from "../../data/pengurusData";
@@ -285,7 +285,7 @@ function compileArticleContent({ leadText, sections }) {
   return blocks;
 }
 
-function TextFormatToolbar({ textareaRef, value, onChange }) {
+const TextFormatToolbar = React.memo(function TextFormatToolbar({ textareaRef, value, onChange }) {
   const apply = (type) => {
     const el = textareaRef?.current;
     if (!el) return;
@@ -369,11 +369,11 @@ function TextFormatToolbar({ textareaRef, value, onChange }) {
       </button>
     </div>
   );
-}
+});
 
 // ---------- Komponen kecil ----------
 
-function CustomModal({ isOpen, type, title, message, confirmText, cancelText, onConfirm, onCancel }) {
+const CustomModal = React.memo(function CustomModal({ isOpen, type, title, message, confirmText, cancelText, onConfirm, onCancel }) {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -423,9 +423,9 @@ function CustomModal({ isOpen, type, title, message, confirmText, cancelText, on
       )}
     </AnimatePresence>
   );
-}
+});
 
-function Thumb({ src, alt, className = "w-12 h-12", rounded = "rounded-lg" }) {
+const Thumb = React.memo(function Thumb({ src, alt, className = "w-12 h-12", rounded = "rounded-lg" }) {
   const [broken, setBroken] = useState(false);
   useEffect(() => setBroken(false), [src]);
   if (!src || broken) {
@@ -444,7 +444,7 @@ function Thumb({ src, alt, className = "w-12 h-12", rounded = "rounded-lg" }) {
       className={`${className} ${rounded} shrink-0 object-cover border border-[#163b70] bg-[#001f54]`}
     />
   );
-}
+});
 
 function ImageUploadField({ label, value, onChange, onAlert }) {
   const [uploading, setUploading] = useState(false);
@@ -521,7 +521,7 @@ function ImageUploadField({ label, value, onChange, onAlert }) {
 }
 
 // Editor item per bagian artikel (Sub-bab)
-function SectionEditorItem({ section, index, total, onChange, onMoveUp, onMoveDown, onDelete, onAlert }) {
+const SectionEditorItem = React.memo(function SectionEditorItem({ section, index, total, onChange, onMoveUp, onMoveDown, onDelete, onAlert }) {
   const textareaRef = useRef(null);
 
   return (
@@ -537,7 +537,7 @@ function SectionEditorItem({ section, index, total, onChange, onMoveUp, onMoveDo
           <button
             type="button"
             disabled={index === 0}
-            onClick={onMoveUp}
+            onClick={() => onMoveUp(index)}
             title="Pindah ke Atas"
             className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 text-white text-xs transition-colors cursor-pointer"
           >
@@ -546,7 +546,7 @@ function SectionEditorItem({ section, index, total, onChange, onMoveUp, onMoveDo
           <button
             type="button"
             disabled={index === total - 1}
-            onClick={onMoveDown}
+            onClick={() => onMoveDown(index)}
             title="Pindah ke Bawah"
             className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 text-white text-xs transition-colors cursor-pointer"
           >
@@ -554,7 +554,7 @@ function SectionEditorItem({ section, index, total, onChange, onMoveUp, onMoveDo
           </button>
           <button
             type="button"
-            onClick={onDelete}
+            onClick={() => onDelete(index)}
             title="Hapus Bagian"
             className="px-2.5 py-1 rounded-lg bg-red-600/80 hover:bg-red-600 text-white text-xs font-bold transition-colors cursor-pointer ml-1"
           >
@@ -569,7 +569,7 @@ function SectionEditorItem({ section, index, total, onChange, onMoveUp, onMoveDo
           type="text"
           placeholder="Contoh: 1. Silogy Nexpo 2026: Edukasi dan Pameran Inovasi Digital"
           value={section.title || ""}
-          onChange={(e) => onChange("title", e.target.value)}
+          onChange={(e) => onChange(index, "title", e.target.value)}
           className={inputCls}
         />
         <span className="block text-[10px] text-accent/80 mt-1">
@@ -581,12 +581,12 @@ function SectionEditorItem({ section, index, total, onChange, onMoveUp, onMoveDo
         <ImageUploadField
           label="Foto Dokumentasi Bagian (Landscape)"
           value={section.image || ""}
-          onChange={(val) => onChange("image", val)}
+          onChange={(val) => onChange(index, "image", val)}
           onAlert={onAlert}
         />
         {section.image && (
           <div className="aspect-video w-full max-w-sm rounded-xl overflow-hidden border border-[#163b70] bg-[#02182b] relative">
-            <img src={section.image} alt="Preview Landscape" className="w-full h-full object-cover" />
+            <img src={section.image} alt="Preview Landscape" loading="lazy" className="w-full h-full object-cover" />
             <span className="absolute top-2 left-2 px-2 py-0.5 bg-black/70 text-[9px] font-bold text-accent rounded">
               Landscape 16:9
             </span>
@@ -598,7 +598,7 @@ function SectionEditorItem({ section, index, total, onChange, onMoveUp, onMoveDo
             type="text"
             placeholder="Contoh: [Gambar 1. Pembukaan Edufair oleh Kepala Jurusan]"
             value={section.caption || ""}
-            onChange={(e) => onChange("caption", e.target.value)}
+            onChange={(e) => onChange(index, "caption", e.target.value)}
             className={inputCls}
           />
         </div>
@@ -609,40 +609,109 @@ function SectionEditorItem({ section, index, total, onChange, onMoveUp, onMoveDo
         <TextFormatToolbar
           textareaRef={textareaRef}
           value={section.text || ""}
-          onChange={(val) => onChange("text", val)}
+          onChange={(val) => onChange(index, "text", val)}
         />
         <textarea
           ref={textareaRef}
           rows="4"
           placeholder="Tulis narasi untuk bagian ini. Pisahkan paragraf dengan baris baru (enter)..."
           value={section.text || ""}
-          onChange={(e) => onChange("text", e.target.value)}
+          onChange={(e) => onChange(index, "text", e.target.value)}
           className={textareaCls}
         />
       </div>
     </div>
   );
-}
+});
+
+// Komponen Preview Membaca Terpisah dengan Deferred Value agar mengetik tetap 60fps tanpa lagging
+const LiveReadingPreview = React.memo(function LiveReadingPreview({ selectedArtikel, lead, sections }) {
+  const deferredLead = useDeferredValue(lead);
+  const deferredSections = useDeferredValue(sections);
+
+  return (
+    <div className="rounded-xl bg-[#02182b] border border-[#163b70] p-4 text-white text-xs max-h-[600px] overflow-y-auto space-y-4 [scrollbar-width:thin]">
+      <div className="border-b border-white/10 pb-3">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="px-2.5 py-0.5 bg-accent/15 border border-accent/30 text-accent font-bold text-[10px] rounded-full">
+            {selectedArtikel?.category || "Berita"}
+          </span>
+          <span className="text-[#b3d2f5]/60 text-[10px]">{selectedArtikel?.date || "Hari Ini"}</span>
+        </div>
+        <h2 className="text-base font-black text-white leading-snug break-words">
+          {selectedArtikel?.title || "Judul Artikel"}
+        </h2>
+        <p className="text-[10px] text-[#b3d2f5]/60 mt-1">Penulis: {selectedArtikel?.author || "HIMSIKA"}</p>
+      </div>
+
+      {/* Preview Pengantar */}
+      {deferredLead && (
+        <div
+          className="text-white/80 leading-relaxed text-[11px] break-words"
+          dangerouslySetInnerHTML={{ __html: deferredLead.replace(/\n\n+/g, "<br/><br/>") }}
+        />
+      )}
+
+      {/* Preview Bagian-Bagian */}
+      {deferredSections.map((sec, idx) => (
+        <div key={sec.id || idx} className="pt-2 border-t border-white/10 space-y-2">
+          {sec.title && (
+            <h4 className="text-xs font-black text-accent flex items-center gap-2 break-words">
+              <span className="w-1.5 h-4 bg-accent rounded-full inline-block shrink-0"></span>
+              {sec.title}
+            </h4>
+          )}
+          {sec.text && (
+            <div
+              className="text-white/80 leading-relaxed text-[11px] break-words"
+              dangerouslySetInnerHTML={{ __html: sec.text.replace(/\n\n+/g, "<br/><br/>") }}
+            />
+          )}
+          {sec.image && (
+            <div className="rounded-xl overflow-hidden border border-white/10 bg-[#02182b]">
+              <div className="aspect-video">
+                <img src={sec.image} alt={sec.title || "Dokum"} loading="lazy" className="w-full h-full object-cover" />
+              </div>
+              {sec.caption && (
+                <p className="text-[10px] text-[#b3d2f5]/60 italic text-center p-1.5 border-t border-white/5 break-words">
+                  {sec.caption}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      ))}
+
+      {deferredSections.length === 0 && !deferredLead && (
+        <p className="text-[#b3d2f5]/50 text-center py-6 text-[11px] italic">
+          Tambahkan pengantar atau bagian sub-bab untuk melihat live preview halaman baca.
+        </p>
+      )}
+    </div>
+  );
+});
 
 // Daftar data generik: pencarian, filter, tabel ringkas, dan pagination (dipakai semua menu).
-function ListSection({ title, items, loading, searchText, filters, filterOf, columns, emptyText }) {
+const ListSection = React.memo(function ListSection({ title, items, loading, searchText, filters, filterOf, columns, emptyText }) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("Semua");
   const [page, setPage] = useState(1);
 
+  const deferredSearch = useDeferredValue(search);
+
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = deferredSearch.trim().toLowerCase();
     return items.filter((item) => {
       const okSearch = !q || searchText(item).toLowerCase().includes(q);
       const okFilter = !filters || filter === "Semua" || filterOf(item) === filter;
       return okSearch && okFilter;
     });
-  }, [items, search, filter, searchText, filters, filterOf]);
+  }, [items, deferredSearch, filter, searchText, filters, filterOf]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const current = Math.min(page, totalPages);
   const start = (current - 1) * PAGE_SIZE;
-  const rows = filtered.slice(start, start + PAGE_SIZE);
+  const rows = useMemo(() => filtered.slice(start, start + PAGE_SIZE), [filtered, start]);
 
   return (
     <section className="bg-[#073969] border border-[#163b70] rounded-3xl p-4 sm:p-6 shadow-xl">
@@ -767,9 +836,9 @@ function ListSection({ title, items, loading, searchText, filters, filterOf, col
       )}
     </section>
   );
-}
+});
 
-function FormSection({ title, editing, onCancel, children, preview, previewTitle = "Live Preview Card" }) {
+const FormSection = React.memo(function FormSection({ title, editing, onCancel, children, preview, previewTitle = "Live Preview Card" }) {
   return (
     <section className="bg-[#073969] border border-[#163b70] rounded-3xl p-6 sm:p-7 shadow-xl">
       <div className="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
@@ -786,7 +855,7 @@ function FormSection({ title, editing, onCancel, children, preview, previewTitle
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
         <div className="lg:col-span-7">{children}</div>
-        <div className="lg:col-span-5 bg-[#001f54] border border-[#163b70] rounded-2xl p-5 shadow-inner">
+        <div className="lg:col-span-5 bg-[#001f54] border border-[#163b70] rounded-2xl p-5 shadow-inner sticky top-24 transform-gpu">
           <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
             <span className="text-xs font-bold text-accent uppercase tracking-wider">{previewTitle}</span>
           </div>
@@ -795,7 +864,7 @@ function FormSection({ title, editing, onCancel, children, preview, previewTitle
       </div>
     </section>
   );
-}
+});
 
 const ActionBtn = ({ onClick, children, tone = "accent" }) => (
   <button
@@ -938,6 +1007,40 @@ export default function AdminDashboard() {
     setBuilderSections(parsed.sections);
   };
 
+  const handleSectionChange = useCallback((idx, field, val) => {
+    setBuilderSections((prev) => {
+      if (!prev[idx] || prev[idx][field] === val) return prev;
+      const copy = [...prev];
+      copy[idx] = { ...copy[idx], [field]: val };
+      return copy;
+    });
+  }, []);
+
+  const handleSectionMoveUp = useCallback((idx) => {
+    if (idx === 0) return;
+    setBuilderSections((prev) => {
+      const copy = [...prev];
+      const temp = copy[idx - 1];
+      copy[idx - 1] = copy[idx];
+      copy[idx] = temp;
+      return copy;
+    });
+  }, []);
+
+  const handleSectionMoveDown = useCallback((idx) => {
+    setBuilderSections((prev) => {
+      if (idx >= prev.length - 1) return prev;
+      const copy = [...prev];
+      const temp = copy[idx + 1];
+      copy[idx + 1] = copy[idx];
+      return copy;
+    });
+  }, []);
+
+  const handleSectionDelete = useCallback((idx) => {
+    setBuilderSections((prev) => prev.filter((_, i) => i !== idx));
+  }, []);
+
   const handleOpenBagianBuilder = (art) => {
     setBuilderArtikelId(art.id);
     const parsed = parseArticleContent(art.content);
@@ -997,6 +1100,13 @@ export default function AdminDashboard() {
   const [formDataPengurus, setFormDataPengurus] = useState(emptyPengurus);
   const [previewPengurus, setPreviewPengurus] = useState(null);
 
+  // Optimasi Rendering: Deferred Value untuk Live Preview agar pengetikan form tetap responsif tanpa lag
+  const deferredLomba = useDeferredValue(formDataLomba);
+  const deferredArtikel = useDeferredValue(formDataArtikel);
+  const deferredPrestasi = useDeferredValue(formDataPrestasi);
+  const deferredGaleri = useDeferredValue(formDataGaleri);
+  const deferredPengurus = useDeferredValue(formDataPengurus);
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -1011,11 +1121,13 @@ export default function AdminDashboard() {
   }, []);
 
   const fetchAllData = () => {
-    fetchLomba();
-    fetchArtikel();
-    fetchPrestasi();
-    fetchGaleri();
-    fetchPengurus();
+    Promise.allSettled([
+      fetchLomba(),
+      fetchArtikel(),
+      fetchPrestasi(),
+      fetchGaleri(),
+      fetchPengurus(),
+    ]);
   };
 
   const handleLogin = async (e) => {
@@ -1076,7 +1188,7 @@ export default function AdminDashboard() {
       ...formDataLomba,
       deadline_timestamp:
         calculatedTs ||
-        (formDataLomba.deadline_timestamp ? Number(formDataLomba.deadline_timestamp) : null),
+        (deferredLomba.deadline_timestamp ? Number(deferredLomba.deadline_timestamp) : null),
     };
     const { error } = editingLombaId
       ? await supabase.from("lomba").update(payload).eq("id", editingLombaId)
@@ -1160,20 +1272,20 @@ export default function AdminDashboard() {
     e.preventDefault();
     const editingItem = artikelList.find((a) => a.id === editingArtikelId);
     const tanggal =
-      formDataArtikel.date ||
+      deferredArtikel.date ||
       new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
 
     const payload = {
-      title: formDataArtikel.title,
-      category: formDataArtikel.category,
+      title: deferredArtikel.title,
+      category: deferredArtikel.category,
       date: tanggal,
       // datetime mengikuti tanggal tampil supaya urutan terbaru tetap benar saat artikel lama diedit.
       datetime: parseTanggal(tanggal) || editingItem?.datetime || new Date().toISOString().slice(0, 10),
-      author: formDataArtikel.author,
-      image: formDataArtikel.image,
-      excerpt: formDataArtikel.excerpt,
+      author: deferredArtikel.author,
+      image: deferredArtikel.image,
+      excerpt: deferredArtikel.excerpt,
       content: editingItem?.content || [],
-      is_hot: Boolean(formDataArtikel.is_hot),
+      is_hot: Boolean(deferredArtikel.is_hot),
     };
 
     let savedId = editingArtikelId;
@@ -1411,22 +1523,23 @@ export default function AdminDashboard() {
           {HERO_IMAGES.map((item, idx) => (
             <div
               key={idx}
-              className={`absolute inset-0 w-full h-full transition-all duration-1000 ease-in-out ${
+              className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
                 currentHeroSlide === idx
-                  ? "opacity-100 scale-100 z-10"
-                  : "opacity-0 scale-105 z-0"
+                  ? "opacity-100 z-10"
+                  : "opacity-0 z-0 pointer-events-none"
               }`}
             >
               <img
                 src={item.src}
                 alt={item.title}
+                loading={idx === 0 ? "eager" : "lazy"}
                 className="w-full h-full object-cover object-center"
               />
             </div>
           ))}
-          {/* Layer warna biru HIMSIKA agar foto bernuansa biru elegan */}
-          <div className="absolute inset-0 z-20 bg-[#034078]/65 mix-blend-color" />
-          <div className="absolute inset-0 z-20 bg-linear-to-b from-[#043761]/60 via-[#034078]/50 to-[#02182b]/80" />
+          {/* Layer warna biru HIMSIKA yang ringan & performant tanpa mix-blend berat */}
+          <div className="absolute inset-0 z-20 bg-[#034078]/70" />
+          <div className="absolute inset-0 z-20 bg-linear-to-b from-[#043761]/70 via-[#034078]/60 to-[#02182b]/90" />
         </div>
 
         {/* Card Login Efek Glassmorphism di Tengah Layar */}
@@ -1434,7 +1547,7 @@ export default function AdminDashboard() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: "easeOut" }}
-          className="relative z-10 w-full max-w-md bg-[#073969]/40 backdrop-blur-2xl border border-white/20 p-8 sm:p-10 rounded-[2.5rem] shadow-[0_8px_32px_0_rgba(0,0,0,0.45)]"
+          className="relative z-10 w-full max-w-md bg-[#073969]/50 backdrop-blur-xl border border-white/20 p-8 sm:p-10 rounded-[2.5rem] shadow-[0_8px_32px_0_rgba(0,0,0,0.45)] transform-gpu"
         >
           <div className="text-center mb-8">
             <div className="w-20 h-20 mx-auto mb-4 p-2 bg-white rounded-2xl shadow-lg flex items-center justify-center border border-white/25">
@@ -1538,7 +1651,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-[#02182b] font-primary text-white flex flex-col lg:flex-row">
       {/* Sidebar Desktop (Fixed Left) - Desain Simple Sesuai Referensi Portal KKN */}
-      <aside className="hidden lg:flex flex-col w-72 bg-[#034078] border-r border-[#045091] fixed left-0 top-0 bottom-0 z-40">
+      <aside className="hidden lg:flex flex-col w-72 bg-[#034078] border-r border-[#045091] fixed left-0 top-0 bottom-0 z-40 transform-gpu">
         {/* Header Brand Simple Horizontal (Logo + Brand Text) */}
         <div className="p-5 border-b border-[#045091] flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-white p-1.5 shadow flex items-center justify-center shrink-0">
@@ -1913,7 +2026,7 @@ export default function AdminDashboard() {
       {/* Konten Utama (Right Column) */}
       <div className="flex-1 lg:pl-72 flex flex-col min-w-0 min-h-screen bg-linear-to-b from-[#043761] via-[#02182b] to-[#001f54]">
         {/* Top Header Desktop (Biru #034078 Sesuai Permintaan) */}
-        <header className="hidden lg:flex sticky top-0 z-30 bg-[#034078] border-b border-[#045091] px-8 py-4 items-center justify-between gap-4 shadow-sm">
+        <header className="hidden lg:flex sticky top-0 z-30 bg-[#034078] border-b border-[#045091] px-8 py-4 items-center justify-between gap-4 shadow-sm transform-gpu">
           <div>
             <div className="flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-widest text-[#b3d2f5]">
               <span>HIMSIKA</span>
@@ -1997,15 +2110,14 @@ export default function AdminDashboard() {
             </div>
           </section>
 
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeMenu}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              className="space-y-8"
-            >
+          {/* Tampilan Tab Aktif dengan Transisi Cepat & Ringan */}
+          <motion.div
+            key={activeMenu}
+            initial={{ opacity: 0.8 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.1, ease: "easeOut" }}
+            className="space-y-8"
+          >
             {/* ================= LOMBA ================= */}
             {activeMenu === "lomba" && (
               <>
@@ -2019,37 +2131,37 @@ export default function AdminDashboard() {
                         <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-accent/15 text-accent border border-accent/25">
                           Lomba & Beasiswa
                         </span>
-                        {formDataLomba.deadline_pendaftaran && (
+                        {deferredLomba.deadline_pendaftaran && (
                           <span className="text-[11px] font-semibold text-accent">
-                            {formDataLomba.deadline_pendaftaran}
+                            {deferredLomba.deadline_pendaftaran}
                           </span>
                         )}
                       </div>
                       <h3 className="text-base font-bold text-white mb-1 line-clamp-2 leading-snug">
-                        {formDataLomba.title || "Judul Kompetisi"}
+                        {deferredLomba.title || "Judul Kompetisi"}
                       </h3>
                       <p className="text-xs font-medium text-[#b3d2f5] mb-3">
-                        {formDataLomba.organizer || "Penyelenggara"}
+                        {deferredLomba.organizer || "Penyelenggara"}
                       </p>
                       <p className="text-xs text-[#b3d2f5]/80 line-clamp-3 mb-3 leading-relaxed">
-                        {formDataLomba.description || "Deskripsi kompetisi akan tampil di sini..."}
+                        {deferredLomba.description || "Deskripsi kompetisi akan tampil di sini..."}
                       </p>
 
                       <div className="grid grid-cols-2 gap-2 text-xs mb-3">
                         <div className="p-2.5 rounded-xl bg-[#001f54] border border-[#163b70]">
                           <span className="block text-[10px] font-medium text-[#b3d2f5]/60 uppercase tracking-wider mb-0.5">Pendaftaran</span>
-                          <span className="font-semibold text-white text-xs truncate block">{formDataLomba.deadline_pendaftaran || "-"}</span>
+                          <span className="font-semibold text-white text-xs truncate block">{deferredLomba.deadline_pendaftaran || "-"}</span>
                         </div>
                         <div className="p-2.5 rounded-xl bg-[#001f54] border border-[#163b70]">
                           <span className="block text-[10px] font-medium text-[#b3d2f5]/60 uppercase tracking-wider mb-0.5">Pengumpulan</span>
-                          <span className="font-semibold text-white text-xs truncate block">{formDataLomba.deadline_pengumpulan || "-"}</span>
+                          <span className="font-semibold text-white text-xs truncate block">{deferredLomba.deadline_pengumpulan || "-"}</span>
                         </div>
                       </div>
 
-                      {formDataLomba.benefit && (
+                      {deferredLomba.benefit && (
                         <div className="p-2.5 rounded-xl bg-accent/[0.08] border-l-2 border-accent text-xs text-white/85 mb-3 leading-relaxed">
                           <span className="font-bold text-accent mr-1">Hadiah/Benefit:</span>
-                          {formDataLomba.benefit}
+                          {deferredLomba.benefit}
                         </div>
                       )}
 
@@ -2057,7 +2169,7 @@ export default function AdminDashboard() {
                         <div className="flex-1 py-2 text-center text-xs font-bold rounded-lg bg-accent text-[#001f54]">
                           Daftar Sekarang
                         </div>
-                        {formDataLomba.guidebook_url && (
+                        {deferredLomba.guidebook_url && (
                           <div className="px-3 py-2 text-center text-xs font-medium rounded-lg border border-[#163b70] text-[#b3d2f5]">
                             Guidebook
                           </div>
@@ -2069,35 +2181,35 @@ export default function AdminDashboard() {
                   <form onSubmit={handleLombaSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className={labelCls}>Judul Lomba</label>
-                      <input required value={formDataLomba.title} onChange={(e) => setFormDataLomba({ ...formDataLomba, title: e.target.value })} className={inputCls} />
+                      <input required value={deferredLomba.title} onChange={(e) => setFormDataLomba({ ...formDataLomba, title: e.target.value })} className={inputCls} />
                     </div>
                     <div>
                       <label className={labelCls}>Penyelenggara</label>
-                      <input required value={formDataLomba.organizer} onChange={(e) => setFormDataLomba({ ...formDataLomba, organizer: e.target.value })} className={inputCls} />
+                      <input required value={deferredLomba.organizer} onChange={(e) => setFormDataLomba({ ...formDataLomba, organizer: e.target.value })} className={inputCls} />
                     </div>
                     <div className="md:col-span-2">
                       <label className={labelCls}>Deskripsi</label>
-                      <textarea rows="3" value={formDataLomba.description} onChange={(e) => setFormDataLomba({ ...formDataLomba, description: e.target.value })} className={textareaCls} />
+                      <textarea rows="3" value={deferredLomba.description} onChange={(e) => setFormDataLomba({ ...formDataLomba, description: e.target.value })} className={textareaCls} />
                     </div>
                     <div>
                       <label className={labelCls}>Deadline Pendaftaran</label>
-                      <input placeholder="15 November 2026" value={formDataLomba.deadline_pendaftaran} onChange={(e) => setFormDataLomba({ ...formDataLomba, deadline_pendaftaran: e.target.value })} className={inputCls} />
+                      <input placeholder="15 November 2026" value={deferredLomba.deadline_pendaftaran} onChange={(e) => setFormDataLomba({ ...formDataLomba, deadline_pendaftaran: e.target.value })} className={inputCls} />
                     </div>
                     <div>
                       <label className={labelCls}>Deadline Pengumpulan</label>
-                      <input placeholder="20 November 2026" value={formDataLomba.deadline_pengumpulan} onChange={(e) => setFormDataLomba({ ...formDataLomba, deadline_pengumpulan: e.target.value })} className={inputCls} />
+                      <input placeholder="20 November 2026" value={deferredLomba.deadline_pengumpulan} onChange={(e) => setFormDataLomba({ ...formDataLomba, deadline_pengumpulan: e.target.value })} className={inputCls} />
                     </div>
                     <div className="md:col-span-2">
                       <label className={labelCls}>Benefit / Hadiah</label>
-                      <input value={formDataLomba.benefit} onChange={(e) => setFormDataLomba({ ...formDataLomba, benefit: e.target.value })} className={inputCls} />
+                      <input value={deferredLomba.benefit} onChange={(e) => setFormDataLomba({ ...formDataLomba, benefit: e.target.value })} className={inputCls} />
                     </div>
                     <div>
                       <label className={labelCls}>Link Pendaftaran</label>
-                      <input type="url" value={formDataLomba.registration_url} onChange={(e) => setFormDataLomba({ ...formDataLomba, registration_url: e.target.value })} className={inputCls} />
+                      <input type="url" value={deferredLomba.registration_url} onChange={(e) => setFormDataLomba({ ...formDataLomba, registration_url: e.target.value })} className={inputCls} />
                     </div>
                     <div>
                       <label className={labelCls}>Link Guidebook</label>
-                      <input type="url" value={formDataLomba.guidebook_url} onChange={(e) => setFormDataLomba({ ...formDataLomba, guidebook_url: e.target.value })} className={inputCls} />
+                      <input type="url" value={deferredLomba.guidebook_url} onChange={(e) => setFormDataLomba({ ...formDataLomba, guidebook_url: e.target.value })} className={inputCls} />
                     </div>
                     <SubmitBtn>{editingLombaId ? "Simpan Perubahan" : "Tambah Lomba"}</SubmitBtn>
                   </form>
@@ -2159,16 +2271,16 @@ export default function AdminDashboard() {
                     <div className="rounded-2xl bg-[#073969] border border-[#163b70] overflow-hidden">
                       <div className="aspect-[16/10] relative bg-[#02182b]">
                         <Thumb
-                          src={formDataArtikel.image || artikelList.find((a) => a.id === editingArtikelId)?.thumb}
+                          src={deferredArtikel.image || artikelList.find((a) => a.id === editingArtikelId)?.thumb}
                           alt="Sampul"
                           className="w-full h-full"
                           rounded="rounded-none"
                         />
                         <div className="absolute top-3 left-3 flex gap-1.5">
                           <span className="px-3 py-1 bg-accent text-[#001f54] text-[10px] font-bold uppercase rounded-lg">
-                            {formDataArtikel.category}
+                            {deferredArtikel.category}
                           </span>
-                          {formDataArtikel.is_hot && (
+                          {deferredArtikel.is_hot && (
                             <span className="px-2.5 py-1 bg-[#001f54] text-accent border border-accent/50 text-[10px] font-extrabold uppercase rounded-lg">
                               Sorotan Utama
                             </span>
@@ -2177,13 +2289,13 @@ export default function AdminDashboard() {
                       </div>
                       <div className="p-5">
                         <span className="text-accent text-[11px] font-bold uppercase tracking-wider">
-                          {formDataArtikel.date || "Tanggal terbit"}
+                          {deferredArtikel.date || "Tanggal terbit"}
                         </span>
                         <h3 className="text-base font-extrabold leading-snug line-clamp-2 mt-1.5 mb-2">
-                          {formDataArtikel.title || "Judul Artikel"}
+                          {deferredArtikel.title || "Judul Artikel"}
                         </h3>
                         <p className="text-xs text-[#b3d2f5]/80 line-clamp-3 leading-relaxed">
-                          {formDataArtikel.excerpt || "Ringkasan artikel tampil di sini."}
+                          {deferredArtikel.excerpt || "Ringkasan artikel tampil di sini."}
                         </p>
                       </div>
                     </div>
@@ -2192,31 +2304,31 @@ export default function AdminDashboard() {
                   <form onSubmit={handleArtikelSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
                       <label className={labelCls}>Judul Artikel</label>
-                      <input required value={formDataArtikel.title} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, title: e.target.value })} className={inputCls} />
+                      <input required value={deferredArtikel.title} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, title: e.target.value })} className={inputCls} />
                     </div>
                     <div>
                       <label className={labelCls}>Kategori</label>
-                      <select value={formDataArtikel.category} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, category: e.target.value })} className={selectCls}>
+                      <select value={deferredArtikel.category} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, category: e.target.value })} className={selectCls}>
                         {ARTIKEL_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                       </select>
                     </div>
                     <div>
                       <label className={labelCls}>Penulis</label>
-                      <input value={formDataArtikel.author} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, author: e.target.value })} className={inputCls} />
+                      <input value={deferredArtikel.author} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, author: e.target.value })} className={inputCls} />
                     </div>
                     <div className="md:col-span-2">
                       <label className={labelCls}>Tanggal Tampil</label>
-                      <input placeholder="Contoh: 10 November 2026 (kosongkan untuk hari ini)" value={formDataArtikel.date} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, date: e.target.value })} className={inputCls} />
+                      <input placeholder="Contoh: 10 November 2026 (kosongkan untuk hari ini)" value={deferredArtikel.date} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, date: e.target.value })} className={inputCls} />
                     </div>
                     <div className="md:col-span-2">
-                      <ImageUploadField label="Foto Sampul Utama (Header)" value={formDataArtikel.image} onChange={(v) => setFormDataArtikel({ ...formDataArtikel, image: v })} onAlert={showAlert} />
+                      <ImageUploadField label="Foto Sampul Utama (Header)" value={deferredArtikel.image} onChange={(v) => setFormDataArtikel({ ...formDataArtikel, image: v })} onAlert={showAlert} />
                     </div>
                     <div className="md:col-span-2">
                       <label className={`flex items-start gap-3 p-3.5 bg-[#001f54] border border-[#163b70] rounded-xl select-none ${editingArtikelIsHot ? "opacity-70" : "cursor-pointer hover:border-accent/40"}`}>
                         <input
                           type="checkbox"
                           disabled={editingArtikelIsHot}
-                          checked={formDataArtikel.is_hot}
+                          checked={deferredArtikel.is_hot}
                           onChange={(e) => setFormDataArtikel({ ...formDataArtikel, is_hot: e.target.checked })}
                           className="mt-0.5 w-4 h-4 accent-[#ffc300]"
                         />
@@ -2232,7 +2344,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="md:col-span-2">
                       <label className={labelCls}>Ringkasan Singkat (Lead Excerpt)</label>
-                      <textarea rows="2" placeholder="Ringkasan 1-2 kalimat yang tampil di kartu luar..." value={formDataArtikel.excerpt} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, excerpt: e.target.value })} className={textareaCls} />
+                      <textarea rows="2" placeholder="Ringkasan 1-2 kalimat yang tampil di kartu luar..." value={deferredArtikel.excerpt} onChange={(e) => setFormDataArtikel({ ...formDataArtikel, excerpt: e.target.value })} className={textareaCls} />
                     </div>
 
                     <div className="md:col-span-2 pt-2">
@@ -2521,34 +2633,10 @@ export default function AdminDashboard() {
                               section={sec}
                               index={idx}
                               total={builderSections.length}
-                              onChange={(field, val) => {
-                                setBuilderSections((prev) =>
-                                  prev.map((s, i) => (i === idx ? { ...s, [field]: val } : s)),
-                                );
-                              }}
-                              onMoveUp={() => {
-                                if (idx === 0) return;
-                                setBuilderSections((prev) => {
-                                  const copy = [...prev];
-                                  const temp = copy[idx - 1];
-                                  copy[idx - 1] = copy[idx];
-                                  copy[idx] = temp;
-                                  return copy;
-                                });
-                              }}
-                              onMoveDown={() => {
-                                if (idx === builderSections.length - 1) return;
-                                setBuilderSections((prev) => {
-                                  const copy = [...prev];
-                                  const temp = copy[idx + 1];
-                                  copy[idx + 1] = copy[idx];
-                                  copy[idx] = temp;
-                                  return copy;
-                                });
-                              }}
-                              onDelete={() => {
-                                setBuilderSections((prev) => prev.filter((_, i) => i !== idx));
-                              }}
+                              onChange={handleSectionChange}
+                              onMoveUp={handleSectionMoveUp}
+                              onMoveDown={handleSectionMoveDown}
+                              onDelete={handleSectionDelete}
                               onAlert={showAlert}
                             />
                           ))}
@@ -2589,8 +2677,8 @@ export default function AdminDashboard() {
                         </div>
                       </div>
 
-                      {/* Kolom Kanan: Live Reading Preview Web (5 Kolom) */}
-                      <div className="lg:col-span-5 bg-[#001f54]/95 border border-[#163b70] rounded-2xl p-5 shadow-inner sticky top-24 space-y-4">
+                      {/* Kolom Kanan: Live Reading Preview Web (5 Kolom) - Menggunakan LiveReadingPreview Teroptimasi */}
+                      <div className="lg:col-span-5 bg-[#001f54]/95 border border-[#163b70] rounded-2xl p-5 shadow-inner sticky top-24 space-y-4 transform-gpu">
                         <div className="flex items-center justify-between pb-3 border-b border-white/10">
                           <span className="text-xs font-bold text-accent uppercase tracking-wider">
                             Live Reading Preview
@@ -2598,64 +2686,11 @@ export default function AdminDashboard() {
                           <span className="text-[10px] text-[#b3d2f5]/60">Simulasi Halaman Baca</span>
                         </div>
 
-                        <div className="rounded-xl bg-[#02182b] border border-[#163b70] p-4 text-white text-xs max-h-[600px] overflow-y-auto space-y-4 [scrollbar-width:thin]">
-                          <div className="border-b border-white/10 pb-3">
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="px-2.5 py-0.5 bg-accent/15 border border-accent/30 text-accent font-bold text-[10px] rounded-full">
-                                {selectedArtikelForBuilder?.category || "Berita"}
-                              </span>
-                              <span className="text-[#b3d2f5]/60 text-[10px]">{selectedArtikelForBuilder?.date || "Hari Ini"}</span>
-                            </div>
-                            <h2 className="text-base font-black text-white leading-snug break-words">
-                              {selectedArtikelForBuilder?.title || "Judul Artikel"}
-                            </h2>
-                            <p className="text-[10px] text-[#b3d2f5]/60 mt-1">Penulis: {selectedArtikelForBuilder?.author || "HIMSIKA"}</p>
-                          </div>
-
-                          {/* Preview Pengantar */}
-                          {builderLead && (
-                            <div
-                              className="text-white/80 leading-relaxed text-[11px] break-words"
-                              dangerouslySetInnerHTML={{ __html: builderLead.replace(/\n\n+/g, "<br/><br/>") }}
-                            />
-                          )}
-
-                          {/* Preview Bagian-Bagian */}
-                          {builderSections.map((sec, idx) => (
-                            <div key={sec.id || idx} className="pt-2 border-t border-white/10 space-y-2">
-                              {sec.title && (
-                                <h4 className="text-xs font-black text-accent flex items-center gap-2 break-words">
-                                  <span className="w-1.5 h-4 bg-accent rounded-full inline-block shrink-0"></span>
-                                  {sec.title}
-                                </h4>
-                              )}
-                              {sec.text && (
-                                <div
-                                  className="text-white/80 leading-relaxed text-[11px] break-words"
-                                  dangerouslySetInnerHTML={{ __html: sec.text.replace(/\n\n+/g, "<br/><br/>") }}
-                                />
-                              )}
-                              {sec.image && (
-                                <div className="rounded-xl overflow-hidden border border-white/10 bg-[#02182b]">
-                                  <div className="aspect-video">
-                                    <img src={sec.image} alt={sec.title || "Dokum"} className="w-full h-full object-cover" />
-                                  </div>
-                                  {sec.caption && (
-                                    <p className="text-[10px] text-[#b3d2f5]/60 italic text-center p-1.5 border-t border-white/5 break-words">
-                                      {sec.caption}
-                                    </p>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          ))}
-
-                          {builderSections.length === 0 && !builderLead && (
-                            <p className="text-[#b3d2f5]/50 text-center py-6 text-[11px] italic">
-                              Tambahkan pengantar atau bagian sub-bab untuk melihat live preview halaman baca.
-                            </p>
-                          )}
-                        </div>
+                        <LiveReadingPreview
+                          selectedArtikel={selectedArtikelForBuilder}
+                          lead={builderLead}
+                          sections={builderSections}
+                        />
                       </div>
                     </div>
                   </>
@@ -2980,7 +3015,6 @@ export default function AdminDashboard() {
               </>
             )}
           </motion.div>
-        </AnimatePresence>
       </main>
 
       {/* Popup detail pengurus (sama seperti di web publik) */}
