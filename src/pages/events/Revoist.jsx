@@ -62,84 +62,84 @@ const galeriBaris2 = [
 
 const allGallery = [...galeriBaris1, ...galeriBaris2];
 
-// Data Timeline Revoist 6.0
+// Data Timeline Revoist 6.0 Sesuai Web HIMSIKA
 const timelineData = [
   {
-    date: "15 April 2026",
-    title: "Open Recruitment Kepanitiaan",
-    desc: "Pendaftaran untuk anggota kepanitiaan program kerja Revoist 6.0 resmi dibuka.",
+    date: "10 Oktober 2026",
+    title: "Pendaftaran Perlombaan Revoist 6.0",
+    desc: "Pembukaan pendaftaran rangkaian perlombaan seni, desain, dan bakat kreatif dalam rangka menyambut Dies Natalis HIMSIKA ke-6.",
     status: "Done",
   },
   {
-    date: "02 Mei 2026",
-    title: "Rapat Koordinasi Himpunan",
-    desc: "Pembahasan konsep acara, fiksasi rundown, dan pembagian tugas antar divisi.",
+    date: "25 Oktober 2026",
+    title: "Pengumpulan & Seleksi Karya",
+    desc: "Batas pengunggahan karya peserta serta penilaian oleh dewan juri ahli.",
     status: "Done",
   },
   {
-    date: "09 Mei 2026",
-    title: "Pelaksanaan Kunjungan (Match Day)",
-    desc: "Pemberangkatan dan pelaksanaan studi banding ke Himpunan Mahasiswa tujuan.",
+    date: "02 November 2026",
+    title: "Pengumuman Pemenang Perlombaan",
+    desc: "Publikasi nominasi karya terbaik dan juara perlombaan Revoist 6.0.",
+    status: "Done",
+  },
+  {
+    date: "07 - 09 November 2026",
+    title: "Malam Puncak Dies Natalis Revoist 6.0",
+    desc: "Puncak perayaan akbar diisi tumpengan simbolis, penampilan seni tari & musik, Revoist Awards, photobooth, dan konser guest star.",
     status: "Active",
-  },
-  {
-    date: "12 Mei 2026",
-    title: "Evaluasi & Follow Up",
-    desc: "Rapat evaluasi kegiatan dan perumusan rencana kolaborasi lanjutan.",
-    status: "Upcoming",
   },
 ];
 
-// Data Capaian Kegiatan Revoist 6.0
+// Data Capaian Kegiatan Revoist 6.0 Sesuai Web HIMSIKA
 const achievementsData = [
   {
     id: 1,
     icon: Network,
-    title: "Terbangunnya Relasi",
-    desc: "Terjalinnya hubungan kolaboratif antara HIMSIKA Unsika dan Himatif UIN SGD Bandung sebagai langkah awal kerja sama jangka panjang.",
-    tag: "Koneksi",
+    title: "Perayaan Dies Natalis Sukses",
+    desc: "Revoist 6.0 terlaksana dengan meriah dan terorganisir menandai momentum pertambahan usia dan kedewasaan berkarya HIMSIKA.",
+    tag: "Selebrasi",
   },
   {
     id: 2,
     icon: BookOpen,
-    title: "Peningkatan Wawasan",
-    desc: "Pengurus mendapatkan pemahaman mendalam terkait struktur organisasi, manajemen program kerja, dan strategi pengembangan himpunan.",
-    tag: "Edukasi",
+    title: "Penguatan Identitas Organisasi",
+    desc: "Tema 'Beyond the Illusion: Unite to Spark, Bloom to Lead' berhasil menginspirasi anggota untuk konsisten melampaui batasan diri.",
+    tag: "Identitas",
   },
   {
     id: 3,
     icon: MessageSquare,
-    title: "Sharing Knowledge",
-    desc: "Terjadinya pertukaran informasi dan pengalaman melalui sesi sharing dan forum group discussion yang memperkaya perspektif pengurus.",
-    tag: "Diskusi",
+    title: "Kebersamaan & Solidaritas Erat",
+    desc: "Rangkaian acara simbolis dan konser mempererat tali persaudaraan antar mahasiswa aktif, pengurus, serta alumni Sistem Informasi.",
+    tag: "Kekeluargaan",
   },
   {
     id: 4,
     icon: Brain,
-    title: "Penguatan Soft Skill",
-    desc: "Peserta mampu mengembangkan kemampuan komunikasi, kerja sama tim, leadership, serta kemampuan problem solving melalui diskusi interaktif.",
-    tag: "Pengembangan",
+    title: "Panggung Seni & Hiburan Berkualitas",
+    desc: "Menampilkan atraksi UKF seni tari, penampilan perwakilan kelas, serta penampilan guest star musik yang memukau ratusan penonton.",
+    tag: "Pentas Seni",
   },
   {
     id: 5,
     icon: Compass,
-    title: "Pengalaman Akademik",
-    desc: "Pengurus memperoleh insight mengenai lingkungan kampus UIN SGD Bandung melalui sesi tur kampus dan interaksi lintas institusi.",
-    tag: "Eksplorasi",
+    title: "Apresiasi Revoist Awards",
+    desc: "Penganugerahan apresiasi khusus bagi mahasiswa dan elemen yang memberikan kontribusi nyata bagi kemajuan almamater.",
+    tag: "Apresiasi",
   },
   {
     id: 6,
     icon: HeartHandshake,
-    title: "Kebersamaan Terjalin",
-    desc: "Kegiatan interaktif dan permainan berhasil mempererat hubungan personal antar peserta dari dua himpunan.",
-    tag: "Kekeluargaan",
+    title: "Peningkatan Citra Himpunan",
+    desc: "Meningkatkan visibility dan reputasi positif HIMSIKA di tingkat fakultas dan universitas sebagai organisasi kreatif dan dinamis.",
+    tag: "Citra",
   },
   {
     id: 7,
     icon: Rocket,
-    title: "Fondasi Kolaborasi",
-    desc: "Kegiatan ini menjadi pondasi bagi rencana kolaborasi lebih luas, seperti proyek bersama, kegiatan akademik, serta pengembangan himpunan.",
-    tag: "Masa Depan",
+    title: "Pengalaman Manajemen Event Besar",
+    desc: "Menjadi sarana pembuktian kapasitas manajerial pengurus dalam merancang dan mengeksekusi festival berskala besar.",
+    tag: "Manajerial",
   },
 ];
 

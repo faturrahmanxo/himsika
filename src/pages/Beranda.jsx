@@ -67,7 +67,7 @@ import Image3 from "../assets/images/3.webp";
 
 // Import Data
 import artikelData from "../data/artikel";
-import allEvents from "../data/allEvents";
+import allEvents, { upcomingEvents as upcomingList, programLainnya as programList } from "../data/allEvents";
 import divisi from "../data/divisi";
 import supabase from "../supabase-client";
 
@@ -203,8 +203,8 @@ export default function Beranda() {
     { id: 3, image: Image3, alt: "Kegiatan HIMSIKA 3" },
   ];
 
-  const upcomingEvents = allEvents.slice(0, 4);
-  const kegiatanLainnya = allEvents;
+  const upcomingEvents = upcomingList || allEvents;
+  const kegiatanLainnya = programList || allEvents;
 
   const [showAll, setShowAll] = useState(false);
   const displayedPrograms = showAll

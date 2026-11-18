@@ -9,7 +9,7 @@ const divisi = [
     id: 1,
     image: logoInternal,
     name: "Divisi Internal",
-    desc: "Bertanggung jawab atas pengembangan minat dan bakat mahasiswa jurusan sistem informasi khususnya dalam ilmu pengetahuan sistem informasi.",
+    desc: "Divisi Internal merupakan divisi yang berperan dalam mengoordinir dan mengevaluasi pengurus HIMSIKA serta bertanggung jawab atas pengembangan sumber daya manusia, baik pengurus maupun anggota HIMSIKA.",
     dept: "Dept. PSDM & Kaderisasi",
   },
   {
@@ -30,7 +30,7 @@ const divisi = [
     id: 4,
     image: logoEdukasi,
     name: "Divisi Edukasi",
-    desc: "Bertanggung jawab atas pengembangan minat dan bakat mahasiswa jurusan sistem informasi khususnya dalam ilmu pengetahuan sistem informasi.",
+    desc: "Bertanggung jawab atas pengembangan minat dan bakat mahasiswa jurusan Sistem Informasi khususnya dalam keilmuan dan keahlian Sistem Informasi.",
     dept: "Dept. Akademik & Keahlian",
   },
 ];

@@ -62,84 +62,84 @@ const galeriBaris2 = [
 
 const allGallery = [...galeriBaris1, ...galeriBaris2];
 
-// Data Timeline Information System Gathering 2026
+// Data Timeline Information System Gathering 2026 Sesuai Web HIMSIKA
 const timelineData = [
   {
-    date: "15 April 2026",
-    title: "Open Recruitment Kepanitiaan",
-    desc: "Pendaftaran untuk anggota kepanitiaan program kerja Information System Gathering 2026 resmi dibuka.",
+    date: "15 September 2026",
+    title: "Sosialisasi ISGATH 2026",
+    desc: "Pengenalan konsep gathering dan alur kegiatan kebersamaan kepada seluruh mahasiswa baru angkatan 2026.",
     status: "Done",
   },
   {
-    date: "02 Mei 2026",
-    title: "Rapat Koordinasi Himpunan",
-    desc: "Pembahasan konsep acara, fiksasi rundown, dan pembagian tugas antar divisi.",
+    date: "25 September 2026",
+    title: "Open Registration ISGATH 2026",
+    desc: "Pembukaan registrasi dan pendataan peserta Information System Gathering secara daring.",
     status: "Done",
   },
   {
-    date: "09 Mei 2026",
-    title: "Pelaksanaan Kunjungan (Match Day)",
-    desc: "Pemberangkatan dan pelaksanaan studi banding ke Himpunan Mahasiswa tujuan.",
+    date: "10 - 12 Oktober 2026",
+    title: "Pelaksanaan ISGATH 2026",
+    desc: "Rangkaian kegiatan keakraban, sharing session kakak tingkat, team building, dan malam puncak kebersamaan.",
     status: "Active",
   },
   {
-    date: "12 Mei 2026",
-    title: "Evaluasi & Follow Up",
-    desc: "Rapat evaluasi kegiatan dan perumusan rencana kolaborasi lanjutan.",
+    date: "16 Oktober 2026",
+    title: "Evaluasi & Malam Apresiasi",
+    desc: "Rapat evaluasi panitia serta penutupan resmi tahapan kaderisasi angkatan 2026.",
     status: "Upcoming",
   },
 ];
 
-// Data Capaian Kegiatan Information System Gathering 2026
+// Data Capaian Kegiatan Information System Gathering 2026 Sesuai Web HIMSIKA
 const achievementsData = [
   {
     id: 1,
     icon: Network,
-    title: "Terbangunnya Relasi",
-    desc: "Terjalinnya hubungan kolaboratif antara HIMSIKA Unsika dan Himatif UIN SGD Bandung sebagai langkah awal kerja sama jangka panjang.",
-    tag: "Koneksi",
+    title: "Ikatan Kekeluargaan Erat",
+    desc: "Menciptakan ruang interaksi hangat dan mempererat rasa persaudaraan yang kokoh di antara sesama mahasiswa baru Sistem Informasi.",
+    tag: "Kekeluargaan",
   },
   {
     id: 2,
     icon: BookOpen,
-    title: "Peningkatan Wawasan",
-    desc: "Pengurus mendapatkan pemahaman mendalam terkait struktur organisasi, manajemen program kerja, dan strategi pengembangan himpunan.",
+    title: "Pengenalan Prodi Mendalam",
+    desc: "Memperkenalkan kultur akademik, prospek karir, dan dinamika perkuliahan Program Studi Sistem Informasi UNSIKA secara utuh.",
     tag: "Edukasi",
   },
   {
     id: 3,
     icon: MessageSquare,
-    title: "Sharing Knowledge",
-    desc: "Terjadinya pertukaran informasi dan pengalaman melalui sesi sharing dan forum group discussion yang memperkaya perspektif pengurus.",
-    tag: "Diskusi",
+    title: "Sharing Ilmu & Pengalaman",
+    desc: "Sesi diskusi interaktif dengan pengurus himpunan dan alumni yang membagikan tips sukses mengarungi dunia perkuliahan.",
+    tag: "Sharing",
   },
   {
     id: 4,
     icon: Brain,
-    title: "Penguatan Soft Skill",
-    desc: "Peserta mampu mengembangkan kemampuan komunikasi, kerja sama tim, leadership, serta kemampuan problem solving melalui diskusi interaktif.",
-    tag: "Pengembangan",
+    title: "Rasa Memiliki & Solidaritas",
+    desc: "Menumbuhkan jiwa korsa, rasa bangga terhadap himpunan, dan kepedulian sosial yang tinggi dalam satu angkatan.",
+    tag: "Solidaritas",
   },
   {
     id: 5,
     icon: Compass,
-    title: "Pengalaman Akademik",
-    desc: "Pengurus memperoleh insight mengenai lingkungan kampus UIN SGD Bandung melalui sesi tur kampus dan interaksi lintas institusi.",
-    tag: "Eksplorasi",
+    title: "Kesiapan Mental Perkuliahan",
+    desc: "Membantu adaptasi mahasiswa baru agar lebih percaya diri dan tanggap menghadapi tantangan akademis di kampus.",
+    tag: "Adaptasi",
   },
   {
     id: 6,
     icon: HeartHandshake,
-    title: "Kebersamaan Terjalin",
-    desc: "Kegiatan interaktif dan permainan berhasil mempererat hubungan personal antar peserta dari dua himpunan.",
-    tag: "Kekeluargaan",
+    title: "Team Building & Kolaborasi",
+    desc: "Mengasah kemampuan kerja sama kelompok dan kepemimpinan lewat aktivitas outbond interaktif.",
+    tag: "Kolaborasi",
   },
   {
     id: 7,
     icon: Rocket,
-    title: "Fondasi Kolaborasi",
-    desc: "Kegiatan ini menjadi pondasi bagi rencana kolaborasi lebih luas, seperti proyek bersama, kegiatan akademik, serta pengembangan himpunan.",
-    tag: "Masa Depan",
+    title: "Puncak Rangkaian Kaderisasi",
+    desc: "Menjadi momentum penutup kaderisasi prodi yang menandai kesiapan penuh mahasiswa baru berkarya di HIMSIKA.",
+    tag: "Momentum",
   },
 ];
 

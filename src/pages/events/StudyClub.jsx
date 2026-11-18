@@ -62,84 +62,84 @@ const galeriBaris2 = [
 
 const allGallery = [...galeriBaris1, ...galeriBaris2];
 
-// Data Timeline Study Club 2026
+// Data Timeline Study Club 2026 Sesuai Web HIMSIKA
 const timelineData = [
   {
-    date: "15 April 2026",
-    title: "Open Recruitment Kepanitiaan",
-    desc: "Pendaftaran untuk anggota kepanitiaan program kerja Study Club 2026 resmi dibuka.",
+    date: "15 Agustus 2026",
+    title: "Pemilihan Bidang & Pendaftaran",
+    desc: "Pembukaan registrasi dan pemilihan konsentrasi keilmuan IT seperti Web Development, UI/UX, dan Data Science.",
     status: "Done",
   },
   {
-    date: "02 Mei 2026",
-    title: "Rapat Koordinasi Himpunan",
-    desc: "Pembahasan konsep acara, fiksasi rundown, dan pembagian tugas antar divisi.",
+    date: "22 Agustus 2026",
+    title: "Sosialisasi & Orientasi Program",
+    desc: "Pemaparan silabus pembelajaran, perkenalan mentor pemateri, dan pembagian kelompok belajar.",
     status: "Done",
   },
   {
-    date: "09 Mei 2026",
-    title: "Pelaksanaan Kunjungan (Match Day)",
-    desc: "Pemberangkatan dan pelaksanaan studi banding ke Himpunan Mahasiswa tujuan.",
+    date: "31 Agustus - 24 Oktober 2026",
+    title: "Pelaksanaan Batch Pertemuan",
+    desc: "Rangkaian 6 sesi pertemuan intensif daring dan luring mencakup teori, studi kasus, serta hands-on coding.",
     status: "Active",
   },
   {
-    date: "12 Mei 2026",
-    title: "Evaluasi & Follow Up",
-    desc: "Rapat evaluasi kegiatan dan perumusan rencana kolaborasi lanjutan.",
+    date: "31 Oktober 2026",
+    title: "Workshop & Perlombaan Akhir",
+    desc: "Puncak penutupan Study Club dengan seminar workshop ahli dan kompetisi showcase karya antar peserta.",
     status: "Upcoming",
   },
 ];
 
-// Data Capaian Kegiatan Study Club 2026
+// Data Capaian Kegiatan Study Club 2026 Sesuai Web HIMSIKA
 const achievementsData = [
   {
     id: 1,
     icon: Network,
-    title: "Terbangunnya Relasi",
-    desc: "Terjalinnya hubungan kolaboratif antara HIMSIKA Unsika dan Himatif UIN SGD Bandung sebagai langkah awal kerja sama jangka panjang.",
-    tag: "Koneksi",
+    title: "Pengembangan Skill IT Terarah",
+    desc: "Menjadi wadah intensif bagi mahasiswa untuk menguasai kompetensi digital terkini seperti Web Programming, Mobile Dev, dan Analisis Data.",
+    tag: "Kompetensi",
   },
   {
     id: 2,
     icon: BookOpen,
-    title: "Peningkatan Wawasan",
-    desc: "Pengurus mendapatkan pemahaman mendalam terkait struktur organisasi, manajemen program kerja, dan strategi pengembangan himpunan.",
-    tag: "Edukasi",
+    title: "Silabus Pembelajaran Aplikatif",
+    desc: "Materi disusun secara sistematis dan bertahap dari pemahaman fundamental hingga pembuatan aplikasi fungsional.",
+    tag: "Kurikulum",
   },
   {
     id: 3,
     icon: MessageSquare,
-    title: "Sharing Knowledge",
-    desc: "Terjadinya pertukaran informasi dan pengalaman melalui sesi sharing dan forum group discussion yang memperkaya perspektif pengurus.",
-    tag: "Diskusi",
+    title: "Mentoring & Diskusi Interaktif",
+    desc: "Peserta mendapatkan bimbingan langsung dari mahasiswa berprestasi dan praktisi ahli untuk memecahkan kendala teknis.",
+    tag: "Mentoring",
   },
   {
     id: 4,
     icon: Brain,
-    title: "Penguatan Soft Skill",
-    desc: "Peserta mampu mengembangkan kemampuan komunikasi, kerja sama tim, leadership, serta kemampuan problem solving melalui diskusi interaktif.",
-    tag: "Pengembangan",
+    title: "Portofolio Proyek Nyata",
+    desc: "Setiap peserta menghasilkan karya mandiri yang dapat dipublikasikan sebagai portofolio persiapan magang dan karir profesional.",
+    tag: "Karya",
   },
   {
     id: 5,
     icon: Compass,
-    title: "Pengalaman Akademik",
-    desc: "Pengurus memperoleh insight mengenai lingkungan kampus UIN SGD Bandung melalui sesi tur kampus dan interaksi lintas institusi.",
-    tag: "Eksplorasi",
+    title: "Workshop & Insight Industri",
+    desc: "Menghadirkan narasumber profesional dalam sesi workshop untuk memberikan gambaran kebutuhan industri teknologi masa kini.",
+    tag: "Industri",
   },
   {
     id: 6,
     icon: HeartHandshake,
-    title: "Kebersamaan Terjalin",
-    desc: "Kegiatan interaktif dan permainan berhasil mempererat hubungan personal antar peserta dari dua himpunan.",
-    tag: "Kekeluargaan",
+    title: "Komunitas Belajar Kolaboratif",
+    desc: "Menciptakan lingkungan belajar yang saling mendukung antarmahasiswa lintas angkatan di Sistem Informasi.",
+    tag: "Komunitas",
   },
   {
     id: 7,
     icon: Rocket,
-    title: "Fondasi Kolaborasi",
-    desc: "Kegiatan ini menjadi pondasi bagi rencana kolaborasi lebih luas, seperti proyek bersama, kegiatan akademik, serta pengembangan himpunan.",
-    tag: "Masa Depan",
+    title: "Evaluasi Melalui Perlombaan",
+    desc: "Ajang unjuk kemampuan karya terbaik dalam kompetisi penutup sebagai tolok ukur penguasaan materi.",
+    tag: "Kompetisi",
   },
 ];
 

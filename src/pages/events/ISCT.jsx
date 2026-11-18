@@ -65,84 +65,84 @@ const galeriBaris2 = [
 // Gabungkan semua foto untuk fitur slider Lightbox
 const allGallery = [...galeriBaris1, ...galeriBaris2];
 
-// Data Timeline Make Connection
+// Data Timeline Information System Company Tour (ISCT) 2026 Sesuai Web HIMSIKA
 const timelineData = [
   {
-    date: "15 April 2026",
-    title: "Open Recruitment Kepanitiaan",
-    desc: "Pendaftaran untuk anggota kepanitiaan program kerja Make Connection resmi dibuka.",
+    date: "01 Juni 2026",
+    title: "Open Registration ISCT 2026",
+    desc: "Pembukaan pendaftaran company visit bagi mahasiswa aktif Sistem Informasi Unsika.",
     status: "Done",
   },
   {
-    date: "02 Mei 2026",
-    title: "Rapat Koordinasi Himpunan",
-    desc: "Pembahasan konsep acara, fiksasi rundown, dan pembagian tugas antar divisi.",
+    date: "12 Juni 2026",
+    title: "Sosialisasi & Briefing Teknis",
+    desc: "Pemberian materi pengenalan profil perusahaan tujuan, rundown acara, dan tata tertib kunjungan industri.",
     status: "Done",
   },
   {
-    date: "09 Mei 2026",
-    title: "Pelaksanaan Kunjungan (Match Day)",
-    desc: "Pemberangkatan dan pelaksanaan studi banding ke Himpunan Mahasiswa tujuan.",
+    date: "24 Juni 2026",
+    title: "Pelaksanaan Company Tour (PT INTI)",
+    desc: "Kunjungan langsung ke fasilitas, showroom teknologi, dan sesi interaktif dengan praktisi PT Industri Telekomunikasi Indonesia.",
     status: "Active",
   },
   {
-    date: "12 Mei 2026",
-    title: "Evaluasi & Follow Up",
-    desc: "Rapat evaluasi kegiatan dan perumusan rencana kolaborasi lanjutan.",
+    date: "30 Juni 2026",
+    title: "Evaluasi & Pembuatan Laporan",
+    desc: "Penyusunan laporan hasil kunjungan industri serta evaluasi pelaksanaan kegiatan.",
     status: "Upcoming",
   },
 ];
 
-// Data Capaian Kegiatan Make Connection 2026
+// Data Capaian Kegiatan ISCT 2026 Sesuai Web HIMSIKA
 const achievementsData = [
   {
     id: 1,
     icon: Network,
-    title: "Terbangunnya Relasi",
-    desc: "Terjalinnya hubungan kolaboratif antara HIMSIKA Unsika dan Himatif UIN SGD Bandung sebagai langkah awal kerja sama jangka panjang.",
-    tag: "Koneksi",
+    title: "Kunjungan Industri Sukses",
+    desc: "Program Information System Company Tour terlaksana dengan baik di PT Industri Telekomunikasi Indonesia (INTI) bersama mahasiswa aktif Sistem Informasi Unsika.",
+    tag: "Industri",
   },
   {
     id: 2,
     icon: BookOpen,
-    title: "Peningkatan Wawasan",
-    desc: "Pengurus mendapatkan pemahaman mendalam terkait struktur organisasi, manajemen program kerja, dan strategi pengembangan himpunan.",
-    tag: "Edukasi",
+    title: "Peningkatan Wawasan Dunia IT",
+    desc: "Peserta memperoleh pemahaman langsung mengenai implementasi teknologi, proses kerja, serta peran strategis IT dalam perusahaan telekomunikasi nasional.",
+    tag: "Wawasan",
   },
   {
     id: 3,
     icon: MessageSquare,
-    title: "Sharing Knowledge",
-    desc: "Terjadinya pertukaran informasi dan pengalaman melalui sesi sharing dan forum group discussion yang memperkaya perspektif pengurus.",
+    title: "Interaksi dengan Ahli Teknologi",
+    desc: "Melalui sesi tanya jawab dan diskusi interaktif, mahasiswa menggali informasi mendalam seputar teknologi dan sistem informasi industri.",
     tag: "Diskusi",
   },
   {
     id: 4,
     icon: Brain,
-    title: "Penguatan Soft Skill",
-    desc: "Peserta mampu mengembangkan kemampuan komunikasi, kerja sama tim, leadership, serta kemampuan problem solving melalui diskusi interaktif.",
-    tag: "Pengembangan",
+    title: "Showroom Produk Teknologi",
+    desc: "Peserta menyaksikan secara langsung berbagai inovasi dan produk unggulan PT INTI dalam skala riil.",
+    tag: "Inovasi",
   },
   {
     id: 5,
     icon: Compass,
-    title: "Pengalaman Akademik",
-    desc: "Pengurus memperoleh insight mengenai lingkungan kampus UIN SGD Bandung melalui sesi tur kampus dan interaksi lintas institusi.",
-    tag: "Eksplorasi",
+    title: "Pemahaman Transformasi Digital",
+    desc: "Peserta memahami peran sentral sistem informasi dalam mendukung efisiensi operasional dan digitalisasi bisnis modern.",
+    tag: "Digitalisasi",
   },
   {
     id: 6,
     icon: HeartHandshake,
-    title: "Kebersamaan Terjalin",
-    desc: "Kegiatan interaktif dan permainan berhasil mempererat hubungan personal antar peserta dari dua himpunan.",
-    tag: "Kekeluargaan",
+    title: "Networking Profesional",
+    desc: "Membuka jejaring komunikasi langsung antara mahasiswa dan praktisi teknologi industri sebagai modal persiapan karir.",
+    tag: "Koneksi",
   },
   {
     id: 7,
     icon: Rocket,
-    title: "Fondasi Kolaborasi",
-    desc: "Kegiatan ini menjadi pondasi bagi rencana kolaborasi lebih luas, seperti proyek bersama, kegiatan akademik, serta pengembangan himpunan.",
-    tag: "Masa Depan",
+    title: "Penguatan Motivasi Karir",
+    desc: "Memberikan gambaran komprehensif mengenai prospek kerja masa depan di ranah sistem informasi dan kesiapan industri.",
+    tag: "Karir",
   },
 ];
 

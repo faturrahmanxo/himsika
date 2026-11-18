@@ -62,83 +62,83 @@ const galeriBaris2 = [
 
 const allGallery = [...galeriBaris1, ...galeriBaris2];
 
-// Data Timeline LKMM Pra-Dasar
+// Data Timeline LKMM Pra-Dasar 2026 Sesuai Web HIMSIKA
 const timelineData = [
   {
-    date: "15 April 2026",
-    title: "Open Recruitment Kepanitiaan",
-    desc: "Pendaftaran untuk anggota kepanitiaan program kerja LKMM Pra-Dasar resmi dibuka.",
+    date: "10 Agustus 2026",
+    title: "Sosialisasi LKMMPD 2026",
+    desc: "Sosialisasi dan pengenalan alur kegiatan pelatihan manajemen mahasiswa tingkat awal kepada mahasiswa baru.",
     status: "Done",
   },
   {
-    date: "02 Mei 2026",
-    title: "Rapat Koordinasi Himpunan",
-    desc: "Pembahasan konsep acara, fiksasi rundown, dan pembagian tugas antar divisi.",
+    date: "18 Agustus 2026",
+    title: "Technical Meeting & Briefing Peserta",
+    desc: "Pemberian instruksi perlengkapan, tata tertib, dan pemaparan kurikulum dasar kaderisasi.",
     status: "Done",
   },
   {
-    date: "09 Mei 2026",
-    title: "Pelaksanaan Kunjungan (Match Day)",
-    desc: "Pemberangkatan dan pelaksanaan studi banding ke Himpunan Mahasiswa tujuan.",
+    date: "24 - 29 Agustus 2026",
+    title: "Pelaksanaan LKMMPD 2026",
+    desc: "Pelatihan manajemen diri, kepemimpinan organisasi, critical thinking, dan penyelesaian studi kasus kemahasiswaan.",
     status: "Active",
   },
   {
-    date: "12 Mei 2026",
-    title: "Evaluasi & Follow Up",
-    desc: "Rapat evaluasi kegiatan dan perumusan rencana kolaborasi lanjutan.",
+    date: "02 September 2026",
+    title: "Evaluasi & Pengukuhan Kelulusan",
+    desc: "Rapat evaluasi kelulusan peserta serta persiapan menuju tahapan kaderisasi LKMM selanjutnya.",
     status: "Upcoming",
   },
 ];
 
-// Data Capaian Kegiatan LKMM Pra-Dasar  2026
+// Data Capaian Kegiatan LKMM Pra-Dasar 2026 Sesuai Web HIMSIKA
 const achievementsData = [
   {
     id: 1,
     icon: Network,
-    title: "Terbangunnya Relasi",
-    desc: "Terjalinnya hubungan kolaboratif antara HIMSIKA Unsika dan Himatif UIN SGD Bandung sebagai langkah awal kerja sama jangka panjang.",
-    tag: "Koneksi",
+    title: "Jiwa Kepemimpinan Terbentuk",
+    desc: "Membekali mahasiswa baru dengan pemahaman kepemimpinan mandiri dan kesiapan memposisikan diri secara efektif dalam organisasi kemahasiswaan.",
+    tag: "Leadership",
   },
   {
     id: 2,
     icon: BookOpen,
-    title: "Peningkatan Wawasan",
-    desc: "Pengurus mendapatkan pemahaman mendalam terkait struktur organisasi, manajemen program kerja, dan strategi pengembangan himpunan.",
-    tag: "Edukasi",
+    title: "Keterampilan Manajemen Terencana",
+    desc: "Peserta mampu menyelenggarakan dan merencanakan kegiatan kemahasiswaan dengan sistematika yang baik sesuai kurikulum minimal.",
+    tag: "Manajemen",
   },
   {
     id: 3,
     icon: MessageSquare,
-    title: "Sharing Knowledge",
-    desc: "Terjadinya pertukaran informasi dan pengalaman melalui sesi sharing dan forum group discussion yang memperkaya perspektif pengurus.",
-    tag: "Diskusi",
+    title: "Kemampuan Komunikasi & Sifat Kritis",
+    desc: "Mengembangkan sifat kritis, kemampuan berargumentasi secara konstruktif, dan komunikasi publik yang efektif.",
+    tag: "Komunikasi",
   },
   {
     id: 4,
     icon: Brain,
-    title: "Penguatan Soft Skill",
-    desc: "Peserta mampu mengembangkan kemampuan komunikasi, kerja sama tim, leadership, serta kemampuan problem solving melalui diskusi interaktif.",
-    tag: "Pengembangan",
+    title: "Penguatan Karakter & Problem Solving",
+    desc: "Membentuk kepribadian tanggap, solutif, serta berintegritas tinggi dalam menyelesaikan dinamika kelompok.",
+    tag: "Karakter",
   },
   {
     id: 5,
     icon: Compass,
-    title: "Pengalaman Akademik",
-    desc: "Pengurus memperoleh insight mengenai lingkungan kampus UIN SGD Bandung melalui sesi tur kampus dan interaksi lintas institusi.",
-    tag: "Eksplorasi",
+    title: "Pemahaman Alur Organisasi",
+    desc: "Memberikan wawasan utuh mengenai peran fungsionaris, etika keorganisasian, serta visi misi kemahasiswaan Sistem Informasi.",
+    tag: "Organisasi",
   },
   {
     id: 6,
     icon: HeartHandshake,
-    title: "Kebersamaan Terjalin",
-    desc: "Kegiatan interaktif dan permainan berhasil mempererat hubungan personal antar peserta dari dua himpunan.",
+    title: "Solidaritas Mahasiswa Baru",
+    desc: "Membangun rasa kebersamaan, saling tolong-menolong, dan ikatan persaudaraan yang kokoh di antara sesama mahasiswa baru.",
     tag: "Kekeluargaan",
   },
   {
     id: 7,
     icon: Rocket,
-    title: "Fondasi Kolaborasi",
-    desc: "Kegiatan ini menjadi pondasi bagi rencana kolaborasi lebih luas, seperti proyek bersama, kegiatan akademik, serta pengembangan himpunan.",
+    title: "Kesiapan Kaderisasi Lanjutan",
+    desc: "Menjadi prasyarat mutlak yang membekali peserta untuk melangkah mantap menuju jenjang LKMM Tingkat Dasar.",
     tag: "Masa Depan",
   },
 ];
