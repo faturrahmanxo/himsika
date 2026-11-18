@@ -6,6 +6,67 @@ import EventGalleryModal from "../../components/EventGalleryModal.jsx";
 import artikelData from "../../data/artikel";
 import supabase from "../../supabase-client";
 
+// Ubah artikel lama yang memiliki gallery menumpuk di awal menjadi struktur teratur
+// (paragraf pembuka -> sub-bab -> paragraf -> foto landscape ber-caption) seperti Make Connection x Standing.
+function normalizeArticleBlocks(blocks) {
+  if (!Array.isArray(blocks) || blocks.length === 0) return [];
+  const extractedImages = [];
+  const cleanBlocks = [];
+
+  for (const block of blocks) {
+    if (block?.type === "gallery" && Array.isArray(block.images)) {
+      for (const imgItem of block.images) {
+        if (imgItem?.src && String(imgItem.src).trim()) {
+          const cleanAlt = imgItem.alt || "Dokumentasi Kegiatan HIMSIKA";
+          const isRawCamName = /^(IMG_|Salinan|DSC|PXL)/i.test(cleanAlt);
+          extractedImages.push({
+            type: "image",
+            image: String(imgItem.src).trim(),
+            alt: cleanAlt,
+            caption: imgItem.caption || (isRawCamName ? "Dokumentasi Kegiatan HIMSIKA" : cleanAlt),
+          });
+        }
+      }
+    } else if (block) {
+      cleanBlocks.push(block);
+    }
+  }
+
+  const hasInlineImage = cleanBlocks.some((b) => b.type === "image" && b.image);
+  if (!hasInlineImage && extractedImages.length > 0 && cleanBlocks.length > 0) {
+    const maxPhotos = Math.min(3, extractedImages.length);
+    const chosen = extractedImages.slice(0, maxPhotos);
+    const result = [];
+    const total = cleanBlocks.length;
+    const insertAfterIndices = new Set();
+
+    if (maxPhotos === 1) {
+      insertAfterIndices.add(Math.min(1, total - 1));
+    } else if (maxPhotos === 2) {
+      insertAfterIndices.add(Math.min(1, total - 1));
+      insertAfterIndices.add(Math.max(2, total - 2));
+    } else {
+      insertAfterIndices.add(Math.min(1, total - 1));
+      insertAfterIndices.add(Math.floor(total / 2));
+      insertAfterIndices.add(Math.max(2, total - 2));
+    }
+
+    let photoIdx = 0;
+    cleanBlocks.forEach((b, idx) => {
+      result.push(b);
+      if (insertAfterIndices.has(idx) && photoIdx < chosen.length) {
+        result.push(chosen[photoIdx++]);
+      }
+    });
+    while (photoIdx < chosen.length) {
+      result.push(chosen[photoIdx++]);
+    }
+    return result;
+  }
+
+  return cleanBlocks;
+}
+
 export default function DetailArtikel() {
   const { id } = useParams();
 
@@ -92,7 +153,7 @@ export default function DetailArtikel() {
     );
   }
 
-  const contentBlocks = Array.isArray(article.content)
+  const rawBlocks = Array.isArray(article.content)
     ? article.content
     : typeof article.content === "string"
     ? article.content.trim().startsWith("[")
@@ -105,6 +166,8 @@ export default function DetailArtikel() {
         })()
       : [{ type: "paragraph", text: article.content }]
     : [];
+
+  const contentBlocks = normalizeArticleBlocks(rawBlocks);
 
   // 2. TAMPILAN UTAMA ARTIKEL
   return (

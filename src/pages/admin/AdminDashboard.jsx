@@ -248,21 +248,10 @@ function parseArticleContent(content) {
   return { galleryImages, leadText, sections };
 }
 
-function compileArticleContent({ galleryImages, leadText, sections }) {
+function compileArticleContent({ leadText, sections }) {
   const blocks = [];
 
-  // 1. Galeri Dokumentasi Utama (Landscape) di Bawah Judul
-  const validGallery = (galleryImages || [])
-    .map((g) => (typeof g === "string" ? g.trim() : g?.src?.trim()))
-    .filter(Boolean);
-  if (validGallery.length > 0) {
-    blocks.push({
-      type: "gallery",
-      images: validGallery.map((src) => ({ src, alt: "Dokumentasi Kegiatan" })),
-    });
-  }
-
-  // 2. Paragraf Pengantar
+  // 1. Paragraf Pengantar / Pembuka (sesuai struktur Make Connection x Standing)
   if (leadText && leadText.trim()) {
     leadText
       .split(/\n\n+/)
@@ -271,10 +260,17 @@ function compileArticleContent({ galleryImages, leadText, sections }) {
       .forEach((text) => blocks.push({ type: "paragraph", text }));
   }
 
-  // 3. Bagian-Bagian Artikel (Sub-Bab)
+  // 2. Bagian-Bagian Artikel (Sub-Bab): Judul -> Narasi -> Foto Landscape ber-caption
   (sections || []).forEach((sec) => {
     if (sec.title && sec.title.trim()) {
       blocks.push({ type: "heading", text: sec.title.trim() });
+    }
+    if (sec.text && sec.text.trim()) {
+      sec.text
+        .split(/\n\n+/)
+        .map((p) => p.trim())
+        .filter(Boolean)
+        .forEach((text) => blocks.push({ type: "paragraph", text }));
     }
     if (sec.image && sec.image.trim()) {
       blocks.push({
@@ -283,13 +279,6 @@ function compileArticleContent({ galleryImages, leadText, sections }) {
         alt: sec.title || "Dokumentasi Bagian",
         caption: sec.caption || "",
       });
-    }
-    if (sec.text && sec.text.trim()) {
-      sec.text
-        .split(/\n\n+/)
-        .map((p) => p.trim())
-        .filter(Boolean)
-        .forEach((text) => blocks.push({ type: "paragraph", text }));
     }
   });
 
@@ -1148,8 +1137,8 @@ export default function AdminDashboard() {
   const handleSetHot = async (item) => {
     if (item.is_hot) {
       showAlert(
-        "Artikel ini sudah menjadi Berita Hot di Beranda.\n\nBerita Hot selalu ada tepat 1. Untuk menggantinya, klik Set Hot pada artikel lain.",
-        "Berita Hot",
+        "Artikel ini sudah menjadi Sorotan Utama di Beranda & Halaman Artikel.\n\nSorotan Utama selalu ada tepat 1. Untuk menggantinya, klik Jadikan Sorotan pada artikel lain.",
+        "Sorotan Utama",
       );
       return;
     }
@@ -1164,7 +1153,7 @@ export default function AdminDashboard() {
     } catch (e) {
       console.warn("syncHot notice:", e);
     }
-    showAlert(`"${item.title}" sekarang aktif sebagai Berita Hot di Beranda.`, "Berita Hot Berhasil Diatur");
+    showAlert(`"${item.title}" sekarang aktif sebagai Sorotan Utama di Beranda & Halaman Artikel.`, "Sorotan Utama Diatur");
   };
 
   const handleArtikelSubmit = async (e) => {
@@ -1239,7 +1228,7 @@ export default function AdminDashboard() {
           const next = remaining[0];
           setArtikelList(remaining.map((a) => ({ ...a, is_hot: a.id === next.id })));
           await syncHot(next.id);
-          showAlert(`Artikel dihapus. Berita Hot sekarang:\n${next.title}`, "Berita Hot Dipindahkan");
+          showAlert(`Artikel dihapus. Sorotan Utama sekarang:\n${next.title}`, "Sorotan Utama Dipindahkan");
         } else {
           setArtikelList(remaining);
         }
@@ -2181,7 +2170,7 @@ export default function AdminDashboard() {
                           </span>
                           {formDataArtikel.is_hot && (
                             <span className="px-2.5 py-1 bg-[#001f54] text-accent border border-accent/50 text-[10px] font-extrabold uppercase rounded-lg">
-                              Hot
+                              Sorotan Utama
                             </span>
                           )}
                         </div>
@@ -2232,11 +2221,11 @@ export default function AdminDashboard() {
                           className="mt-0.5 w-4 h-4 accent-[#ffc300]"
                         />
                         <span>
-                          <span className="block text-xs font-bold text-white">Jadikan Berita Hot di Beranda</span>
+                          <span className="block text-xs font-bold text-white">Jadikan Sorotan Utama</span>
                           <span className="block text-[11px] text-[#b3d2f5]/70 mt-0.5">
                             {editingArtikelIsHot
-                              ? "Artikel ini sedang Hot. Ganti dengan klik Set Hot di artikel lain."
-                              : "Hanya 1 artikel yang bisa Hot. Artikel Hot sebelumnya otomatis diganti."}
+                              ? "Artikel ini sedang menjadi Sorotan Utama di Beranda & Halaman Artikel."
+                              : "Hanya 1 artikel yang menjadi Sorotan Utama di Beranda & Halaman Artikel. Artikel terbaru lainnya masuk ke daftar bawah."}
                           </span>
                         </span>
                       </label>
@@ -2271,7 +2260,7 @@ export default function AdminDashboard() {
                             <div className="flex items-center gap-2 mt-0.5">
                               <span className="text-[10px] font-bold text-accent uppercase">{i.category}</span>
                               {i.is_hot && (
-                                <span className="px-2 py-px rounded-full text-[10px] font-black bg-accent text-[#001f54]">HOT</span>
+                                <span className="px-2 py-px rounded-full text-[10px] font-black bg-accent text-[#001f54]">SOROTAN UTAMA</span>
                               )}
                             </div>
                           </div>
@@ -2302,7 +2291,7 @@ export default function AdminDashboard() {
                                 : "text-[#b3d2f5] border border-[#163b70] hover:border-accent hover:text-accent"
                             }`}
                           >
-                            {i.is_hot ? "Hot Aktif" : "Set Hot"}
+                            {i.is_hot ? "Sorotan Aktif" : "Set Sorotan"}
                           </button>
                           <button
                             type="button"
@@ -2471,69 +2460,13 @@ export default function AdminDashboard() {
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
                       {/* Kolom Kiri: Form Penyusun (7 Kolom) */}
                       <div className="lg:col-span-7 space-y-6">
-                        {/* 1. Galeri Dokumentasi Utama (Landscape) */}
-                        <div className="p-4 sm:p-5 bg-[#001f54] border border-[#163b70] rounded-2xl space-y-3.5 shadow-sm">
-                          <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                            <div>
-                              <h4 className="text-xs font-black text-accent uppercase tracking-wider">
-                                1. Dokumentasi Kegiatan Utama (Landscape 16:9)
-                              </h4>
-                              <p className="text-[11px] text-[#b3d2f5]/70">
-                                Tampil dalam galeri foto landscape di bawah judul artikel.
-                              </p>
-                            </div>
-                            <span className="text-xs font-bold text-accent bg-accent/10 border border-accent/20 px-2.5 py-1 rounded-lg">
-                              {builderGallery.length} Foto
-                            </span>
-                          </div>
-
-                          {builderGallery.length > 0 && (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
-                              {builderGallery.map((imgUrl, gIdx) => (
-                                <div key={gIdx} className="relative group aspect-video rounded-xl overflow-hidden border border-[#163b70] bg-[#02182b]">
-                                  <img src={imgUrl} alt={`Dokum ${gIdx + 1}`} className="w-full h-full object-cover" />
-                                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-2">
-                                    <button
-                                      type="button"
-                                      onClick={() => setBuilderGallery((prev) => prev.filter((_, idx) => idx !== gIdx))}
-                                      className="px-2.5 py-1 bg-red-600/90 hover:bg-red-600 text-white font-bold text-[11px] rounded-lg transition-colors cursor-pointer shadow"
-                                    >
-                                      Hapus
-                                    </button>
-                                  </div>
-                                  <span className="absolute bottom-1 left-1.5 px-1.5 py-0.5 bg-black/70 text-[9px] font-bold text-white/80 rounded">
-                                    #{gIdx + 1}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-
-                          <div className="pt-2 border-t border-white/5">
-                            <ImageUploadField
-                              label="Tambah Foto ke Galeri Dokumentasi (Landscape)"
-                              value={newGalleryInput}
-                              onChange={(val) => {
-                                if (val && val.trim()) {
-                                  setBuilderGallery((prev) => [...prev, val.trim()]);
-                                  setNewGalleryInput("");
-                                }
-                              }}
-                              onAlert={showAlert}
-                            />
-                            <p className="text-[10px] text-[#b3d2f5]/50 mt-1 italic">
-                              Upload atau tempel URL foto landscape di atas, otomatis masuk ke galeri kegiatan.
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* 2. Paragraf Pengantar */}
+                        {/* 1. Paragraf Pengantar */}
                         <div className="p-4 sm:p-5 bg-[#001f54] border border-[#163b70] rounded-2xl space-y-2.5 shadow-sm">
                           <div className="flex items-center justify-between border-b border-white/10 pb-2">
                             <h4 className="text-xs font-black text-accent uppercase tracking-wider">
-                              2. Paragraf Pengantar / Pembuka
+                              1. Paragraf Pengantar / Pembuka
                             </h4>
-                            <span className="text-[11px] text-[#b3d2f5]/60 italic">Muncul sebelum sub-bab pertama</span>
+                            <span className="text-[11px] text-[#b3d2f5]/60 italic">Muncul di awal sebelum sub-bab pertama</span>
                           </div>
                           <TextFormatToolbar
                             textareaRef={leadTextareaRef}
@@ -2550,15 +2483,15 @@ export default function AdminDashboard() {
                           />
                         </div>
 
-                        {/* 3. Bagian-Bagian Sub-Bab */}
+                        {/* 2. Bagian-Bagian Sub-Bab */}
                         <div className="space-y-4">
                           <div className="flex items-center justify-between pt-1">
                             <div>
                               <h4 className="text-xs font-black text-accent uppercase tracking-wider">
-                                3. Bagian-Bagian Artikel (Sub-Bab)
+                                2. Bagian-Bagian Artikel (Sub-Bab)
                               </h4>
                               <p className="text-[11px] text-[#b3d2f5]/70">
-                                tiap sub-bab memiliki judul aksen kuning, dokumentasi landscape, dan narasi isi.
+                                Tiap sub-bab memiliki judul aksen kuning, narasi isi, dan 1 foto dokumentasi landscape ber-caption.
                               </p>
                             </div>
                             <button
@@ -2679,25 +2612,6 @@ export default function AdminDashboard() {
                             <p className="text-[10px] text-[#b3d2f5]/60 mt-1">Penulis: {selectedArtikelForBuilder?.author || "HIMSIKA"}</p>
                           </div>
 
-                          {/* Preview Galeri Dokumentasi Landscape */}
-                          {builderGallery.length > 0 && (
-                            <div className="space-y-1.5">
-                              <span className="block text-[10px] font-black text-accent uppercase tracking-wider">
-                                Dokumentasi Utama ({builderGallery.length} Foto Landscape):
-                              </span>
-                              <div className="grid grid-cols-2 gap-1.5">
-                                {builderGallery.slice(0, 4).map((imgUrl, idx) => (
-                                  <div key={idx} className="aspect-video rounded-lg overflow-hidden border border-white/10 bg-[#02182b]">
-                                    <img src={imgUrl} alt="Dokum" className="w-full h-full object-cover" />
-                                  </div>
-                                ))}
-                              </div>
-                              {builderGallery.length > 4 && (
-                                <p className="text-[10px] text-[#b3d2f5]/50 italic">+ {builderGallery.length - 4} foto lainnya di galeri</p>
-                              )}
-                            </div>
-                          )}
-
                           {/* Preview Pengantar */}
                           {builderLead && (
                             <div
@@ -2715,6 +2629,12 @@ export default function AdminDashboard() {
                                   {sec.title}
                                 </h4>
                               )}
+                              {sec.text && (
+                                <div
+                                  className="text-white/80 leading-relaxed text-[11px] break-words"
+                                  dangerouslySetInnerHTML={{ __html: sec.text.replace(/\n\n+/g, "<br/><br/>") }}
+                                />
+                              )}
                               {sec.image && (
                                 <div className="rounded-xl overflow-hidden border border-white/10 bg-[#02182b]">
                                   <div className="aspect-video">
@@ -2727,18 +2647,12 @@ export default function AdminDashboard() {
                                   )}
                                 </div>
                               )}
-                              {sec.text && (
-                                <div
-                                  className="text-white/80 leading-relaxed text-[11px] break-words"
-                                  dangerouslySetInnerHTML={{ __html: sec.text.replace(/\n\n+/g, "<br/><br/>") }}
-                                />
-                              )}
                             </div>
                           ))}
 
-                          {builderSections.length === 0 && !builderLead && builderGallery.length === 0 && (
+                          {builderSections.length === 0 && !builderLead && (
                             <p className="text-[#b3d2f5]/50 text-center py-6 text-[11px] italic">
-                              Tambahkan foto dokumentasi landscape, pengantar, atau bagian sub-bab untuk melihat live preview halaman baca.
+                              Tambahkan pengantar atau bagian sub-bab untuk melihat live preview halaman baca.
                             </p>
                           )}
                         </div>

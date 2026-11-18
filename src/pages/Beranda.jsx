@@ -138,13 +138,18 @@ export default function Beranda() {
 
         if (!error && data && data.length > 0) {
           const localHotId = typeof window !== "undefined" ? localStorage.getItem("himsika_hot_article_id") : null;
+          const hasAnyDbHot = data.some((d) => Boolean(d.is_hot));
           const normalized = data.map((d) => {
             const fallback =
               artikelData.find((a) => String(a.id) === String(d.id)) ||
               artikelData.find((a) => a.title === d.title);
             return {
               ...d,
-              is_hot: localHotId ? String(d.id) === String(localHotId) : Boolean(d.is_hot),
+              is_hot: localHotId
+                ? String(d.id) === String(localHotId)
+                : hasAnyDbHot
+                ? Boolean(d.is_hot)
+                : Boolean(fallback?.is_hot),
               image:
                 d.image && d.image.trim()
                   ? d.image.trim()
@@ -918,8 +923,8 @@ export default function Beranda() {
                         {featuredBerita.category}
                       </div>
                       {featuredBerita.is_hot && (
-                        <div className="bg-red-500 text-white px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest shadow-md flex items-center gap-1">
-                          Hot
+                        <div className="bg-accent text-slate-900 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest shadow-md flex items-center gap-1">
+                          Sorotan Utama
                         </div>
                       )}
                     </div>

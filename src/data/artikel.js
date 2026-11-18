@@ -17,6 +17,7 @@ const img = (path) => wpImages[`../assets/images/artikel&berita/${path}`] ?? "";
 const artikelData = [
   {
     id: 5,
+    is_hot: true,
     title:
       "Mengenal Dunia Kerja Digital Banking, Himsika Gelar Information System Company Tour 2026 ke Menara blu",
     category: "Berita",

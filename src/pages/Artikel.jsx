@@ -1,11 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
+import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
 // IMPORT DATA UTAMA & SUPABASE
 import artikelData from "../data/artikel";
 import supabase from "../supabase-client";
 
-// Urutkan artikel: prioritas Berita Hot di paling atas, lalu tanggal terbaru, lalu ID tertinggi
+const ITEMS_PER_PAGE = 6;
+
+// Urutkan artikel: prioritas Sorotan Utama (is_hot) di paling atas, lalu tanggal terbaru, lalu ID tertinggi
 export const sortArticlesList = (list) =>
   [...list].sort((a, b) => {
     if (a.is_hot && !b.is_hot) return -1;
@@ -15,9 +18,20 @@ export const sortArticlesList = (list) =>
     return dateB.localeCompare(dateA) || Number(b.id) - Number(a.id);
   });
 
+const getArticleYear = (article) => {
+  if (article.datetime && /^\d{4}/.test(String(article.datetime))) {
+    return String(article.datetime).slice(0, 4);
+  }
+  const match = String(article.date || "").match(/\b(20\d{2})\b/);
+  return match ? match[1] : "";
+};
+
 export default function Artikel() {
   const [activeCategory, setActiveCategory] = useState("Semua");
-  const [visibleCount, setVisibleCount] = useState(3);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedYear, setSelectedYear] = useState("Semua");
+  const [sortOrder, setSortOrder] = useState("newest");
+  const [currentPage, setCurrentPage] = useState(1);
   // Inisialisasi data yang sudah tersortir sejak frame pertama agar tidak ada efek berkedip / bertukar posisi
   const [articles, setArticles] = useState(() => {
     const localHotId = typeof window !== "undefined" ? localStorage.getItem("himsika_hot_article_id") : null;
@@ -41,13 +55,18 @@ export default function Artikel() {
 
         if (!error && data && data.length > 0) {
           const localHotId = typeof window !== "undefined" ? localStorage.getItem("himsika_hot_article_id") : null;
+          const hasAnyDbHot = data.some((d) => Boolean(d.is_hot));
           const normalized = data.map((d) => {
             const fallback =
               artikelData.find((a) => String(a.id) === String(d.id)) ||
               artikelData.find((a) => a.title === d.title);
             return {
               ...d,
-              is_hot: localHotId ? String(d.id) === String(localHotId) : Boolean(d.is_hot),
+              is_hot: localHotId
+                ? String(d.id) === String(localHotId)
+                : hasAnyDbHot
+                ? Boolean(d.is_hot)
+                : Boolean(fallback?.is_hot),
               image:
                 d.image && d.image.trim()
                   ? d.image.trim()
@@ -89,27 +108,62 @@ export default function Artikel() {
     fetchArticles();
   }, []);
 
+  const availableYears = useMemo(() => {
+    const years = new Set(articles.map(getArticleYear).filter(Boolean));
+    return ["Semua", ...Array.from(years).sort((a, b) => b.localeCompare(a))];
+  }, [articles]);
+
   const handleCategoryChange = (cat) => {
     setActiveCategory(cat);
-    setVisibleCount(3);
+    setCurrentPage(1);
   };
 
-  const handleLoadMore = () => {
-    setVisibleCount((prev) => prev + 3);
-  };
-
-  // Filter Data Berdasarkan Kategori
-  const filteredArticles = articles.filter(
-    (article) =>
-      activeCategory === "Semua" || article.category === activeCategory,
+  // Sorotan Utama hanya dari artikel yang ditandai is_hot (jika tidak ada, fallback ke artikel pertama)
+  const sorotanArticle = useMemo(
+    () => articles.find((a) => a.is_hot === true) || articles[0] || null,
+    [articles],
   );
 
-  // Pisahkan artikel pertama sebagai Highlight (jika ada data)
-  const featuredArticle =
-    filteredArticles.length > 0 ? filteredArticles[0] : null;
+  const isDefaultView =
+    activeCategory === "Semua" &&
+    !searchQuery.trim() &&
+    selectedYear === "Semua" &&
+    sortOrder === "newest" &&
+    currentPage === 1;
 
-  // Sisanya masuk ke grid
-  const displayedArticles = filteredArticles.slice(1, visibleCount + 1);
+  // Filter Data Berdasarkan Kategori, Pencarian, Tahun, dan Urutan
+  const filteredArticles = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    const list = articles.filter((article) => {
+      if (isDefaultView && sorotanArticle && String(article.id) === String(sorotanArticle.id)) {
+        return false;
+      }
+      if (activeCategory !== "Semua" && article.category !== activeCategory) return false;
+      if (selectedYear !== "Semua" && getArticleYear(article) !== selectedYear) return false;
+      if (q) {
+        const hay = `${article.title || ""} ${article.excerpt || ""} ${article.category || ""} ${article.author || ""}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+
+    return [...list].sort((a, b) => {
+      const dateA = a.datetime || "";
+      const dateB = b.datetime || "";
+      return sortOrder === "newest"
+        ? dateB.localeCompare(dateA) || Number(b.id) - Number(a.id)
+        : dateA.localeCompare(dateB) || Number(a.id) - Number(b.id);
+    });
+  }, [articles, activeCategory, selectedYear, searchQuery, sortOrder, isDefaultView, sorotanArticle]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredArticles.length / ITEMS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const displayedArticles = filteredArticles.slice(
+    (safePage - 1) * ITEMS_PER_PAGE,
+    safePage * ITEMS_PER_PAGE,
+  );
+
+  const featuredArticle = isDefaultView ? sorotanArticle : null;
 
   return (
     <motion.main
@@ -143,29 +197,106 @@ export default function Artikel() {
           Pusat informasi, kegiatan, dan opini terbaru dari Himpunan.
         </p>
 
-        {/* Tab Kategori */}
-        <div className="flex flex-wrap justify-center md:justify-start gap-3">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => handleCategoryChange(cat)}
-              className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 border backdrop-blur-sm ${
-                activeCategory === cat
-                  ? "bg-accent border-accent text-slate-900 shadow-[0_0_15px_rgba(255,195,0,0.4)]"
-                  : "bg-white/5 border-white/10 text-white/70 hover:border-accent/50 hover:text-accent hover:bg-white/10"
-              }`}
+        {/* Filter Bar: Kategori, Pencarian, Tahun & Urutan */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          {/* Tab Kategori */}
+          <div className="flex flex-wrap justify-center md:justify-start gap-2.5">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => handleCategoryChange(cat)}
+                className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 border backdrop-blur-sm cursor-pointer ${
+                  activeCategory === cat
+                    ? "bg-accent border-accent text-slate-900 shadow-[0_0_15px_rgba(255,195,0,0.4)]"
+                    : "bg-white/5 border-white/10 text-white/70 hover:border-accent/50 hover:text-accent hover:bg-white/10"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Search, Filter Tahun, Urutkan */}
+          <div className="flex flex-wrap items-center justify-center md:justify-start lg:justify-end gap-2.5">
+            <div className="relative w-full sm:w-64">
+              <Search className="w-4 h-4 text-white/50 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder="Cari artikel..."
+                className="w-full bg-white/5 border border-white/15 rounded-full pl-10 pr-9 py-2.5 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-accent transition-colors"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setCurrentPage(1);
+                  }}
+                  aria-label="Hapus pencarian"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-accent cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            <select
+              value={selectedYear}
+              onChange={(e) => {
+                setSelectedYear(e.target.value);
+                setCurrentPage(1);
+              }}
+              aria-label="Filter tahun"
+              className="bg-[#02182b]/90 border border-white/15 rounded-full pl-4 pr-9 py-2.5 text-sm font-semibold text-white appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%23ffc300%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M5.23%207.21a.75.75%200%20011.06.02L10%2011.168l3.71-3.938a.75.75%200%20111.08%201.04l-4.25%204.5a.75.75%200%2001-1.08%200l-4.25-4.5a.75.75%200%2001.02-1.06z%22%20clip-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.1rem_1.1rem] bg-[right_0.75rem_center] bg-no-repeat focus:outline-none focus:border-accent cursor-pointer"
             >
-              {cat}
-            </button>
-          ))}
+              {availableYears.map((yr) => (
+                <option key={yr} value={yr}>
+                  {yr === "Semua" ? "Semua Tahun" : `Tahun ${yr}`}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={sortOrder}
+              onChange={(e) => {
+                setSortOrder(e.target.value);
+                setCurrentPage(1);
+              }}
+              aria-label="Urutkan artikel"
+              className="bg-[#02182b]/90 border border-white/15 rounded-full pl-4 pr-9 py-2.5 text-sm font-semibold text-white appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22%23ffc300%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M5.23%207.21a.75.75%200%20011.06.02L10%2011.168l3.71-3.938a.75.75%200%20111.08%201.04l-4.25%204.5a.75.75%200%2001-1.08%200l-4.25-4.5a.75.75%200%2001.02-1.06z%22%20clip-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.1rem_1.1rem] bg-[right_0.75rem_center] bg-no-repeat focus:outline-none focus:border-accent cursor-pointer"
+            >
+              <option value="newest">Terbaru</option>
+              <option value="oldest">Terlama</option>
+            </select>
+          </div>
         </div>
       </header>
       {/* END TITLE */}
 
       {/* Jika Data Kosong */}
-      {filteredArticles.length === 0 && (
-        <div className="text-center text-white/60 py-20 relative z-10">
-          Belum ada artikel di kategori ini.
+      {filteredArticles.length === 0 && !featuredArticle && (
+        <div className="text-center text-white/60 py-20 relative z-10 max-w-md mx-auto px-4">
+          <p className="text-base font-semibold mb-3">Tidak ada artikel yang cocok dengan filter.</p>
+          {(activeCategory !== "Semua" || searchQuery || selectedYear !== "Semua") && (
+            <button
+              type="button"
+              onClick={() => {
+                setActiveCategory("Semua");
+                setSearchQuery("");
+                setSelectedYear("Semua");
+                setSortOrder("newest");
+                setCurrentPage(1);
+              }}
+              className="px-5 py-2 rounded-full bg-accent text-slate-900 font-bold text-xs cursor-pointer hover:bg-accent-hover transition-colors"
+            >
+              Reset Filter
+            </button>
+          )}
         </div>
       )}
 
@@ -275,14 +406,53 @@ export default function Artikel() {
           ))}
         </div>
 
-        {/* Load More Button */}
-        {filteredArticles.length > visibleCount + 1 && (
-          <div className="mt-16 text-center">
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-14 flex flex-wrap items-center justify-center gap-2">
             <button
-              onClick={handleLoadMore}
-              className="px-8 py-4 rounded-full bg-white/5 border border-white/20 text-white font-bold hover:bg-accent hover:text-slate-900 transition-all cursor-pointer"
+              type="button"
+              disabled={safePage <= 1}
+              onClick={() => {
+                setCurrentPage((p) => Math.max(1, p - 1));
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className="px-4 py-2.5 rounded-full bg-white/5 border border-white/15 text-white text-xs font-bold flex items-center gap-1.5 hover:border-accent hover:text-accent disabled:opacity-40 disabled:pointer-events-none transition-all cursor-pointer"
             >
-              Muat Lebih Banyak
+              <ChevronLeft className="w-4 h-4" />
+              <span>Sebelumnya</span>
+            </button>
+
+            <div className="flex items-center gap-1.5">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                <button
+                  key={pageNum}
+                  type="button"
+                  onClick={() => {
+                    setCurrentPage(pageNum);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className={`w-10 h-10 rounded-full text-xs font-extrabold transition-all cursor-pointer ${
+                    safePage === pageNum
+                      ? "bg-accent text-slate-900 shadow-[0_0_15px_rgba(255,195,0,0.4)]"
+                      : "bg-white/5 border border-white/15 text-white/80 hover:border-accent hover:text-accent"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              disabled={safePage >= totalPages}
+              onClick={() => {
+                setCurrentPage((p) => Math.min(totalPages, p + 1));
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className="px-4 py-2.5 rounded-full bg-white/5 border border-white/15 text-white text-xs font-bold flex items-center gap-1.5 hover:border-accent hover:text-accent disabled:opacity-40 disabled:pointer-events-none transition-all cursor-pointer"
+            >
+              <span>Berikutnya</span>
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         )}
