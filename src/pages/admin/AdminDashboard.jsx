@@ -1401,117 +1401,110 @@ export default function AdminDashboard() {
   // ==================== LOGIN ====================
   if (!session) {
     return (
-      <main className="min-h-screen bg-linear-to-b from-[#043761] via-[#02182b] to-[#001f54] flex items-center justify-center p-4 sm:p-6 lg:p-8 font-primary text-white">
-        {/* Main Card Container 2 Kolom seperti referensi */}
+      <main className="min-h-screen w-full relative flex items-center justify-center p-4 sm:p-6 font-primary text-white overflow-hidden bg-[#02182b]">
+        {/* Fullscreen Background Slideshow (1.webp, 2.webp, 3.webp transisi smooth) */}
+        <div className="fixed inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+          {HERO_IMAGES.map((item, idx) => (
+            <div
+              key={idx}
+              className={`absolute inset-0 w-full h-full transition-all duration-1000 ease-in-out ${
+                currentHeroSlide === idx
+                  ? "opacity-100 scale-100 z-10"
+                  : "opacity-0 scale-105 z-0"
+              }`}
+            >
+              <img
+                src={item.src}
+                alt={item.title}
+                className="w-full h-full object-cover object-center"
+              />
+            </div>
+          ))}
+          <div className="absolute inset-0 bg-[#02182b]/55" />
+        </div>
+
+        {/* Card Login Efek Glassmorphism di Tengah Layar */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: "easeOut" }}
-          className="w-full max-w-4xl bg-[#073969] border border-[#163b70] rounded-[2.5rem] sm:rounded-[3rem] p-5 sm:p-7 lg:p-9 shadow-2xl grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-center"
+          className="relative z-10 w-full max-w-md bg-[#073969]/40 backdrop-blur-2xl border border-white/20 p-8 sm:p-10 rounded-[2.5rem] shadow-[0_8px_32px_0_rgba(0,0,0,0.45)]"
         >
-          {/* Kolom Kiri: Visual Rounded Card dengan Foto Slideshow Berganti Halus */}
-          <div className="relative w-full aspect-square sm:aspect-[4/3] lg:aspect-square rounded-[2rem] overflow-hidden bg-[#02182b] border border-[#163b70]/60 shadow-xl">
-            {HERO_IMAGES.map((item, idx) => (
-              <div
-                key={idx}
-                className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
-                  currentHeroSlide === idx
-                    ? "opacity-100 scale-100 z-10"
-                    : "opacity-0 scale-105 z-0 pointer-events-none"
-                }`}
-              >
-                <img
-                  src={item.src}
-                  alt={item.title}
-                  className="w-full h-full object-cover object-center"
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-[#02182b]/85 via-transparent to-transparent" />
-              </div>
-            ))}
-
-            {/* Slide Indicator & Title Overlay */}
-            <div className="absolute bottom-4 left-4 right-4 z-20 flex items-center justify-between">
-              <span className="text-xs font-bold text-white drop-shadow-md truncate max-w-[70%]">
-                {HERO_IMAGES[currentHeroSlide].title}
-              </span>
-              <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2.5 py-1.5 rounded-full border border-white/10">
-                {HERO_IMAGES.map((_, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setCurrentHeroSlide(idx)}
-                    className={`transition-all duration-300 rounded-full h-1.5 cursor-pointer ${
-                      currentHeroSlide === idx ? "w-5 bg-accent" : "w-1.5 bg-white/40 hover:bg-white/70"
-                    }`}
-                    aria-label={`Slide ${idx + 1}`}
-                  />
-                ))}
-              </div>
+          <div className="text-center mb-8">
+            <div className="w-20 h-20 mx-auto mb-4 p-2 bg-white rounded-2xl shadow-lg flex items-center justify-center border border-white/25">
+              <img src={LogoHimsika} alt="Logo HIMSIKA" className="w-full h-full object-contain" />
             </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+              HIMSIKA <span className="text-accent">Admin</span>
+            </h1>
+            <p className="text-xs text-[#b3d2f5] mt-1.5">
+              Masuk dengan akun email resmi pengurus HIMSIKA
+            </p>
           </div>
 
-          {/* Kolom Kanan: Form Login seperti sebelumnya */}
-          <div className="flex flex-col justify-center px-1 sm:px-3 lg:px-4 py-2">
-            <div className="text-center mb-7">
-              <div className="w-16 h-16 mx-auto mb-4 p-2 bg-white rounded-2xl shadow-lg flex items-center justify-center border border-white/20">
-                <img src={LogoHimsika} alt="Logo HIMSIKA" className="w-full h-full object-contain" />
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-                HIMSIKA <span className="text-accent">Admin</span>
-              </h1>
-              <p className="text-xs text-[#b3d2f5] mt-1.5">
-                Masuk dengan akun email resmi pengurus HIMSIKA
-              </p>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className={labelCls} htmlFor="admin-email">Email</label>
+              <input
+                id="admin-email"
+                type="email"
+                required
+                autoComplete="email"
+                placeholder="admin@himsika.unsika.ac.id"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-[#02182b]/55 backdrop-blur-md border border-white/15 rounded-xl px-4 py-3 text-white text-sm placeholder:text-[#b3d2f5]/45 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40 transition-colors"
+              />
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label className={labelCls} htmlFor="admin-email">Email</label>
+            <div>
+              <label className={labelCls} htmlFor="admin-pass">Kata Sandi</label>
+              <div className="relative">
                 <input
-                  id="admin-email"
-                  type="email"
+                  id="admin-pass"
+                  type={showPassword ? "text" : "password"}
                   required
-                  autoComplete="email"
-                  placeholder="admin@himsika.unsika.ac.id"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={inputCls}
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-[#02182b]/55 backdrop-blur-md border border-white/15 rounded-xl pl-4 pr-11 py-3 text-white text-sm placeholder:text-[#b3d2f5]/45 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40 transition-colors"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#b3d2f5]/70 hover:text-accent transition-colors cursor-pointer"
+                  aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
+            </div>
 
-              <div>
-                <label className={labelCls} htmlFor="admin-pass">Kata Sandi</label>
-                <div className="relative">
-                  <input
-                    id="admin-pass"
-                    type={showPassword ? "text" : "password"}
-                    required
-                    autoComplete="current-password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className={`${inputCls} pr-11`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#b3d2f5]/70 hover:text-accent transition-colors cursor-pointer"
-                    aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={authLoading}
-                className="w-full py-3.5 bg-accent text-[#001f54] font-black rounded-xl hover:bg-accent-hover transition-colors mt-3 text-sm cursor-pointer disabled:opacity-50 shadow-md"
-              >
-                {authLoading ? "Memverifikasi..." : "Masuk ke Dashboard"}
-              </button>
-            </form>
-          </div>
+            <button
+              type="submit"
+              disabled={authLoading}
+              className="w-full py-3.5 bg-accent text-[#001f54] font-black rounded-xl hover:bg-accent-hover transition-colors mt-3 text-sm cursor-pointer disabled:opacity-50 shadow-lg"
+            >
+              {authLoading ? "Memverifikasi..." : "Masuk ke Dashboard"}
+            </button>
+          </form>
         </motion.div>
+
+        {/* Indikator Slide Halus di Bawah Layar */}
+        <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 bg-[#02182b]/50 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/15">
+          {HERO_IMAGES.map((_, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => setCurrentHeroSlide(idx)}
+              className={`transition-all duration-300 rounded-full h-1.5 cursor-pointer ${
+                currentHeroSlide === idx ? "w-5 bg-accent" : "w-1.5 bg-white/40 hover:bg-white/75"
+              }`}
+              aria-label={`Slide ${idx + 1}`}
+            />
+          ))}
+        </div>
+
         {modal}
       </main>
     );
