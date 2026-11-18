@@ -1420,7 +1420,9 @@ export default function AdminDashboard() {
               />
             </div>
           ))}
-          <div className="absolute inset-0 bg-[#02182b]/55" />
+          {/* Layer warna biru HIMSIKA agar foto bernuansa biru elegan */}
+          <div className="absolute inset-0 z-20 bg-[#034078]/65 mix-blend-color" />
+          <div className="absolute inset-0 z-20 bg-linear-to-b from-[#043761]/60 via-[#034078]/50 to-[#02182b]/80" />
         </div>
 
         {/* Card Login Efek Glassmorphism di Tengah Layar */}
