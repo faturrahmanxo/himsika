@@ -6,6 +6,7 @@ import artikelData from "../../data/artikel";
 import galeriDefault from "../../data/galeriData";
 import { PRESTASI_DATA } from "../../data/prestasiData";
 import LogoHimsika from "../../assets/logo/HIMSIKA.png";
+import ImageHeroLogin from "../../assets/images/1.webp";
 import {
   Trophy,
   FileText,
@@ -1363,39 +1364,105 @@ export default function AdminDashboard() {
   // ==================== LOGIN ====================
   if (!session) {
     return (
-      <main className="min-h-screen bg-linear-to-b from-[#043761] via-[#02182b] to-[#001f54] flex items-center justify-center p-4 font-primary text-white">
+      <main className="min-h-screen bg-linear-to-b from-[#043761] via-[#02182b] to-[#001f54] flex items-center justify-center p-4 sm:p-6 lg:p-8 font-primary text-white">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: "easeOut" }}
-          className="w-full max-w-md bg-[#073969] border border-[#163b70] p-8 sm:p-10 rounded-3xl shadow-2xl"
+          className="w-full max-w-4xl bg-[#073969] border border-[#163b70] rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2"
         >
-          <div className="text-center mb-8">
-            <div className="w-20 h-20 mx-auto mb-4 p-2 bg-white rounded-2xl shadow-lg flex items-center justify-center border border-white/20">
-              <img src={LogoHimsika} alt="Logo HIMSIKA" className="w-full h-full object-contain" />
+          {/* Kolom Kiri: Visual Gambar & Konsep Simpel */}
+          <div className="relative hidden md:flex flex-col justify-between p-8 sm:p-10 bg-[#02182b] overflow-hidden min-h-[460px]">
+            <img
+              src={ImageHeroLogin}
+              alt="HIMSIKA UNSIKA"
+              className="absolute inset-0 w-full h-full object-cover object-center opacity-40 mix-blend-luminosity scale-105"
+            />
+            <div className="absolute inset-0 bg-linear-to-t from-[#02182b] via-[#034078]/80 to-[#02182b]/70" />
+
+            <div className="relative z-10 flex items-center gap-3">
+              <div className="w-11 h-11 p-2 bg-white rounded-2xl shadow-md flex items-center justify-center border border-white/20">
+                <img src={LogoHimsika} alt="Logo HIMSIKA" className="w-full h-full object-contain" />
+              </div>
+              <div>
+                <span className="text-[11px] font-bold tracking-wider uppercase text-accent">Himpunan Mahasiswa</span>
+                <h2 className="text-sm font-extrabold text-white leading-tight">Sistem Informasi UNSIKA</h2>
+              </div>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              HIMSIKA <span className="text-accent">Admin</span>
-            </h1>
-            <p className="text-xs text-[#b3d2f5] mt-1.5">Masuk dengan akun email resmi pengurus HIMSIKA</p>
+
+            <div className="relative z-10 space-y-2.5">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/20 border border-accent/30 text-accent text-xs font-semibold backdrop-blur-xs">
+                Portal Administrasi
+              </div>
+              <h3 className="text-xl lg:text-2xl font-black text-white leading-snug">
+                Kembangkan Potensi, Ciptakan Prestasi.
+              </h3>
+              <p className="text-xs text-[#b3d2f5] leading-relaxed">
+                Kelola publikasi artikel, pengumuman lomba, prestasi mahasiswa, dan database pengurus dalam satu portal terpusat.
+              </p>
+            </div>
           </div>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className={labelCls} htmlFor="admin-email">Email</label>
-              <input id="admin-email" type="email" required autoComplete="email" placeholder="admin@himsika.unsika.ac.id" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} />
+
+          {/* Kolom Kanan: Formulir Login */}
+          <div className="p-8 sm:p-10 flex flex-col justify-center bg-[#073969]">
+            {/* Header mobile */}
+            <div className="md:hidden flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 p-2 bg-white rounded-2xl shadow-lg flex items-center justify-center border border-white/20">
+                <img src={LogoHimsika} alt="Logo HIMSIKA" className="w-full h-full object-contain" />
+              </div>
+              <div>
+                <h1 className="text-lg font-extrabold text-white">
+                  HIMSIKA <span className="text-accent">Admin</span>
+                </h1>
+                <p className="text-xs text-[#b3d2f5]">Portal Pengurus</p>
+              </div>
             </div>
-            <div>
-              <label className={labelCls} htmlFor="admin-pass">Kata Sandi</label>
-              <input id="admin-pass" type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} />
+
+            {/* Header desktop / tablet */}
+            <div className="hidden md:block mb-8">
+              <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-white">
+                HIMSIKA <span className="text-accent">Admin</span>
+              </h1>
+              <p className="text-xs text-[#b3d2f5] mt-1.5">
+                Masuk dengan akun email resmi pengurus untuk mengakses panel admin.
+              </p>
             </div>
-            <button
-              type="submit"
-              disabled={authLoading}
-              className="w-full py-3.5 bg-accent text-[#001f54] font-black rounded-xl hover:bg-accent-hover transition-colors mt-3 text-sm cursor-pointer disabled:opacity-50 shadow-md"
-            >
-              {authLoading ? "Memverifikasi..." : "Masuk ke Dashboard"}
-            </button>
-          </form>
+
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className={labelCls} htmlFor="admin-email">Email</label>
+                <input
+                  id="admin-email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  placeholder="admin@himsika.unsika.ac.id"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className={labelCls} htmlFor="admin-pass">Kata Sandi</label>
+                <input
+                  id="admin-pass"
+                  type="password"
+                  required
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={inputCls}
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={authLoading}
+                className="w-full py-3.5 bg-accent text-[#001f54] font-black rounded-xl hover:bg-accent-hover transition-colors mt-3 text-sm cursor-pointer disabled:opacity-50 shadow-md"
+              >
+                {authLoading ? "Memverifikasi..." : "Masuk ke Dashboard"}
+              </button>
+            </form>
+          </div>
         </motion.div>
         {modal}
       </main>
