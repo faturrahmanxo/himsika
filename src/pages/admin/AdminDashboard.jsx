@@ -27,6 +27,8 @@ import {
   Eye,
   EyeOff,
   ArrowRight,
+  Search,
+  Check,
 } from "lucide-react";
 import { isLombaExpired, getLombaFinalTimestamp } from "../../utils/lombaDeadline";
 
@@ -846,6 +848,19 @@ export default function AdminDashboard() {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [currentHeroSlide, setCurrentHeroSlide] = useState(0);
+  const [builderPickerOpen, setBuilderPickerOpen] = useState(false);
+  const [builderSearchQuery, setBuilderSearchQuery] = useState("");
+  const builderPickerRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (builderPickerRef.current && !builderPickerRef.current.contains(e.target)) {
+        setBuilderPickerOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (session) return;
@@ -1606,30 +1621,13 @@ export default function AdminDashboard() {
                               <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-accent" : "text-[#b3d2f5]"}`} />
                               <span className="truncate">{item.label}</span>
                             </div>
-                            <div className="flex items-center gap-2 shrink-0">
-                              <span
-                                className={`px-2.5 py-1 rounded-2xl flex flex-col items-center justify-center text-center transition-all min-w-[50px] ${
-                                  isActive
-                                    ? "bg-accent/20 border border-accent/60 text-accent shadow-xs"
-                                    : "bg-[#001f54]/90 border border-[#163b70] text-[#b3d2f5]"
+                            {item.children && (
+                              <ChevronDown
+                                className={`w-3.5 h-3.5 shrink-0 transition-transform ${
+                                  isArtikelActive ? "rotate-180 text-accent" : "text-[#b3d2f5]"
                                 }`}
-                              >
-                                <span className="text-[11px] font-black leading-none">{count}</span>
-                                <span className="text-[7.5px] font-bold leading-tight uppercase tracking-wider mt-0.5 opacity-90">
-                                  {item.unit ?? "data"}
-                                </span>
-                                <span className="text-[7px] font-medium leading-none opacity-75">
-                                  {item.status ?? "aktif"}
-                                </span>
-                              </span>
-                              {item.children && (
-                                <ChevronDown
-                                  className={`w-3.5 h-3.5 transition-transform ${
-                                    isArtikelActive ? "rotate-180 text-accent" : "text-[#b3d2f5]"
-                                  }`}
-                                />
-                              )}
-                            </div>
+                              />
+                            )}
                           </button>
 
                           {/* Sub-menu jika memiliki anak menu (seperti Artikel) */}
@@ -1848,30 +1846,13 @@ export default function AdminDashboard() {
                                     <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-accent" : "text-[#b3d2f5]"}`} />
                                     <span className="truncate">{item.label}</span>
                                   </div>
-                                  <div className="flex items-center gap-2 shrink-0">
-                                    <span
-                                      className={`px-2.5 py-1 rounded-2xl flex flex-col items-center justify-center text-center transition-all min-w-[50px] ${
-                                        isActive
-                                          ? "bg-accent/20 border border-accent/60 text-accent shadow-xs"
-                                          : "bg-[#001f54]/90 border border-[#163b70] text-[#b3d2f5]"
+                                  {item.children && (
+                                    <ChevronDown
+                                      className={`w-3.5 h-3.5 shrink-0 transition-transform ${
+                                        isArtikelActive ? "rotate-180 text-accent" : "text-[#b3d2f5]"
                                       }`}
-                                    >
-                                      <span className="text-[11px] font-black leading-none">{count}</span>
-                                      <span className="text-[7.5px] font-bold leading-tight uppercase tracking-wider mt-0.5 opacity-90">
-                                        {item.unit ?? "data"}
-                                      </span>
-                                      <span className="text-[7px] font-medium leading-none opacity-75">
-                                        {item.status ?? "aktif"}
-                                      </span>
-                                    </span>
-                                    {item.children && (
-                                      <ChevronDown
-                                        className={`w-3.5 h-3.5 transition-transform ${
-                                          isArtikelActive ? "rotate-180 text-accent" : "text-[#b3d2f5]"
-                                        }`}
-                                      />
-                                    )}
-                                  </div>
+                                    />
+                                  )}
                                 </button>
 
                                 {item.children && isArtikelActive && (
@@ -2396,21 +2377,90 @@ export default function AdminDashboard() {
                   <>
                     {/* Selector Artikel Aktif */}
                     <div className="bg-[#001f54] border border-[#163b70] rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
-                      <div className="flex-1">
+                      <div className="flex-1 relative" ref={builderPickerRef}>
                         <label className="block text-xs font-bold text-accent uppercase tracking-wider mb-1.5">
                           Pilih Artikel yang Disusun:
                         </label>
-                        <select
-                          value={builderArtikelId || ""}
-                          onChange={(e) => handleSelectArtikelForBuilder(e.target.value)}
-                          className={`${selectCls} font-bold text-sm bg-[#02182b] border-accent/40`}
+                        <button
+                          type="button"
+                          onClick={() => setBuilderPickerOpen((o) => !o)}
+                          className="w-full bg-[#02182b] border border-accent/40 hover:border-accent rounded-xl px-4 py-2.5 text-left flex items-center justify-between gap-3 transition-colors cursor-pointer"
                         >
-                          {artikelList.map((a) => (
-                            <option key={a.id} value={a.id}>
-                              {a.title} ({a.category} • {a.date})
-                            </option>
-                          ))}
-                        </select>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-bold text-white truncate">
+                              {selectedArtikelForBuilder?.title || "Pilih artikel..."}
+                            </p>
+                            {selectedArtikelForBuilder && (
+                              <p className="text-[11px] text-[#b3d2f5]/70 mt-0.5 truncate">
+                                {selectedArtikelForBuilder.category} • {selectedArtikelForBuilder.date}
+                              </p>
+                            )}
+                          </div>
+                          <ChevronDown
+                            className={`w-4 h-4 text-accent shrink-0 transition-transform duration-200 ${
+                              builderPickerOpen ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+
+                        {builderPickerOpen && (
+                          <div className="absolute left-0 right-0 mt-2 z-50 bg-[#02182b] border border-[#163b70] rounded-2xl shadow-2xl overflow-hidden">
+                            <div className="p-2.5 border-b border-[#163b70] bg-[#001f54]/60">
+                              <div className="relative">
+                                <Search className="w-3.5 h-3.5 text-[#b3d2f5]/60 absolute left-3 top-1/2 -translate-y-1/2" />
+                                <input
+                                  type="text"
+                                  value={builderSearchQuery}
+                                  onChange={(e) => setBuilderSearchQuery(e.target.value)}
+                                  placeholder="Cari judul atau kategori artikel..."
+                                  className="w-full bg-[#02182b] border border-[#163b70] rounded-xl pl-8 pr-3 py-2 text-xs text-white placeholder:text-[#b3d2f5]/40 focus:outline-none focus:border-accent"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="max-h-64 overflow-y-auto p-1.5 space-y-1">
+                              {artikelList
+                                .filter((a) => {
+                                  const q = builderSearchQuery.trim().toLowerCase();
+                                  if (!q) return true;
+                                  return (
+                                    (a.title || "").toLowerCase().includes(q) ||
+                                    (a.category || "").toLowerCase().includes(q) ||
+                                    (a.date || "").toLowerCase().includes(q)
+                                  );
+                                })
+                                .map((a) => {
+                                  const isSelected = String(a.id) === String(builderArtikelId);
+                                  return (
+                                    <button
+                                      key={a.id}
+                                      type="button"
+                                      onClick={() => {
+                                        handleSelectArtikelForBuilder(a.id);
+                                        setBuilderPickerOpen(false);
+                                        setBuilderSearchQuery("");
+                                      }}
+                                      className={`w-full text-left px-3 py-2.5 rounded-xl flex items-center justify-between gap-3 transition-colors cursor-pointer ${
+                                        isSelected
+                                          ? "bg-[#034078] border border-accent/50 text-white"
+                                          : "hover:bg-[#001f54] text-white/90"
+                                      }`}
+                                    >
+                                      <div className="min-w-0 flex-1">
+                                        <p className={`text-xs font-bold truncate ${isSelected ? "text-accent" : "text-white"}`}>
+                                          {a.title}
+                                        </p>
+                                        <p className="text-[10px] text-[#b3d2f5]/70 mt-0.5">
+                                          {a.category} • {a.date}
+                                        </p>
+                                      </div>
+                                      {isSelected && <Check className="w-4 h-4 text-accent shrink-0" />}
+                                    </button>
+                                  );
+                                })}
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <div className="text-xs text-[#b3d2f5]/70 md:text-right shrink-0">
                         <span className="block font-semibold text-white">Status Artikel:</span>
