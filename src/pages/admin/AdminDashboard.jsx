@@ -53,7 +53,7 @@ const MENU_GROUPS = [
     id: "beranda",
     title: "Beranda",
     items: [
-      { id: "lomba", label: "Dashboard Lomba", title: "Lomba & Beasiswa", icon: Trophy, countKey: "lomba" },
+      { id: "lomba", label: "Dashboard Lomba", title: "Lomba & Beasiswa", icon: Trophy, countKey: "lomba", unit: "lomba", status: "aktif" },
     ],
   },
   {
@@ -66,14 +66,16 @@ const MENU_GROUPS = [
         title: "Artikel & Berita",
         icon: FileText,
         countKey: "artikel",
+        unit: "artikel",
+        status: "aktif",
         children: [
           { id: "artikel-utama", label: "Data Utama & Daftar" },
           { id: "artikel-bagian", label: "Penyusun Bagian & Dokum" },
         ],
       },
-      { id: "galeri", label: "Dokumentasi Galeri", title: "Galeri Kegiatan", icon: ImageIcon, countKey: "galeri" },
-      { id: "prestasi", label: "Prestasi Mahasiswa", title: "Prestasi Mahasiswa", icon: Award, countKey: "prestasi" },
-      { id: "pengurus", label: "Data Pengurus", title: "Profil & Pengurus", icon: Users, countKey: "pengurus" },
+      { id: "galeri", label: "Dokumentasi Galeri", title: "Galeri Kegiatan", icon: ImageIcon, countKey: "galeri", unit: "galeri", status: "aktif" },
+      { id: "prestasi", label: "Prestasi Mahasiswa", title: "Prestasi Mahasiswa", icon: Award, countKey: "prestasi", unit: "prestasi", status: "aktif" },
+      { id: "pengurus", label: "Data Pengurus", title: "Profil & Pengurus", icon: Users, countKey: "pengurus", unit: "pengurus", status: "aktif" },
     ],
   },
 ];
@@ -1686,15 +1688,21 @@ export default function AdminDashboard() {
                               <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-accent" : "text-[#b3d2f5]"}`} />
                               <span className="truncate">{item.label}</span>
                             </div>
-                            <div className="flex items-center gap-1.5 shrink-0">
+                            <div className="flex items-center gap-2 shrink-0">
                               <span
-                                className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                                className={`px-2.5 py-1 rounded-2xl flex flex-col items-center justify-center text-center transition-all min-w-[50px] ${
                                   isActive
-                                    ? "bg-accent text-[#001f54]"
-                                    : "bg-[#001f54]/60 text-[#b3d2f5] border border-white/10"
+                                    ? "bg-accent/20 border border-accent/60 text-accent shadow-xs"
+                                    : "bg-[#001f54]/90 border border-[#163b70] text-[#b3d2f5]"
                                 }`}
                               >
-                                {count}
+                                <span className="text-[11px] font-black leading-none">{count}</span>
+                                <span className="text-[7.5px] font-bold leading-tight uppercase tracking-wider mt-0.5 opacity-90">
+                                  {item.unit ?? "data"}
+                                </span>
+                                <span className="text-[7px] font-medium leading-none opacity-75">
+                                  {item.status ?? "aktif"}
+                                </span>
                               </span>
                               {item.children && (
                                 <ChevronDown
@@ -1922,16 +1930,29 @@ export default function AdminDashboard() {
                                     <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-accent" : "text-[#b3d2f5]"}`} />
                                     <span className="truncate">{item.label}</span>
                                   </div>
-                                  <div className="flex items-center gap-1.5 shrink-0">
+                                  <div className="flex items-center gap-2 shrink-0">
                                     <span
-                                      className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                                      className={`px-2.5 py-1 rounded-2xl flex flex-col items-center justify-center text-center transition-all min-w-[50px] ${
                                         isActive
-                                          ? "bg-accent text-[#001f54]"
-                                          : "bg-[#001f54]/60 text-[#b3d2f5] border border-white/10"
+                                          ? "bg-accent/20 border border-accent/60 text-accent shadow-xs"
+                                          : "bg-[#001f54]/90 border border-[#163b70] text-[#b3d2f5]"
                                       }`}
                                     >
-                                      {count}
+                                      <span className="text-[11px] font-black leading-none">{count}</span>
+                                      <span className="text-[7.5px] font-bold leading-tight uppercase tracking-wider mt-0.5 opacity-90">
+                                        {item.unit ?? "data"}
+                                      </span>
+                                      <span className="text-[7px] font-medium leading-none opacity-75">
+                                        {item.status ?? "aktif"}
+                                      </span>
                                     </span>
+                                    {item.children && (
+                                      <ChevronDown
+                                        className={`w-3.5 h-3.5 transition-transform ${
+                                          isArtikelActive ? "rotate-180 text-accent" : "text-[#b3d2f5]"
+                                        }`}
+                                      />
+                                    )}
                                   </div>
                                 </button>
 
