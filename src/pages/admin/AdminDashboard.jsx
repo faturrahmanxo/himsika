@@ -1400,198 +1400,192 @@ export default function AdminDashboard() {
   // ==================== LOGIN ====================
   if (!session) {
     return (
-      <main className="min-h-screen bg-linear-to-br from-[#02182b] via-[#043761] to-[#001f54] flex items-center justify-center p-4 sm:p-6 lg:p-10 font-primary text-white relative overflow-hidden">
-        {/* Glow ambient background khas HIMSIKA */}
-        <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#034078]/40 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 bg-accent/10 rounded-full blur-3xl pointer-events-none" />
+      <main className="min-h-screen w-full relative flex items-center justify-center lg:justify-between p-4 sm:p-8 lg:p-14 xl:p-16 font-primary text-white overflow-hidden bg-[#02182b]">
+        {/* Fullscreen Background Slideshow (Memenuhi Seluruh Layar) */}
+        <div className="fixed inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+          {HERO_IMAGES.map((item, idx) => (
+            <div
+              key={idx}
+              className={`absolute inset-0 w-full h-full transition-all duration-1000 ease-in-out ${
+                currentHeroSlide === idx
+                  ? "opacity-100 scale-100 z-10"
+                  : "opacity-0 scale-105 z-0"
+              }`}
+            >
+              <img
+                src={item.src}
+                alt={item.title}
+                className="w-full h-full object-cover object-center"
+              />
+            </div>
+          ))}
 
-        <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
-          {/* Kolom Kiri: Visual Slideshow Foto dengan Background Lingkaran Halo Artistik */}
-          <div className="hidden md:flex flex-col items-center justify-center relative lg:col-span-7">
-            {/* Decorative Halo / Sun Backdrop dari Referensi */}
-            <div className="absolute -z-10 w-80 h-80 sm:w-[420px] sm:h-[420px] rounded-full bg-linear-to-tr from-[#034078]/60 via-accent/20 to-transparent blur-2xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-            <div className="absolute -z-10 w-[420px] h-[420px] sm:w-[500px] sm:h-[500px] rounded-full border border-accent/20 border-dashed animate-[spin_100s_linear_infinite] pointer-events-none" />
-            <div className="absolute -z-10 w-[360px] h-[360px] sm:w-[440px] sm:h-[440px] rounded-full border border-[#163b70]/40 pointer-events-none" />
+          {/* Overlay gradient artistik tema HIMSIKA */}
+          <div className="absolute inset-0 bg-[#02182b]/40 backdrop-blur-[0.5px]" />
+          <div className="absolute inset-0 bg-linear-to-t from-[#02182b] via-transparent to-[#02182b]/60" />
+          <div className="absolute inset-0 hidden lg:block bg-linear-to-r from-[#02182b]/25 via-[#02182b]/60 to-[#02182b]/95" />
+          <div className="absolute inset-0 lg:hidden bg-[#02182b]/70" />
+        </div>
 
-            {/* Frame Foto Slideshow dengan Transisi Halus (Smooth Crossfade) */}
-            <div className="w-full max-w-xl aspect-[16/11] rounded-[2.5rem] overflow-hidden border border-[#163b70] shadow-2xl relative bg-[#02182b]">
-              {HERO_IMAGES.map((item, idx) => (
-                <div
-                  key={idx}
-                  className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
-                    currentHeroSlide === idx
-                      ? "opacity-100 scale-100 z-10"
-                      : "opacity-0 scale-105 z-0 pointer-events-none"
-                  }`}
-                >
-                  <img
-                    src={item.src}
-                    alt={item.title}
-                    className="w-full h-full object-cover object-center"
-                  />
-                  <div className="absolute inset-0 bg-linear-to-t from-[#02182b] via-[#02182b]/35 to-transparent" />
-                </div>
-              ))}
-
-              {/* Top Badge: HIMSIKA */}
-              <div className="absolute top-6 left-6 z-20 flex items-center gap-3">
-                <div className="w-11 h-11 p-2 bg-white rounded-2xl shadow-lg flex items-center justify-center border border-white/20">
-                  <img src={LogoHimsika} alt="Logo HIMSIKA" className="w-full h-full object-contain" />
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold tracking-wider uppercase text-accent">Himpunan Mahasiswa</span>
-                  <h2 className="text-sm font-extrabold text-white drop-shadow">Sistem Informasi UNSIKA</h2>
-                </div>
-              </div>
-
-              {/* Bottom Info & Navigation Dots */}
-              <div className="absolute bottom-6 left-6 right-6 z-20 flex items-end justify-between gap-4">
-                <div className="max-w-[70%]">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/20 border border-accent/30 text-accent text-xs font-semibold backdrop-blur-md mb-1.5">
-                    Dokumentasi Himpunan
-                  </div>
-                  <h3 className="text-base sm:text-lg font-black text-white leading-snug drop-shadow-md">
-                    {HERO_IMAGES[currentHeroSlide].title}
-                  </h3>
-                  <p className="text-xs text-[#b3d2f5] mt-0.5 line-clamp-1">
-                    {HERO_IMAGES[currentHeroSlide].subtitle}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-3 py-2 rounded-full border border-white/10 shrink-0">
-                  {HERO_IMAGES.map((_, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setCurrentHeroSlide(idx)}
-                      className={`transition-all duration-300 rounded-full h-2 cursor-pointer ${
-                        currentHeroSlide === idx ? "w-6 bg-accent" : "w-2 bg-white/40 hover:bg-white/70"
-                      }`}
-                      aria-label={`Slide ${idx + 1}`}
-                    />
-                  ))}
-                </div>
-              </div>
+        {/* Konten Sisi Kiri (Desktop): Identitas & Caption Foto Fullscreen */}
+        <div className="relative z-10 hidden lg:flex flex-col justify-between h-[85vh] max-w-xl">
+          {/* Header Brand */}
+          <div className="flex items-center gap-3.5 bg-[#02182b]/60 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/10 w-fit shadow-xl">
+            <div className="w-10 h-10 p-1.5 bg-white rounded-xl shadow-md flex items-center justify-center border border-white/20">
+              <img src={LogoHimsika} alt="Logo HIMSIKA" className="w-full h-full object-contain" />
+            </div>
+            <div>
+              <span className="text-[10px] font-bold tracking-wider uppercase text-accent">Himpunan Mahasiswa</span>
+              <h2 className="text-sm font-extrabold text-white">Sistem Informasi UNSIKA</h2>
             </div>
           </div>
 
-          {/* Kolom Kanan: Card Login Sesuai Referensi Gambar */}
-          <div className="lg:col-span-5 flex justify-center w-full">
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, ease: "easeOut" }}
-              className="w-full max-w-md bg-[#073969]/95 backdrop-blur-xl border border-[#163b70] p-8 sm:p-10 rounded-[2.5rem] shadow-2xl relative"
-            >
-              {/* Header: Logo, Welcome Back, Subtitle */}
-              <div className="text-center mb-7">
-                <div className="w-16 h-16 mx-auto mb-4 p-2.5 bg-white rounded-2xl shadow-xl flex items-center justify-center border border-white/20">
-                  <img src={LogoHimsika} alt="Logo HIMSIKA" className="w-full h-full object-contain" />
+          {/* Caption & Navigasi Slide Foto */}
+          <div className="space-y-3 bg-[#02182b]/60 backdrop-blur-md p-6 rounded-3xl border border-white/10 shadow-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/20 border border-accent/40 text-accent text-xs font-semibold">
+              Dokumentasi Himpunan
+            </div>
+            <h1 className="text-2xl xl:text-3xl font-black text-white leading-tight drop-shadow-md">
+              {HERO_IMAGES[currentHeroSlide].title}
+            </h1>
+            <p className="text-xs sm:text-sm text-[#b3d2f5] drop-shadow leading-relaxed">
+              {HERO_IMAGES[currentHeroSlide].subtitle}
+            </p>
+
+            <div className="flex items-center gap-2 pt-2">
+              {HERO_IMAGES.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setCurrentHeroSlide(idx)}
+                  className={`transition-all duration-300 rounded-full h-2 cursor-pointer ${
+                    currentHeroSlide === idx
+                      ? "w-8 bg-accent shadow-md shadow-accent/50"
+                      : "w-2 bg-white/40 hover:bg-white/75"
+                  }`}
+                  aria-label={`Slide ${idx + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Konten Sisi Kanan: Kartu Login "Welcome Back" Mengambang */}
+        <div className="relative z-10 w-full max-w-md lg:ml-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
+            className="w-full bg-[#073969]/90 backdrop-blur-2xl border border-[#163b70] p-8 sm:p-10 rounded-[2.5rem] shadow-2xl relative"
+          >
+            {/* Header: Logo, Welcome Back, Subtitle */}
+            <div className="text-center mb-7">
+              <div className="w-16 h-16 mx-auto mb-4 p-2.5 bg-white rounded-2xl shadow-xl flex items-center justify-center border border-white/20">
+                <img src={LogoHimsika} alt="Logo HIMSIKA" className="w-full h-full object-contain" />
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+                Welcome Back
+              </h1>
+              <p className="text-xs sm:text-sm text-[#b3d2f5] mt-1.5">
+                Log in to continue your journey
+              </p>
+            </div>
+
+            {/* Form Login */}
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#b3d2f5]/60">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <input
+                    id="admin-email"
+                    type="email"
+                    required
+                    autoComplete="email"
+                    placeholder="Email or Username"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full bg-[#001f54]/90 border border-[#163b70] rounded-2xl pl-12 pr-4 py-3.5 text-white text-sm placeholder:text-[#b3d2f5]/40 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/30 transition-all"
+                  />
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-                  Welcome Back
-                </h1>
-                <p className="text-xs sm:text-sm text-[#b3d2f5] mt-1.5">
-                  Log in to continue your journey
-                </p>
               </div>
 
-              {/* Form Login */}
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#b3d2f5]/60">
-                      <Mail className="w-5 h-5" />
-                    </div>
-                    <input
-                      id="admin-email"
-                      type="email"
-                      required
-                      autoComplete="email"
-                      placeholder="Email or Username"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-[#001f54] border border-[#163b70] rounded-2xl pl-12 pr-4 py-3.5 text-white text-sm placeholder:text-[#b3d2f5]/40 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/30 transition-all"
-                    />
+              <div>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#b3d2f5]/60">
+                    <Lock className="w-5 h-5" />
                   </div>
-                </div>
-
-                <div>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#b3d2f5]/60">
-                      <Lock className="w-5 h-5" />
-                    </div>
-                    <input
-                      id="admin-pass"
-                      type={showPassword ? "text" : "password"}
-                      required
-                      autoComplete="current-password"
-                      placeholder="Password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-[#001f54] border border-[#163b70] rounded-2xl pl-12 pr-12 py-3.5 text-white text-sm placeholder:text-[#b3d2f5]/40 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/30 transition-all"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-4 flex items-center text-[#b3d2f5]/60 hover:text-accent transition-colors cursor-pointer"
-                      aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
-                    >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between text-xs text-[#b3d2f5] pt-0.5">
-                  <label className="flex items-center gap-2 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                      className="w-4 h-4 rounded bg-[#001f54] border border-[#163b70] text-accent focus:ring-accent focus:ring-offset-0 cursor-pointer accent-[#ffc300]"
-                    />
-                    <span>Remember me</span>
-                  </label>
+                  <input
+                    id="admin-pass"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    autoComplete="current-password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full bg-[#001f54]/90 border border-[#163b70] rounded-2xl pl-12 pr-12 py-3.5 text-white text-sm placeholder:text-[#b3d2f5]/40 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/30 transition-all"
+                  />
                   <button
                     type="button"
-                    onClick={() => showAlert("Silakan hubungi BPH atau Divisi Kominfo HIMSIKA untuk pemulihan akses akun.", "Bantuan Akses")}
-                    className="text-accent hover:underline cursor-pointer font-medium"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-[#b3d2f5]/60 hover:text-accent transition-colors cursor-pointer"
+                    aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                   >
-                    Forgot password?
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={authLoading}
-                  className="w-full py-3.5 px-6 bg-accent text-[#001f54] font-black rounded-2xl hover:bg-accent-hover active:scale-[0.98] transition-all duration-200 text-sm flex items-center justify-center gap-2 shadow-lg shadow-accent/20 cursor-pointer disabled:opacity-50 mt-2"
-                >
-                  <span>{authLoading ? "Memverifikasi..." : "Log In"}</span>
-                  {!authLoading && <ArrowRight className="w-4 h-4" />}
-                </button>
-              </form>
-
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-[#163b70]/60"></div>
-                </div>
-                <div className="relative flex justify-center text-xs">
-                  <span className="bg-[#073969] px-3 text-[#b3d2f5]/60 font-medium">Portal Pengurus</span>
                 </div>
               </div>
 
-              <p className="text-center text-xs text-[#b3d2f5]/70">
-                Belum memiliki akun admin?{" "}
+              <div className="flex items-center justify-between text-xs text-[#b3d2f5] pt-0.5">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="w-4 h-4 rounded bg-[#001f54] border border-[#163b70] text-accent focus:ring-accent focus:ring-offset-0 cursor-pointer accent-[#ffc300]"
+                  />
+                  <span>Remember me</span>
+                </label>
                 <button
                   type="button"
-                  onClick={() => showAlert("Permohonan akun admin silakan koordinasikan dengan Sekretaris Umum atau Divisi Kominfo HIMSIKA.", "Akun Pengurus")}
-                  className="text-accent hover:underline font-semibold cursor-pointer"
+                  onClick={() => showAlert("Silakan hubungi BPH atau Divisi Kominfo HIMSIKA untuk pemulihan akses akun.", "Bantuan Akses")}
+                  className="text-accent hover:underline cursor-pointer font-medium"
                 >
-                  Hubungi Kominfo
+                  Forgot password?
                 </button>
-              </p>
-            </motion.div>
-          </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={authLoading}
+                className="w-full py-3.5 px-6 bg-accent text-[#001f54] font-black rounded-2xl hover:bg-accent-hover active:scale-[0.98] transition-all duration-200 text-sm flex items-center justify-center gap-2 shadow-lg shadow-accent/20 cursor-pointer disabled:opacity-50 mt-2"
+              >
+                <span>{authLoading ? "Memverifikasi..." : "Log In"}</span>
+                {!authLoading && <ArrowRight className="w-4 h-4" />}
+              </button>
+            </form>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-[#163b70]/60"></div>
+              </div>
+              <div className="relative flex justify-center text-xs">
+                <span className="bg-[#073969] px-3 text-[#b3d2f5]/60 font-medium">Portal Pengurus</span>
+              </div>
+            </div>
+
+            <p className="text-center text-xs text-[#b3d2f5]/70">
+              Belum memiliki akun admin?{" "}
+              <button
+                type="button"
+                onClick={() => showAlert("Permohonan akun admin silakan koordinasikan dengan Sekretaris Umum atau Divisi Kominfo HIMSIKA.", "Akun Pengurus")}
+                className="text-accent hover:underline font-semibold cursor-pointer"
+              >
+                Hubungi Kominfo
+              </button>
+            </p>
+          </motion.div>
         </div>
         {modal}
       </main>
