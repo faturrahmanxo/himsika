@@ -28,6 +28,7 @@ import {
   ArrowRight,
   Search,
   Check,
+  LayoutDashboard,
 } from "lucide-react";
 import { isLombaExpired, getLombaFinalTimestamp } from "../../utils/lombaDeadline";
 
@@ -54,13 +55,14 @@ const MENU_GROUPS = [
     id: "beranda",
     title: "Beranda",
     items: [
-      { id: "lomba", label: "Dashboard Lomba", title: "Lomba & Beasiswa", icon: Trophy, countKey: "lomba", unit: "lomba", status: "aktif" },
+      { id: "dashboard", label: "Dashboard", title: "Ringkasan Portal", icon: LayoutDashboard, countKey: "all", unit: "data", status: "aktif" },
     ],
   },
   {
     id: "administrasi",
     title: "Administrasi",
     items: [
+      { id: "lomba", label: "Dashboard Lomba", title: "Lomba & Beasiswa", icon: Trophy, countKey: "lomba", unit: "lomba", status: "aktif" },
       {
         id: "artikel",
         label: "Artikel & Berita",
@@ -895,7 +897,7 @@ export default function AdminDashboard() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [authLoading, setAuthLoading] = useState(false);
-  const [activeMenu, setActiveMenu] = useState("artikel-utama");
+  const [activeMenu, setActiveMenu] = useState("dashboard");
   const [builderArtikelId, setBuilderArtikelId] = useState(null);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState({
@@ -1636,13 +1638,14 @@ export default function AdminDashboard() {
   };
 
   const getActiveTitle = () => {
+    if (activeMenu === "dashboard") return "Pusat Kontrol & Ringkasan";
     if (activeMenu === "lomba") return "Kelola Lomba & Beasiswa";
-    if (activeMenu === "artikel" || activeMenu === "artikel-utama") return "Kelola Artikel - Data Utama & Daftar";
-    if (activeMenu === "artikel-bagian") return "Kelola Artikel - Penyusun Bagian & Dokumentasi";
+    if (activeMenu === "artikel" || activeMenu === "artikel-utama") return "Kelola Artikel: Data Utama & Daftar";
+    if (activeMenu === "artikel-bagian") return "Kelola Artikel: Penyusun Bagian & Dokumentasi";
     if (activeMenu === "prestasi") return "Kelola Prestasi Mahasiswa";
     if (activeMenu === "galeri") return "Kelola Galeri Kegiatan";
     if (activeMenu === "pengurus") return "Kelola Profil & Pengurus";
-    return "Dashboard";
+    return "Pusat Kontrol Dashboard";
   };
 
   // ==================== DASHBOARD ====================
@@ -1994,63 +1997,11 @@ export default function AdminDashboard() {
               <ExternalLink className="w-3.5 h-3.5" />
               <span>Lihat Web</span>
             </a>
-            <div className="flex items-center pl-2 border-l border-[#045091]">
-              <button
-                type="button"
-                onClick={handleLogout}
-                title="Keluar Akun"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-500/25 text-red-300 text-xs font-bold transition-all cursor-pointer shadow-xs"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Keluar</span>
-              </button>
-            </div>
           </div>
         </header>
 
         {/* Isi Menu */}
         <main className="p-4 sm:p-6 lg:p-8 flex-1 max-w-7xl w-full mx-auto space-y-8">
-          {/* Welcome Banner Modular seperti Referensi Gambar */}
-          <section className="rounded-3xl p-6 sm:p-7 bg-linear-to-r from-[#034078] via-[#073969] to-[#001f54] border border-[#163b70] shadow-xl relative overflow-hidden">
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="max-w-xl space-y-1.5">
-                <span className="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-accent/20 text-accent border border-accent/30">
-                  Selamat Datang, Admin HIMSIKA
-                </span>
-                <h2 className="text-xl sm:text-2xl font-black text-white leading-tight">
-                  Pusat Kontrol Database Website HIMSIKA
-                </h2>
-                <p className="text-xs sm:text-sm text-[#b3d2f5] leading-relaxed">
-                  Kelola seluruh data lomba, artikel rilis pers, dokumentasi kegiatan berasio landscape 16:9, prestasi fungsionaris, hingga bagan kepengurusan.
-                </p>
-              </div>
-
-              {/* Quick Stat Chips (Modular seperti di referensi) */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 shrink-0">
-                <div className="p-3 rounded-2xl bg-[#001f54]/90 border border-[#163b70] text-center min-w-[95px] shadow-sm">
-                  <span className="block text-[10px] font-bold text-[#b3d2f5] uppercase tracking-wider">Lomba</span>
-                  <span className="text-lg font-black text-white">{counts.lomba}</span>
-                </div>
-                <div className="p-3 rounded-2xl bg-[#001f54]/90 border border-[#163b70] text-center min-w-[95px] shadow-sm">
-                  <span className="block text-[10px] font-bold text-[#b3d2f5] uppercase tracking-wider">Artikel</span>
-                  <span className="text-lg font-black text-accent">{counts.artikel}</span>
-                </div>
-                <div className="p-3 rounded-2xl bg-[#001f54]/90 border border-[#163b70] text-center min-w-[95px] shadow-sm">
-                  <span className="block text-[10px] font-bold text-[#b3d2f5] uppercase tracking-wider">Prestasi</span>
-                  <span className="text-lg font-black text-white">{counts.prestasi}</span>
-                </div>
-                <div className="p-3 rounded-2xl bg-[#001f54]/90 border border-[#163b70] text-center min-w-[95px] shadow-sm">
-                  <span className="block text-[10px] font-bold text-[#b3d2f5] uppercase tracking-wider">Galeri</span>
-                  <span className="text-lg font-black text-white">{counts.galeri}</span>
-                </div>
-                <div className="p-3 rounded-2xl bg-[#001f54]/90 border border-[#163b70] text-center min-w-[95px] col-span-2 sm:col-span-1 shadow-sm">
-                  <span className="block text-[10px] font-bold text-[#b3d2f5] uppercase tracking-wider">Pengurus</span>
-                  <span className="text-lg font-black text-white">{counts.pengurus}</span>
-                </div>
-              </div>
-            </div>
-          </section>
-
           {/* Tampilan Tab Aktif dengan Transisi Halus & Tidak Kaku */}
           <motion.div
             key={activeMenu}
@@ -2059,6 +2010,257 @@ export default function AdminDashboard() {
             transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
             className="space-y-8"
           >
+            {/* ================= DASHBOARD RINGKASAN ================= */}
+            {activeMenu === "dashboard" && (
+              <div className="space-y-8">
+                {/* Welcome Banner Modular seperti Referensi Gambar */}
+                <section className="rounded-3xl p-6 sm:p-7 bg-linear-to-r from-[#034078] via-[#073969] to-[#001f54] border border-[#163b70] shadow-xl relative overflow-hidden">
+                  <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="max-w-xl space-y-1.5">
+                      <span className="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-accent/20 text-accent border border-accent/30">
+                        Selamat Datang, Admin HIMSIKA
+                      </span>
+                      <h2 className="text-xl sm:text-2xl font-black text-white leading-tight">
+                        Pusat Kontrol Database Website HIMSIKA
+                      </h2>
+                      <p className="text-xs sm:text-sm text-[#b3d2f5] leading-relaxed">
+                        Kelola seluruh data lomba, artikel rilis pers, dokumentasi kegiatan berasio landscape 16:9, prestasi fungsionaris, hingga bagan kepengurusan.
+                      </p>
+                    </div>
+
+                    {/* Quick Stat Chips */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 shrink-0">
+                      <div className="p-3 rounded-2xl bg-[#001f54]/90 border border-[#163b70] text-center min-w-[95px] shadow-sm">
+                        <span className="block text-[10px] font-bold text-[#b3d2f5] uppercase tracking-wider">Lomba</span>
+                        <span className="text-lg font-black text-white">{counts.lomba}</span>
+                      </div>
+                      <div className="p-3 rounded-2xl bg-[#001f54]/90 border border-[#163b70] text-center min-w-[95px] shadow-sm">
+                        <span className="block text-[10px] font-bold text-[#b3d2f5] uppercase tracking-wider">Artikel</span>
+                        <span className="text-lg font-black text-accent">{counts.artikel}</span>
+                      </div>
+                      <div className="p-3 rounded-2xl bg-[#001f54]/90 border border-[#163b70] text-center min-w-[95px] shadow-sm">
+                        <span className="block text-[10px] font-bold text-[#b3d2f5] uppercase tracking-wider">Prestasi</span>
+                        <span className="text-lg font-black text-white">{counts.prestasi}</span>
+                      </div>
+                      <div className="p-3 rounded-2xl bg-[#001f54]/90 border border-[#163b70] text-center min-w-[95px] shadow-sm">
+                        <span className="block text-[10px] font-bold text-[#b3d2f5] uppercase tracking-wider">Galeri</span>
+                        <span className="text-lg font-black text-white">{counts.galeri}</span>
+                      </div>
+                      <div className="p-3 rounded-2xl bg-[#001f54]/90 border border-[#163b70] text-center min-w-[95px] col-span-2 sm:col-span-1 shadow-sm">
+                        <span className="block text-[10px] font-bold text-[#b3d2f5] uppercase tracking-wider">Pengurus</span>
+                        <span className="text-lg font-black text-white">{counts.pengurus}</span>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Modul Kontrol & Akses Cepat */}
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-base font-extrabold text-white">Ringkasan Modul Database</h3>
+                    <p className="text-xs text-[#b3d2f5]">Pilih modul di bawah untuk langsung mengelola data dan publikasi</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {/* Card Lomba */}
+                    <div className="p-5 rounded-2xl bg-[#034078]/50 border border-[#163b70] hover:border-accent/40 transition-all flex flex-col justify-between space-y-4 group">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="w-10 h-10 rounded-xl bg-[#001f54] border border-[#163b70] flex items-center justify-center text-accent">
+                            <Trophy className="w-5 h-5" />
+                          </div>
+                          <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-wider bg-accent/15 text-accent border border-accent/25">
+                            {counts.lomba} Info Lomba
+                          </span>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white group-hover:text-accent transition-colors">
+                            Dashboard Lomba
+                          </h4>
+                          <p className="text-xs text-[#b3d2f5] mt-1 leading-relaxed">
+                            Kelola info lomba, beasiswa, penyelenggara, dan link pendaftaran mahasiswa.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveMenu("lomba");
+                          scrollTop();
+                        }}
+                        className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold bg-[#001f54] hover:bg-accent hover:text-[#001f54] text-white border border-[#163b70] transition-colors cursor-pointer"
+                      >
+                        <span>Kelola Lomba</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {/* Card Artikel */}
+                    <div className="p-5 rounded-2xl bg-[#034078]/50 border border-[#163b70] hover:border-accent/40 transition-all flex flex-col justify-between space-y-4 group">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="w-10 h-10 rounded-xl bg-[#001f54] border border-[#163b70] flex items-center justify-center text-accent">
+                            <FileText className="w-5 h-5" />
+                          </div>
+                          <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-wider bg-accent/15 text-accent border border-accent/25">
+                            {counts.artikel} Rilis Pers
+                          </span>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white group-hover:text-accent transition-colors">
+                            Artikel & Berita
+                          </h4>
+                          <p className="text-xs text-[#b3d2f5] mt-1 leading-relaxed">
+                            Kelola rilis berita, artikel pers kegiatan akbar, opini, dan dokumentasi 16:9.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveMenu("artikel-utama");
+                          scrollTop();
+                        }}
+                        className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold bg-[#001f54] hover:bg-accent hover:text-[#001f54] text-white border border-[#163b70] transition-colors cursor-pointer"
+                      >
+                        <span>Kelola Artikel</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {/* Card Galeri */}
+                    <div className="p-5 rounded-2xl bg-[#034078]/50 border border-[#163b70] hover:border-accent/40 transition-all flex flex-col justify-between space-y-4 group">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="w-10 h-10 rounded-xl bg-[#001f54] border border-[#163b70] flex items-center justify-center text-accent">
+                            <ImageIcon className="w-5 h-5" />
+                          </div>
+                          <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-wider bg-accent/15 text-accent border border-accent/25">
+                            {counts.galeri} Dokumentasi
+                          </span>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white group-hover:text-accent transition-colors">
+                            Dokumentasi Galeri
+                          </h4>
+                          <p className="text-xs text-[#b3d2f5] mt-1 leading-relaxed">
+                            Arsip foto kegiatan organisasi berdasarkan divisi dan program kerja.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveMenu("galeri");
+                          scrollTop();
+                        }}
+                        className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold bg-[#001f54] hover:bg-accent hover:text-[#001f54] text-white border border-[#163b70] transition-colors cursor-pointer"
+                      >
+                        <span>Kelola Galeri</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {/* Card Prestasi */}
+                    <div className="p-5 rounded-2xl bg-[#034078]/50 border border-[#163b70] hover:border-accent/40 transition-all flex flex-col justify-between space-y-4 group">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="w-10 h-10 rounded-xl bg-[#001f54] border border-[#163b70] flex items-center justify-center text-accent">
+                            <Award className="w-5 h-5" />
+                          </div>
+                          <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-wider bg-accent/15 text-accent border border-accent/25">
+                            {counts.prestasi} Prestasi
+                          </span>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white group-hover:text-accent transition-colors">
+                            Prestasi Mahasiswa
+                          </h4>
+                          <p className="text-xs text-[#b3d2f5] mt-1 leading-relaxed">
+                            Pencapaian mahasiswa dan fungsionaris pada berbagai kejuaraan.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveMenu("prestasi");
+                          scrollTop();
+                        }}
+                        className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold bg-[#001f54] hover:bg-accent hover:text-[#001f54] text-white border border-[#163b70] transition-colors cursor-pointer"
+                      >
+                        <span>Kelola Prestasi</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {/* Card Pengurus */}
+                    <div className="p-5 rounded-2xl bg-[#034078]/50 border border-[#163b70] hover:border-accent/40 transition-all flex flex-col justify-between space-y-4 group">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="w-10 h-10 rounded-xl bg-[#001f54] border border-[#163b70] flex items-center justify-center text-accent">
+                            <Users className="w-5 h-5" />
+                          </div>
+                          <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-wider bg-accent/15 text-accent border border-accent/25">
+                            {counts.pengurus} Fungsionaris
+                          </span>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white group-hover:text-accent transition-colors">
+                            Data Pengurus
+                          </h4>
+                          <p className="text-xs text-[#b3d2f5] mt-1 leading-relaxed">
+                            Daftar fungsionaris BPH, kadiv, hingga anggota divisi kepengurusan.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveMenu("pengurus");
+                          scrollTop();
+                        }}
+                        className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold bg-[#001f54] hover:bg-accent hover:text-[#001f54] text-white border border-[#163b70] transition-colors cursor-pointer"
+                      >
+                        <span>Kelola Pengurus</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {/* Card Web Publik */}
+                    <div className="p-5 rounded-2xl bg-[#034078]/50 border border-[#163b70] hover:border-accent/40 transition-all flex flex-col justify-between space-y-4 group">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="w-10 h-10 rounded-xl bg-[#001f54] border border-[#163b70] flex items-center justify-center text-accent">
+                            <ExternalLink className="w-5 h-5" />
+                          </div>
+                          <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">
+                            Web Publik
+                          </span>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white group-hover:text-accent transition-colors">
+                            Portal HIMSIKA Publik
+                          </h4>
+                          <p className="text-xs text-[#b3d2f5] mt-1 leading-relaxed">
+                            Pratinjau langsung seluruh halaman dan data yang tampil bagi pengunjung.
+                          </p>
+                        </div>
+                      </div>
+                      <a
+                        href="/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold bg-[#001f54] hover:bg-accent hover:text-[#001f54] text-white border border-[#163b70] transition-colors"
+                      >
+                        <span>Buka Website Publik</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             {/* ================= LOMBA ================= */}
             {activeMenu === "lomba" && (
               <>
